@@ -42,7 +42,7 @@ Phone feedback amendment on 2026-10-06: use the `muh todo` display name, dark th
 
 Increment 2 amendment: accept checkbox-free `- BODY`, `- (TAGS) BODY`, and `- ^^^ BODY` entries. They have no widget completion control and sort with completed tasks. Use checkbox defaults on for creation and is editable per entry. Preserve checkbox absence during editing, date moves, and inherited-successor materialization. Tests cover parser strictness, mixed inheritance, representation preservation, draft restoration, rejected direct toggles, and widget view reuse. The original task descriptions below record the initial plan; this amendment governs the updated behavior.
 
-Increment 1 (Tasks 1–5) implemented and checked with 84 passing tests, build/lint, independent review fixes, and a private offline build image. Delivery is the hands-on checkpoint below. Tasks 6–7 remain pending phone feedback; README and the phone checklist were brought forward to support the first handoff. Evidence: [Increment 1 validation](../../increment1-validation.md).
+Increment 1 (Tasks 1–5) implemented and checked with 84 passing tests, build/lint, independent review fixes, and a private offline build image. The user approved the 0.1.1 visual update. Increment 2 code (Task 6 plus checkbox amendment) is implemented and independently reviewed: 119 passing tests in native and offline Docker builds, zero lint errors, matching signing identity. Its hands-on checkpoint is pending; Task 7 remains pending device feedback. Evidence: [Increment 1 validation](../../increment1-validation.md) and [0.2.0 validation](../../0.2.0-validation.md).
 
 ## Increments and file ownership
 
@@ -200,7 +200,7 @@ Anchor:
 
 **Interfaces:** Complete all WidgetOptions modes in the existing projection method and configuration Activity. Persist each widget's two booleans through DocumentPreferences. No repository writes occur during projection/configuration.
 
-- [ ] **1. Add failing sorting tests.** For same-date input `done/#a`, `open/#b`, `open/#a`, assert as-is/off preserves that order; as-is/on gives `done/#a`, `open/#a`, `open/#b`; incomplete-first/off gives `open/#b`, `open/#a`, `done/#a`; incomplete-first/on gives `open/#a`, `open/#b`, `done/#a`. Assert stable ties, empty tuples first, shorter-prefix tuples first, case-sensitive code-point order including supplementary letters, ordered tuple distinction, and duplicate tuple elements. Assert tag-run labels reset at date/tuple changes, empty tags have no shorthand, and only consecutive identical tuples use `^^^`. Assert two widget IDs retain independent preferences and cancellation does not overwrite them.
+- [x] **1. Add failing sorting tests.** For same-date input `done/#a`, `open/#b`, `open/#a`, assert as-is/off preserves that order; as-is/on gives `done/#a`, `open/#a`, `open/#b`; incomplete-first/off gives `open/#b`, `open/#a`, `done/#a`; incomplete-first/on gives `open/#a`, `open/#b`, `done/#a`. Assert stable ties, empty tuples first, shorter-prefix tuples first, case-sensitive code-point order including supplementary letters, ordered tuple distinction, and duplicate tuple elements. Assert tag-run labels reset at date/tuple changes, empty tags have no shorthand, and only consecutive identical tuples use `^^^`. Assert two widget IDs retain independent preferences and cancellation does not overwrite them.
 Anchor:
 
 ```kotlin
@@ -211,10 +211,10 @@ Anchor:
 }
 ```
 
-- [ ] **2. Run** `./gradlew :app:testDebugUnitTest --tests '*WidgetProjectionTest' --tests '*WidgetConfigurationTest'` and inspect intentional failures.
-- [ ] **3. Implement comparators and configuration controls.** Sort dates descending, then completion when enabled, then tuple when enabled, then original physical position. Compare Unicode code points without normalization or locale rules. Expose As-is / Incomplete first and Tag sorting off / on. Complete tuple-first/run shorthand rendering with no file mutation. Allow configuration of an existing instance through its widget settings control as well as initial addition.
-- [ ] **4. Verify all tests, build, and lint.** Confirm the signing certificate matches Increment 1; deliver Increment 2 for an in-place APK update. Ask the user to test all modes on two instances and confirm app/document state survived the update before finalizing.
-- [ ] **5. Commit:** `feat: add per-widget ordering and tag display`.
+- [x] **2. Run** `./gradlew :app:testDebugUnitTest --tests '*WidgetProjectionTest' --tests '*WidgetConfigurationTest'` and inspect intentional failures.
+- [x] **3. Implement comparators and configuration controls.** Sort dates descending, then completion when enabled, then tuple when enabled, then original physical position. Compare Unicode code points without normalization or locale rules. Expose As-is / Incomplete first and Tag sorting off / on. Complete tuple-first/run shorthand rendering with no file mutation. Allow configuration of an existing instance through its widget settings control as well as initial addition.
+- [ ] **4. Verify all tests, build, and lint.** Automated checks and APK delivery are complete; confirmation from the phone is pending. Confirm the signing certificate matches Increment 1; deliver Increment 2 for an in-place APK update. Ask the user to test all modes on two instances and confirm app/document state survived the update before finalizing.
+- [x] **5. Commit:** `feat: add per-widget ordering and tag display`.
 
 ### Task 7: Integrated validation and reusable environment
 

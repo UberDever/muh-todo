@@ -6,6 +6,8 @@ The app supports creating/editing tasks, direct completion toggles, live tag inh
 
 [0.1.1](docs/0.1.1-visual-update.md) applies the first phone feedback: dark theme, slightly smaller text, the `muh todo` name, and the supplied launcher artwork.
 
+[0.2.0 validation and offline rebuild instructions](docs/0.2.0-validation.md) cover sorting settings, optional checkboxes, and rebuilding the new source with the preserved image.
+
 ## Try it
 
 Install `app/build/outputs/apk/debug/app-debug.apk`, open muh todo, and select a disposable `.md` document with read/write access. Add **muh todo** through your launcher's widget picker. Use `+` to create, a checkbox to toggle, a task's text to edit, and `↻` after external file changes. See [the phone checklist](docs/testing-on-grapheneos.md).
