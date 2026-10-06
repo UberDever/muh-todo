@@ -68,7 +68,7 @@ All product Kotlin paths below are relative to `app/src/main/java/dev/uberdever/
 
 ```kotlin
 @Test fun inheritanceSkipsUnrelatedLines() {
-    val doc = TodoParser.parse("### 02.10.26\n- [x] (#work/project #123 #work/project) first\ncomment\n- [x] ^^^ second\n")
+    val doc = TodoParser.parse("### 02.10.26\n- [ ] (#work/project #123 #work/project) first\ncomment\n- [x] ^^^ second\n")
     assertEquals(2, doc.tasks.size)
     assertEquals(listOf("#work/project", "#123", "#work/project"), doc.tasks[1].tags)
     assertTrue(doc.tasks[1].completed)
@@ -91,10 +91,10 @@ Also add named cases for invalid calendar dates, exact header width/trailing whi
 
 ```kotlin
 @Test fun movingMaterializesOnlyFirstSourceSuccessor() {
-    val source = "### 02.10.26\n- [x] (#a) first\ncomment\n- [x] ^^^ second\n- [x] ^^^ third\n"
+    val source = "### 02.10.26\n- [ ] (#a) first\ncomment\n- [ ] ^^^ second\n- [ ] ^^^ third\n"
     val doc = TodoParser.parse(source)
     val changed = TodoMutation.edit(doc, doc.tasks[0], TaskFields(LocalDate.of(2026, 10, 3), false, listOf("#a"), "first"))
-    assertTrue(changed.contains("comment\n- [x] (#a) second\n- [x] ^^^ third\n"))
+    assertTrue(changed.contains("comment\n- [ ] (#a) second\n- [ ] ^^^ third\n"))
     assertEquals(listOf("#a"), TodoParser.parse(changed).tasks.single { it.body == "first" }.tags)
 }
 ```
@@ -177,7 +177,7 @@ Anchor:
 
 ```kotlin
 @Test fun repeatedDatesCombineWithoutReorderingTheirTasks() {
-    val doc = TodoParser.parse("### 01.10.26\n- [x] old1\n### 02.10.26\n- [x] new\n### 01.10.26\n- [x] old2\n")
+    val doc = TodoParser.parse("### 01.10.26\n- [ ] old1\n### 02.10.26\n- [ ] new\n### 01.10.26\n- [ ] old2\n")
     val rows = WidgetProjection.project(doc, WidgetOptions()).filterIsInstance<WidgetRow.Task>()
     assertEquals(listOf("new", "old1", "old2"), rows.map { it.body })
 }
