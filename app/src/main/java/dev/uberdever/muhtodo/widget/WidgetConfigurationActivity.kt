@@ -46,8 +46,10 @@ class WidgetConfigurationActivity : ComponentActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt("widget-id", widgetId)
-        outState.putBoolean("incomplete-first", options.incompleteFirst)
+        outState.putBoolean("incomplete-first", options.sortCompletion)
         outState.putBoolean("sort-tags", options.sortTags)
+        outState.putBoolean("completion-descending", options.completionDescending)
+        outState.putBoolean("tags-descending", options.tagsDescending)
         super.onSaveInstanceState(outState)
     }
 
@@ -59,7 +61,10 @@ class WidgetConfigurationActivity : ComponentActivity() {
         if (!ownsWidget()) { finish(); return }
         options = preferences.widgetOptions(widgetId)
         if (savedInstanceState?.getInt("widget-id", AppWidgetManager.INVALID_APPWIDGET_ID) == widgetId) {
-            options = WidgetOptions(savedInstanceState.getBoolean("incomplete-first"), savedInstanceState.getBoolean("sort-tags"))
+            options = WidgetOptions(
+                savedInstanceState.getBoolean("incomplete-first"), savedInstanceState.getBoolean("sort-tags"),
+                savedInstanceState.getBoolean("completion-descending"), savedInstanceState.getBoolean("tags-descending"),
+            )
         }
         setContent {
             TodoTheme {
@@ -75,21 +80,13 @@ class WidgetConfigurationActivity : ComponentActivity() {
                         .verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         Text(stringResource(R.string.widget_name), style = MaterialTheme.typography.headlineSmall)
                         Text(message)
-                        Text(stringResource(R.string.completion_order), style = MaterialTheme.typography.titleMedium)
-                        Column(Modifier.selectableGroup()) {
-                            CompletionOption(stringResource(R.string.order_as_is), !options.incompleteFirst) {
-                                options = options.copy(incompleteFirst = false)
-                            }
-                            CompletionOption(stringResource(R.string.order_incomplete_first), options.incompleteFirst) {
-                                options = options.copy(incompleteFirst = true)
-                            }
-                        }
-                        Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(
-                            value = options.sortTags, role = Role.Checkbox,
-                            onValueChange = { options = options.copy(sortTags = it) }), verticalAlignment = Alignment.CenterVertically) {
-                            Checkbox(checked = options.sortTags, onCheckedChange = null)
-                            Text(stringResource(R.string.sort_tags), Modifier.padding(start = 12.dp))
-                        }
+                        SortControl(stringResource(R.string.sort_completion), options.sortCompletion, options.completionDescending,
+                            onEnabledChange = { options = options.copy(sortCompletion = it) },
+                            onDescendingChange = { options = options.copy(completionDescending = it) },
+                            hint = stringResource(R.string.completion_sort_hint))
+                        SortControl(stringResource(R.string.sort_tags), options.sortTags, options.tagsDescending,
+                            onEnabledChange = { options = options.copy(sortTags = it) },
+                            onDescendingChange = { options = options.copy(tagsDescending = it) })
                         OutlinedButton(onClick = { startActivity(Intent(this@WidgetConfigurationActivity, MainActivity::class.java)) }) { Text("Select or change document") }
                         Button(enabled = ready, onClick = { saveConfiguration() }) { Text(stringResource(R.string.save_widget_settings)) }
                         TextButton(onClick = { finish() }) { Text(stringResource(R.string.cancel_widget_settings)) }
@@ -101,7 +98,26 @@ class WidgetConfigurationActivity : ComponentActivity() {
 }
 
 @Composable
-private fun CompletionOption(label: String, selected: Boolean, choose: () -> Unit) {
+private fun SortControl(label: String, enabled: Boolean, descending: Boolean,
+    onEnabledChange: (Boolean) -> Unit, onDescendingChange: (Boolean) -> Unit, hint: String? = null) {
+    Column {
+        Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(
+            value = enabled, role = Role.Checkbox, onValueChange = onEnabledChange), verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(checked = enabled, onCheckedChange = null)
+            Text(label, Modifier.padding(start = 12.dp))
+        }
+        if (enabled) {
+            Column(Modifier.padding(start = 24.dp).selectableGroup()) {
+                SortDirectionOption(stringResource(R.string.sort_ascending), !descending) { onDescendingChange(false) }
+                SortDirectionOption(stringResource(R.string.sort_descending), descending) { onDescendingChange(true) }
+            }
+            hint?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+        }
+    }
+}
+
+@Composable
+private fun SortDirectionOption(label: String, selected: Boolean, choose: () -> Unit) {
     Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).selectable(selected = selected, role = Role.RadioButton, onClick = choose),
         verticalAlignment = Alignment.CenterVertically) {
         RadioButton(selected = selected, onClick = null)

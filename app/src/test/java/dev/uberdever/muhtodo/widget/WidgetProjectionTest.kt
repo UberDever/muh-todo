@@ -5,6 +5,59 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class WidgetProjectionTest {
+    @Test fun completionDescendingIncludesPlainEntriesAndKeepsTiesInFileOrder() {
+        val doc = TodoParser.parse("""
+            ### 02.10.26
+            - [ ] (#b) openB
+            - (#a) plain
+            - [x] (#b) done
+            - [ ] (#a) openA
+        """.trimIndent())
+        assertEquals(listOf("plain", "done", "openB", "openA"),
+            tasks(doc, WidgetOptions(sortCompletion = true, completionDescending = true)).map { it.body })
+        assertEquals(listOf("openB", "plain", "done", "openA"),
+            tasks(doc, WidgetOptions(completionDescending = true, tagsDescending = true)).map { it.body })
+    }
+
+    @Test fun tagDescendingReversesTupleComparisonButNeverFileOrderTiesOrDates() {
+        val source = """
+            ### 01.10.26
+            - (#z) older
+            ### 02.10.26
+            - (#a) firstA
+            - (#a #a) duplicate
+            - untagged
+            - (#a #b) longer
+            - (#a) secondA
+            - (#𐐀) supplementary
+            - (#Ａ) fullwidth
+        """.trimIndent()
+        val doc = TodoParser.parse(source)
+        val rows = tasks(doc, WidgetOptions(sortTags = true, tagsDescending = true))
+        assertEquals(listOf("supplementary", "fullwidth", "longer", "duplicate", "firstA", "secondA", "untagged", "older"), rows.map { it.body })
+        assertEquals(listOf("#𐐀", "#Ａ", "#a #b", "#a #a", "#a", "^^^", null, "#z"), rows.map { it.tagLabel })
+        rows.forEach { assertEquals(TaskRef.from(doc, doc.tasks.single { task -> task.body == it.body }), it.ref) }
+        assertEquals(source, doc.source)
+    }
+
+    @Test fun bothSortDirectionsAreIndependentAndCompletionAlwaysOutranksTags() {
+        val doc = TodoParser.parse("""
+            ### 02.10.26
+            - [x] (#b) doneB
+            - [ ] (#a) openA
+            - (#a) plainA
+            - [ ] (#b) openB
+            - [x] (#a) doneA
+        """.trimIndent())
+        val cases = listOf(
+            WidgetOptions(true, true, false, false) to listOf("openA", "openB", "plainA", "doneA", "doneB"),
+            WidgetOptions(true, true, false, true) to listOf("openB", "openA", "doneB", "plainA", "doneA"),
+            WidgetOptions(true, true, true, false) to listOf("plainA", "doneA", "doneB", "openA", "openB"),
+            WidgetOptions(true, true, true, true) to listOf("doneB", "plainA", "doneA", "openB", "openA"),
+        )
+        for ((options, expected) in cases) assertEquals(options.toString(), expected, tasks(doc, options).map { it.body })
+    }
+
     @Test fun checkboxFreeEntriesSortAsCompletedAndKeepTheirPhysicalReferences() {
         val doc = TodoParser.parse("""
             ### 02.10.26
@@ -36,7 +89,7 @@ class WidgetProjectionTest {
     @Test fun asIsWithTagsSortsTuplesBeforeOriginalOrder() {
         assertEquals(listOf("doneA", "openA", "openB"), tasks(modeDocument, WidgetOptions(false, true)).map { it.body })
     }
-    @Test fun incompleteFirstWithoutTagsPreservesOrderWithinCompletionGroups() {
+    @Test fun sortCompletionWithoutTagsPreservesOrderWithinCompletionGroups() {
         assertEquals(listOf("openB", "openA", "doneA"), tasks(modeDocument, WidgetOptions(true, false)).map { it.body })
     }
     @Test fun completionOutranksTags() {

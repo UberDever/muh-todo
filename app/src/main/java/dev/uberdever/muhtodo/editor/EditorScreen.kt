@@ -45,7 +45,9 @@ fun EditorScreen(state: EditorState, onChange: (EditorState) -> Unit, onSave: ()
         OutlinedTextField(
             value = (if (state.inheritTags) state.inheritedTags else fields.tags).joinToString(" "),
             onValueChange = { value -> onChange(state.copy(fields = fields.copy(tags = if (value.isEmpty()) emptyList() else value.split(" ")), error = null)) },
-            enabled = enabled && !state.inheritTags, label = { Text("Tags, in order") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            enabled = enabled && !state.inheritTags, label = { Text("Tags, in order") },
+            supportingText = { Text(stringResource(R.string.tag_format_example)) },
+            singleLine = true, modifier = Modifier.fillMaxWidth())
         if (!state.inheritTags && state.snapshot.document.knownTags.isNotEmpty()) {
             Text("Append a known tag", style = MaterialTheme.typography.labelMedium)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {

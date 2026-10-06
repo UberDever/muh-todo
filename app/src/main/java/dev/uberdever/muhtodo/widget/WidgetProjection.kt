@@ -13,8 +13,13 @@ object WidgetProjection {
             add(WidgetRow.DateHeader(date))
             var previousTags: List<String>? = null
             tasks.sortedWith { left, right ->
-                val completion = if (options.incompleteFirst) (left.completed || !left.hasCheckbox).compareTo(right.completed || !right.hasCheckbox) else 0
-                val tags = if (completion == 0 && options.sortTags) compareTags(left.tags, right.tags) else 0
+                val completion = if (options.sortCompletion) {
+                    val order = (left.completed || !left.hasCheckbox).compareTo(right.completed || !right.hasCheckbox)
+                    if (options.completionDescending) -order else order
+                } else 0
+                val tags = if (completion == 0 && options.sortTags) {
+                    if (options.tagsDescending) compareTags(right.tags, left.tags) else compareTags(left.tags, right.tags)
+                } else 0
                 when {
                     completion != 0 -> completion
                     tags != 0 -> tags

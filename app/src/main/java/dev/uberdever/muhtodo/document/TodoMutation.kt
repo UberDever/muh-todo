@@ -106,7 +106,7 @@ object TodoMutation {
     private fun validate(fields: TaskFields) {
         require(fields.date.year in 2000..2099) { "Date must be between 2000 and 2099." }
         require(fields.body.isNotBlank() && '\n' !in fields.body && '\r' !in fields.body) { "Enter a nonblank, single-line task." }
-        require(fields.tags.all(TagSyntax::isValidToken)) { "Enter valid space-separated #tags." }
+        require(fields.tags.all(TagSyntax::isValidToken)) { "Enter space-separated tags, e.g. #buy #cook." }
         require(fields.hasCheckbox || !fields.completed) { "An entry without a checkbox cannot have a completion state." }
     }
 

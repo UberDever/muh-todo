@@ -16,11 +16,16 @@ class TodoRemoteViewsService : RemoteViewsService() {
         setTextViewText(R.id.body, row.body)
         setTextViewText(R.id.tags, row.tagLabel)
         setViewVisibility(R.id.tags, if (row.tagLabel == null) View.GONE else View.VISIBLE)
-        setViewVisibility(R.id.checkbox, if (row.hasCheckbox) View.VISIBLE else View.GONE)
-        setTextViewText(R.id.checkbox, if (row.completed) "☑" else "☐")
-        setContentDescription(R.id.checkbox, if (row.completed) "Mark incomplete: ${row.body}" else "Mark complete: ${row.body}")
+        setViewVisibility(R.id.checkbox, View.VISIBLE)
+        setTextViewText(R.id.checkbox, if (!row.hasCheckbox) "•" else if (row.completed) "☑" else "☐")
+        setContentDescription(R.id.checkbox, when {
+            !row.hasCheckbox -> "Edit entry: ${row.body}"
+            row.completed -> "Mark incomplete: ${row.body}"
+            else -> "Mark complete: ${row.body}"
+        })
         uri?.let {
-            if (row.hasCheckbox) setOnClickFillInIntent(R.id.checkbox, WidgetActions.toggleFillIn(it, row.ref))
+            // Replace a recycled checkbox's action as well as its appearance.
+            setOnClickFillInIntent(R.id.checkbox, if (row.hasCheckbox) WidgetActions.toggleFillIn(it, row.ref) else WidgetActions.editFillIn(it, row.ref))
             setOnClickFillInIntent(R.id.task_text, WidgetActions.editFillIn(it, row.ref))
         }
     }

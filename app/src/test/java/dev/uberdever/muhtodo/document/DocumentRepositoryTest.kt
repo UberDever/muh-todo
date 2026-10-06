@@ -94,15 +94,15 @@ class DocumentRepositoryTest {
     }
 
     @Test fun preferencesSurviveRecreationAndWidgetDeletionIsLocal() {
-        preferences.setWidgetOptions(11, WidgetOptions(true, false))
-        preferences.setWidgetOptions(22, WidgetOptions(false, true))
+        preferences.setWidgetOptions(11, WidgetOptions(true, false, true, false))
+        preferences.setWidgetOptions(22, WidgetOptions(false, true, false, true))
         val reloaded = DocumentPreferences(context)
         assertEquals(uri, reloaded.documentUri())
-        assertEquals(WidgetOptions(true, false), reloaded.widgetOptions(11))
-        assertEquals(WidgetOptions(false, true), reloaded.widgetOptions(22))
+        assertEquals(WidgetOptions(true, false, true, false), reloaded.widgetOptions(11))
+        assertEquals(WidgetOptions(false, true, false, true), reloaded.widgetOptions(22))
         reloaded.removeWidget(11)
         assertEquals(WidgetOptions(), reloaded.widgetOptions(11))
-        assertEquals(WidgetOptions(false, true), reloaded.widgetOptions(22))
+        assertEquals(WidgetOptions(false, true, false, true), reloaded.widgetOptions(22))
         assertEquals(uri, reloaded.documentUri())
     }
 
@@ -118,6 +118,12 @@ class DocumentRepositoryTest {
     @Test fun readOnlySelectionIsRejected() {
         assertThrows(DocumentAccessException::class.java) { repository.select(Uri.parse("content://test/read-only"), Intent.FLAG_GRANT_READ_URI_PERMISSION) }
         assertEquals(uri, preferences.documentUri())
+    }
+
+    @Test fun previousVersionWidgetPreferencesKeepTheirSortsWithAscendingDefaults() {
+        context.getSharedPreferences("todo-metadata", Context.MODE_PRIVATE).edit()
+            .putBoolean("widget-11-incomplete", true).putBoolean("widget-11-tags", true).commit()
+        assertEquals(WidgetOptions(true, true), DocumentPreferences(context).widgetOptions(11))
     }
 
     private class MemoryStore(@Volatile var source: String) : DocumentStore {

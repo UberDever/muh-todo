@@ -44,42 +44,42 @@ class WidgetConfigurationTest {
         .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)
 
     @Test fun reopeningLoadsOnlyTheSelectedInstancesSavedOptions() {
-        preferences.setWidgetOptions(11, WidgetOptions(true, false))
-        preferences.setWidgetOptions(22, WidgetOptions(false, true))
+        preferences.setWidgetOptions(11, WidgetOptions(true, false, true, false))
+        preferences.setWidgetOptions(22, WidgetOptions(false, true, false, true))
         val first = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(11)).create().get()
         val second = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(22)).create().get()
-        assertEquals(WidgetOptions(true, false), first.options)
-        assertEquals(WidgetOptions(false, true), second.options)
+        assertEquals(WidgetOptions(true, false, true, false), first.options)
+        assertEquals(WidgetOptions(false, true, false, true), second.options)
     }
     @Test fun savePersistsOneInstanceAndReturnsItsIdWithoutChangingTheDocument() {
-        preferences.setWidgetOptions(22, WidgetOptions(false, true))
+        preferences.setWidgetOptions(22, WidgetOptions(false, true, false, true))
         val activity = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(11)).create().get()
-        activity.options = WidgetOptions(true, true)
+        activity.options = WidgetOptions(true, true, true, true)
         activity.saveConfiguration()
-        assertEquals(WidgetOptions(true, true), DocumentPreferences(app).widgetOptions(11))
-        assertEquals(WidgetOptions(false, true), DocumentPreferences(app).widgetOptions(22))
+        assertEquals(WidgetOptions(true, true, true, true), DocumentPreferences(app).widgetOptions(11))
+        assertEquals(WidgetOptions(false, true, false, true), DocumentPreferences(app).widgetOptions(22))
         assertEquals(uri, DocumentPreferences(app).documentUri())
         assertTrue(activity.isFinishing)
         assertEquals(Activity.RESULT_OK, shadowOf(activity).resultCode)
         assertEquals(11, shadowOf(activity).resultIntent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1))
     }
     @Test fun cancelLeavesBothSavedInstancesUntouched() {
-        preferences.setWidgetOptions(11, WidgetOptions(true, false))
-        preferences.setWidgetOptions(22, WidgetOptions(false, true))
+        preferences.setWidgetOptions(11, WidgetOptions(true, false, true, false))
+        preferences.setWidgetOptions(22, WidgetOptions(false, true, false, true))
         val activity = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(11)).create().get()
         activity.options = WidgetOptions(false, false)
         activity.finish()
-        assertEquals(WidgetOptions(true, false), preferences.widgetOptions(11))
-        assertEquals(WidgetOptions(false, true), preferences.widgetOptions(22))
+        assertEquals(WidgetOptions(true, false, true, false), preferences.widgetOptions(11))
+        assertEquals(WidgetOptions(false, true, false, true), preferences.widgetOptions(22))
         assertEquals(Activity.RESULT_CANCELED, shadowOf(activity).resultCode)
     }
     @Test fun recreationKeepsUnsavedOptionsWithoutPersistingThem() {
         val controller = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(11)).create()
-        controller.get().options = WidgetOptions(true, true)
+        controller.get().options = WidgetOptions(true, true, true, true)
         val saved = Bundle()
         controller.saveInstanceState(saved)
         val recreated = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(11)).create(saved).get()
-        assertEquals(WidgetOptions(true, true), recreated.options)
+        assertEquals(WidgetOptions(true, true, true, true), recreated.options)
         assertEquals(WidgetOptions(), preferences.widgetOptions(11))
     }
     @Test fun settingsTapRoutesToTheSpecificWidgetsConfigurationActivity() {
@@ -100,7 +100,7 @@ class WidgetConfigurationTest {
         for (id in listOf(-1, 44, 33)) {
             val activity = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(id)).create().get()
             assertTrue(activity.isFinishing)
-            activity.options = WidgetOptions(true, true)
+            activity.options = WidgetOptions(true, true, true, true)
             activity.saveConfiguration()
             assertEquals(WidgetOptions(), preferences.widgetOptions(id))
             assertEquals(Activity.RESULT_CANCELED, shadowOf(activity).resultCode)

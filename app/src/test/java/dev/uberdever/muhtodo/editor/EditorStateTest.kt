@@ -85,7 +85,8 @@ class EditorStateTest {
         val state = EditorState.create(snapshot(), today)
         assertNotNull(state.validationError())
         assertNotNull(state.copy(fields = state.fields.copy(body = "two\nlines")).validationError())
-        assertNotNull(state.copy(fields = state.fields.copy(body = "valid", tags = listOf("#bad tag"))).validationError())
+        assertTrue(state.copy(fields = state.fields.copy(body = "valid", tags = listOf("#bad tag")))
+            .validationError()!!.contains("e.g. #buy #cook"))
         assertNotNull(state.copy(fields = state.fields.copy(body = "(#work) literal")).validationError())
         assertNull(state.copy(fields = state.fields.copy(body = "(#work) literal", tags = listOf("#valid"))).validationError())
     }

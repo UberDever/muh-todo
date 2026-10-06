@@ -89,7 +89,7 @@ suggestions must not deduplicate a task's chosen tuple.
 
 User amendment on 2026-10-06: checkbox-free entries share dates, tags,
 inheritance, editing, and movement with tasks. They have no completion
-control and sort with completed tasks in incomplete-first mode. Their lack
+control and sort with completed tasks when completion sorting is enabled. Their lack
 of a checkbox is represented by the file itself, never separate metadata.
 
 ## Document mutations
@@ -196,26 +196,25 @@ Do not automatically retry a failed write. Show no success until it finishes.
 
 Group by date, newest first. Combine tasks from repeated sections sharing a
 date for display, retaining physical file order as their stable tie-breaker.
-Each widget independently stores two settings:
+Each widget independently stores two sorting controls:
 
-1. Completion ordering: as-is (default) or incomplete first.
-2. Tag sorting: off (default) or on.
+1. **Sort by completion**: off (default), ascending, or descending.
+2. **Sort by tags**: off (default), ascending, or descending.
 
-Within a displayed date, ordering is:
+Within a displayed date, compare completion when enabled, then effective tag
+tuples when enabled, then original file order. Each comparator follows its
+own direction. Completion always takes priority over tags. Sorting neither
+changes date order nor reverses the original-order tie-breaker.
 
-| Completion mode | Tag sorting | Order |
-| --- | --- | --- |
-| as-is | off | original file order |
-| as-is | on | effective tag tuple, then file order |
-| incomplete first | off | unchecked before checked, then file order |
-| incomplete first | on | unchecked before checked, then effective tag tuple, then file order |
-
+Ascending completion means unchecked first. Descending means checked first.
 Checkbox-free entries belong to the checked group for sorting only. This does
 not add a checkbox or completion marker to them.
 
 Compare tag identifiers case-sensitively by Unicode code point, and tuples
-element by element. A shorter equal-prefix tuple sorts first; empty tuples
-sort first. No locale collation or normalization.
+element by element. In ascending order, a shorter equal-prefix tuple sorts
+first and empty tuples sort first. Descending reverses these comparisons.
+No locale collation or normalization. Existing enabled sorting preferences
+upgrade to ascending; a disabled control retains its chosen direction.
 
 Render identical effective tuples as consecutive runs within each date.
 Show the first nonempty tuple explicitly, then use `^^^` shorthand for
@@ -224,7 +223,8 @@ display choice and does not reflect whether a file line is explicit or
 inherited. When tag sorting is off, do not collect nonconsecutive matching
 tuples together, because doing so would violate the chosen ordering.
 
-Entries without checkboxes display plain text without a completion control.
+Entries without checkboxes display a bullet in the same column as checkbox
+controls, preserving text alignment. Tapping a bullet opens the editor.
 Checkbox taps mutate completion directly. Body taps open the editor. +
 opens creation. A small refresh button rereads the document and refreshes
 widgets after external edits. App mutations refresh every widget instance.

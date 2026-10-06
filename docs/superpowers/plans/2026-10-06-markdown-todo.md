@@ -222,7 +222,7 @@ Anchor:
 
 **Interfaces:** No new product interfaces; consume the complete app and tests. Preserve signing-key identity and stable application ID.
 
-- [ ] **1. Add an integration test for create → inherit → toggle → edit tags → move → project.** Assert the actual output text preserves unrelated lines, the source successor becomes explicit after moving, the moved task retains intended tags, and completion-first sorting never changes the document. Run it before fixes and use any failure to diagnose the owning component rather than weakening assertions.
+- [x] **1. Add an integration test for create → inherit → toggle → edit tags → move → project.** Assert the actual output text preserves unrelated lines, the source successor becomes explicit after moving, the moved task retains intended tags, and completion-first sorting never changes the document. Run it before fixes and use any failure to diagnose the owning component rather than weakening assertions.
 
 Anchor:
 
@@ -259,3 +259,13 @@ Anchor:
 - Automated checks, signed APK updates, hands-on GrapheneOS tests, reusable cloud setup: Tasks 5–7.
 - Review Focus cases are assigned tests above; device-dependent results remain explicitly separate.
 - Shared interfaces are defined before consumption. No production feature depends on a task database or background watcher.
+
+## 0.2.1 phone-feedback amendment
+
+The user requested ascending/descending directions for both sorts, unified
+**Sort by completion** / **Sort by tags** controls, aligned bullets for plain
+entries, and the tag format example `e.g. #buy #cook`. These bounded changes
+are implemented without adding subsystems. Completion remains primary; ties
+retain file order, and legacy settings default to ascending on upgrade.
+The full Task 7 workflow test is now implemented. Phone confirmation and
+fresh-task cloud restoration remain separate from automated validation.

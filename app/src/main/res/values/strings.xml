@@ -3,10 +3,12 @@
     <string name="widget_name">muh todo widget</string>
     <string name="widget_settings">Widget settings</string>
     <string name="widget_settings_symbol" translatable="false">⚙</string>
-    <string name="completion_order">Completion ordering</string>
-    <string name="order_as_is">As-is</string>
-    <string name="order_incomplete_first">Incomplete first</string>
+    <string name="sort_completion">Sort by completion</string>
+    <string name="sort_ascending">Ascending</string>
+    <string name="sort_descending">Descending</string>
+    <string name="completion_sort_hint">Ascending: incomplete first. Descending: completed and plain entries first.</string>
     <string name="sort_tags">Sort by tags</string>
+    <string name="tag_format_example">e.g. #buy #cook</string>
     <string name="save_widget_settings">Save</string>
     <string name="cancel_widget_settings">Cancel</string>
     <string name="use_checkbox">Use checkbox</string>

@@ -9,6 +9,11 @@ data class TaskRef(val lineIndex: Int, val expectedLine: String, val date: Local
     }
 }
 data class DocumentSnapshot(val uri: Uri, val document: ParsedDocument)
-data class WidgetOptions(val incompleteFirst: Boolean = false, val sortTags: Boolean = false)
+data class WidgetOptions(
+    val sortCompletion: Boolean = false,
+    val sortTags: Boolean = false,
+    val completionDescending: Boolean = false,
+    val tagsDescending: Boolean = false,
+)
 class DocumentChangedException : Exception("Document changed; reopen task.")
 class DocumentAccessException(message: String, cause: Throwable? = null) : Exception(message, cause)
