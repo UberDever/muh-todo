@@ -244,7 +244,7 @@ Anchor:
 }
 ```
 
-- [ ] **2. Run final checks:** `./gradlew :app:testDebugUnitTest :app:assembleDebug :app:lintDebug`. Inspect fresh test XML counts, failures, skipped outcomes, lint results, APK signature, and clean tracked state except intended changes. Do not run an emulator suite unless an actual compatible emulator/device is available; state device checks separately.
+- [x] **2. Run final checks:** `./gradlew :app:testDebugUnitTest :app:assembleDebug :app:lintDebug`. Inspect fresh test XML counts, failures, skipped outcomes, lint results, APK signature, and clean tracked state except intended changes. Do not run an emulator suite unless an actual compatible emulator/device is available; state device checks separately.
 - [ ] **3. Exercise repeatable setup in the real cloud machine.** Test complete install instructions with explicit working directories, preserved checksum/TLS verification, SDK/JDK activation, and pinned Gradle commands. Reuse retained SDK/dependency caches on the second run. Installation must not rewrite product files or the signing key. Save the tested install_script and necessary start_skill activation/check instructions, including using the existing isolated checkout and not relying on retained processes. Do not create running services merely to populate start_skill.
 - [ ] **4. Document and incorporate device results.** Record how to sideload/update the debug APK, select an external Markdown file, configure two widgets, refresh external edits, and reproduce inheritance/movement checks. Cover permission persistence across process restart, revoked-grant errors, actual external-editor compatibility, and actual launcher checkbox/editor actions. Protect the signing key and keep it out of Git. Do not claim a new cloud task or phone behavior was validated unless it was.
 - [ ] **5. Commit documentation and integration checks:** `docs: record setup and GrapheneOS validation`.
@@ -269,3 +269,9 @@ are implemented without adding subsystems. Completion remains primary; ties
 retain file order, and legacy settings default to ascending on upgrade.
 The full Task 7 workflow test is now implemented. Phone confirmation and
 fresh-task cloud restoration remain separate from automated validation.
+
+0.2.1 verification: 125 tests pass natively and in a fresh network-disabled
+Docker build; build/signature checks pass. Native lint has 0 errors/16 warnings;
+offline lint has 0 errors/14 warnings. Independent code review found no issues.
+Cloud start_skill updated and saved; publication/fresh-task restoration is
+unverified. Installation tools and dependencies are unchanged.
