@@ -25,8 +25,9 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: gradle
-      - name: Install pinned Android SDK packages
-        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        with:
+          packages: 'platforms;android-36 build-tools;36.0.0'
       - name: Restore update-compatible signing key
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         env:
