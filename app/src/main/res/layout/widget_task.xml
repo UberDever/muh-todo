@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+    <TextView android:id="@+id/checkbox" android:layout_width="48dp" android:layout_height="48dp" android:gravity="center" android:textSize="28sp" android:textColor="#202124" />
+    <LinearLayout android:id="@+id/task_text" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:minHeight="48dp" android:orientation="vertical" android:gravity="center_vertical" android:paddingTop="4dp" android:paddingBottom="4dp" android:paddingEnd="8dp">
+        <TextView android:id="@+id/tags" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="12sp" android:textColor="#5F6368" />
+        <TextView android:id="@+id/body" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:textColor="#202124" />
+    </LinearLayout>
+</LinearLayout>

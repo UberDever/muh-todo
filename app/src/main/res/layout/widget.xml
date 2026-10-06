@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#FAFAFA" android:padding="8dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical">
+        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/app_name" android:textColor="#202124" android:textStyle="bold" android:textSize="16sp" />
+        <TextView android:id="@+id/refresh" android:layout_width="48dp" android:layout_height="48dp" android:gravity="center" android:text="↻" android:textColor="#202124" android:textSize="24sp" android:contentDescription="@string/refresh_widgets" />
+        <TextView android:id="@+id/add" android:layout_width="48dp" android:layout_height="48dp" android:gravity="center" android:text="+" android:textColor="#202124" android:textSize="28sp" android:contentDescription="@string/new_todo" />
+    </LinearLayout>
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <ListView android:id="@+id/todo_list" android:layout_width="match_parent" android:layout_height="match_parent" android:divider="@null" />
+        <TextView android:id="@+id/empty" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:padding="12dp" android:text="@string/widget_empty" android:textColor="#202124" />
+    </FrameLayout>
+</LinearLayout>

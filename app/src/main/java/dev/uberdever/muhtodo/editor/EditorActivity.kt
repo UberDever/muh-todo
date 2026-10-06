@@ -46,7 +46,10 @@ class EditorActivity : ComponentActivity() {
                         scope.launch {
                             val result = current.save(repository)
                             state = result
-                            if (result.saved) finish()
+                            if (result.saved) {
+                                dev.uberdever.muhtodo.widget.WidgetActions.refreshAll(this@EditorActivity)
+                                finish()
+                            }
                         }
                     }, { finish() })
                     else Column(Modifier.padding(24.dp)) {

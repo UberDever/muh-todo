@@ -24,7 +24,11 @@ class MainActivity : ComponentActivity() {
         val data = result.data
         val uri = data?.data
         if (result.resultCode == RESULT_OK && uri != null) {
-            try { AppServices.repository(this).select(uri, data.flags); error = null; revision++ }
+            try {
+                AppServices.repository(this).select(uri, data.flags)
+                dev.uberdever.muhtodo.widget.WidgetActions.refreshAll(this)
+                error = null; revision++
+            }
             catch (e: Exception) { error = e.message ?: "Could not select document." }
         }
     }
@@ -54,6 +58,10 @@ class MainActivity : ComponentActivity() {
                                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION))
                         }) { Text(if (documentName == null) "Select document" else "Change document") }
                         if (documentName != null) {
+                            OutlinedButton(onClick = {
+                                dev.uberdever.muhtodo.widget.WidgetActions.refreshAll(this@MainActivity)
+                                revision++
+                            }) { Text("Refresh widgets") }
                             OutlinedButton(onClick = { startActivity(EditorIntents.create(this@MainActivity)) }) { Text("New todo") }
                             OutlinedButton(onClick = {
                                 val uri = AppServices.repository(this@MainActivity).preferences.documentUri() ?: return@OutlinedButton
