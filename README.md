@@ -14,6 +14,30 @@ The app supports creating/editing tasks, direct completion toggles, live tag inh
 
 [0.3.0](docs/0.3.0-validation.md) adds anchored creation with editable prefilled tags, cursor-aware known-tag insertion, and ascending tag suggestions. [0.4.0](docs/0.4.0-validation.md) removes the toolbar, adds dated creation and launcher reconfiguration, colors tags and suggestions, and adds entry deletion. [0.5.0](docs/0.5.0-validation.md) adds the 0–99 priority picker and unified ordered-tuple OKLCH colors.
 
+## Download and CI
+
+[GitHub Actions builds](https://github.com/UberDever/muh-todo/actions/workflows/android.yml)
+run on every push to main, pull request, and manual dispatch. Each successful
+main build publishes a downloadable `muh-todo-<run number>` artifact containing
+the APK, SHA-256 checksum, and signing certificate. Tests/lint reports are also
+retained; APKs are never committed to Git. Open a successful run and download
+its artifact at the bottom of the page (GitHub login required for artifacts).
+
+To let CI update the app already installed on your phone, add the existing
+private key as repository Actions secret `MUH_TODO_DEBUG_KEYSTORE_BASE64`.
+Without it, CI uses a fresh runner debug key: those test APKs cannot update the
+previously installed app. The APK built in the prepared environment retains
+the existing key.
+This environment's GitHub integration cannot manage repository secrets.
+With the private preserved build image and your own authenticated GitHub CLI,
+set the secret without printing the key or committing it:
+
+```sh
+docker run --rm --entrypoint bash muh-todo-build:0.1.0 \
+  -c 'base64 -w0 "$MUH_TODO_DEBUG_KEYSTORE"' | \
+  gh secret set MUH_TODO_DEBUG_KEYSTORE_BASE64 --repo UberDever/muh-todo
+```
+
 ## Try it
 
 Install `app/build/outputs/apk/debug/app-debug.apk`, open muh todo, and select a disposable `.md` document with read/write access. Add **muh todo** through your launcher's widget picker. Use a date header's `+` to create on that date, a checkbox to toggle, task text to edit, and the return-arrow icon to create below it with prefilled tags. An empty widget opens the app, where **New todo** creates the first entry. After external file changes, recreate the widget or use **Refresh widgets** in the app. See [the phone checklist](docs/testing-on-grapheneos.md).
