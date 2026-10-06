@@ -33,7 +33,7 @@ No Critical findings or deferred Minor review findings. Lint warnings are retain
 
 ## Build archive and retrieval
 
-The private image is approximately 1.6 GB compressed / 2.6 GB unpacked; the APK is approximately 10.8 MB. It includes the signing key, toolchain, dependencies and source, so keep it private. It targets Linux amd64; future Android compatibility still needs a real device check. See [archive/load instructions](../README.md).
+The private image is approximately 1.7 GB compressed / 2.6 GB unpacked; the final container APK is approximately 10.4 MB. It includes the signing key, toolchain, dependencies and source, so keep it private. It targets Linux amd64; future Android compatibility still needs a real device check. See [archive/load instructions](../README.md).
 
 Docker here uses the `vfs` driver, which duplicates whole image layers. The initial multi-COPY recipe filled disk on rebuilding; one COPY of the assembled snapshot avoids that spike. Cleanup removed only this task's exact superseded image/cache IDs. The source and canonical signing key were preserved.
 
