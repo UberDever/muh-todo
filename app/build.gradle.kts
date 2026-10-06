@@ -33,7 +33,13 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 tasks.withType<Test>().configureEach {
     maxHeapSize = "1g"
     maxParallelForks = 1
+    val testHome = File(gradle.gradleUserHomeDir, "robolectric-home")
+    systemProperty("user.home", testHome.absolutePath)
+    doFirst { testHome.mkdirs() }
     systemProperty("robolectric.dependency.repo.url", "https://repo.maven.apache.org/maven2")
+    listOf("https.proxyHost", "https.proxyPort", "http.proxyHost", "http.proxyPort", "http.nonProxyHosts").forEach { name ->
+        System.getProperty(name)?.let { systemProperty(name, it) }
+    }
 }
 
 dependencies {
