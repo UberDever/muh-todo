@@ -45,6 +45,9 @@ class WidgetProvider : AppWidgetProvider() {
                 views.setRemoteAdapter(R.id.todo_list, adapter)
                 views.setEmptyView(R.id.todo_list, R.id.empty)
                 views.setPendingIntentTemplate(R.id.todo_list, WidgetActions.collectionTemplate(context, id))
+                views.setOnClickPendingIntent(R.id.settings, PendingIntent.getActivity(context, id,
+                    WidgetActions.configurationIntent(context, id),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
                 views.setOnClickPendingIntent(R.id.add, PendingIntent.getActivity(context, id, EditorIntents.create(context),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
                 views.setOnClickPendingIntent(R.id.refresh, PendingIntent.getBroadcast(context, id,

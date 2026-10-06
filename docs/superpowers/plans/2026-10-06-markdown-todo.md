@@ -38,6 +38,8 @@
 
 ## Execution status
 
+Phone feedback amendment on 2026-10-06: use the `muh todo` display name, dark theme, slightly smaller text, and supplied launcher artwork (0.1.1). The user approved that update and requested Increment 2. Remove the app's Open in text editor action in this increment; the user opens the file independently.
+
 Increment 1 (Tasks 1–5) implemented and checked with 84 passing tests, build/lint, independent review fixes, and a private offline build image. Delivery is the hands-on checkpoint below. Tasks 6–7 remain pending phone feedback; README and the phone checklist were brought forward to support the first handoff. Evidence: [Increment 1 validation](../../increment1-validation.md).
 
 ## Increments and file ownership
@@ -50,7 +52,7 @@ Increment 1 (Tasks 1–5) implemented and checked with 84 passing tests, build/l
 
 **Increment 3 — Task 7:** full validation, repeatable cloud setup, and concise user/testing instructions incorporating device feedback.
 
-All product Kotlin paths below are relative to `app/src/main/java/dev/uberdever/muhtodo/`; tests use the same package under `app/src/test/java/`. Namespace/application ID: `dev.uberdever.muhtodo`. Display name: `Markdown Todo`.
+All product Kotlin paths below are relative to `app/src/main/java/dev/uberdever/muhtodo/`; tests use the same package under `app/src/test/java/`. Namespace/application ID: `dev.uberdever.muhtodo`. Display name: `muh todo`.
 
 ### Task 1: Buildable project and strict parser
 

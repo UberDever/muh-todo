@@ -1,6 +1,5 @@
 package dev.uberdever.muhtodo
 
-import android.content.ClipData
 import android.content.Intent
 import android.os.Bundle
 import android.provider.OpenableColumns
@@ -65,15 +64,6 @@ class MainActivity : ComponentActivity() {
                                 revision++
                             }) { Text("Refresh widgets") }
                             OutlinedButton(onClick = { startActivity(EditorIntents.create(this@MainActivity)) }) { Text("New todo") }
-                            OutlinedButton(onClick = {
-                                val uri = AppServices.repository(this@MainActivity).preferences.documentUri() ?: return@OutlinedButton
-                                try {
-                                    startActivity(Intent(Intent.ACTION_EDIT).setDataAndType(uri, "text/plain")
-                                        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                                        .apply { clipData = ClipData.newRawUri("Markdown document", uri) })
-                                } catch (_: android.content.ActivityNotFoundException) { error = "Install a text editor that can edit documents." }
-                                  catch (_: SecurityException) { error = "Could not grant editor access; select the file again." }
-                            }) { Text("Open in text editor") }
                         }
                         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                     }

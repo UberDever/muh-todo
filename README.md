@@ -2,7 +2,7 @@
 
 A small Android app and home-screen widget backed by your own UTF-8 Markdown document. Android 8.0+ (API 26); no accounts, database, Google Play services, or network permission. The document stays where you selected it through Android's document picker.
 
-Increment 1 supports creating/editing tasks, direct completion toggles, live tag inheritance, date moves, opening the file in another text editor, and manual widget refresh. Dates appear newest first; tasks retain file order. Per-widget sorting controls are the next increment.
+The app supports creating/editing tasks, direct completion toggles, live tag inheritance, date moves, and manual widget refresh. Each widget has independent completion ordering (as-is / incomplete first) and tag sorting (off / on). Dates appear newest first. Tap the widget's gear to change its settings; sorting changes only the view.
 
 [0.1.1](docs/0.1.1-visual-update.md) applies the first phone feedback: dark theme, slightly smaller text, the `muh todo` name, and the supplied launcher artwork.
 

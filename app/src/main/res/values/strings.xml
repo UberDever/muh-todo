@@ -1,6 +1,14 @@
 <resources>
     <string name="app_name">muh todo</string>
     <string name="widget_name">muh todo widget</string>
+    <string name="widget_settings">Widget settings</string>
+    <string name="widget_settings_symbol" translatable="false">⚙</string>
+    <string name="completion_order">Completion ordering</string>
+    <string name="order_as_is">As-is</string>
+    <string name="order_incomplete_first">Incomplete first</string>
+    <string name="sort_tags">Sort by tags</string>
+    <string name="save_widget_settings">Save</string>
+    <string name="cancel_widget_settings">Cancel</string>
     <string name="new_todo">New todo</string>
     <string name="refresh_widgets">Refresh widgets</string>
     <string name="widget_empty">No recognized todos. Tap to open the app.</string>

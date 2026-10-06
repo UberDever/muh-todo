@@ -14,6 +14,10 @@ import kotlinx.coroutines.CancellationException
 object WidgetActions {
     const val TOGGLE = "dev.uberdever.muhtodo.TOGGLE"
     const val REFRESH = "dev.uberdever.muhtodo.REFRESH"
+    fun configurationIntent(context: Context, widgetId: Int) = Intent(context, WidgetConfigurationActivity::class.java)
+        .setAction(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
+        .setData(Uri.parse("muhtodo://widget/$widgetId/settings"))
+        .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
     fun toggleFillIn(uri: Uri, ref: TaskRef) = EditorIntents.reference(Intent().setAction(TOGGLE), uri, ref)
     fun editFillIn(uri: Uri, ref: TaskRef) = EditorIntents.reference(Intent().setAction(EditorIntents.EDIT), uri, ref)
     fun collectionTemplate(context: Context, widgetId: Int): PendingIntent = PendingIntent.getActivity(context, widgetId,

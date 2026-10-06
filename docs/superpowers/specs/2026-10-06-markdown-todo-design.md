@@ -1,7 +1,7 @@
 # Android Markdown Todo Widget
 
 Date: 2026-10-06
-Status: approved by the user on 2026-10-06; implementation has not started.
+Status: approved by the user on 2026-10-06; implementation underway with hands-on feedback.
 
 ## Purpose and scope
 
@@ -30,10 +30,9 @@ Support UTF-8 text, preserve an existing UTF-8 BOM, and preserve existing
 line endings and unrelated text. Reject unreadable or unsupported input
 with a short error instead of silently converting it.
 
-The main Activity provides document selection/change, opening the document
-in an external editor, and refreshing widgets. External-editor launch uses
-the document URI and temporary read/write grants. If no compatible editor
-is installed, show a short explanatory message.
+The main Activity provides document selection/change and refreshing widgets.
+The user opens the backing document independently in their own text editor.
+User amendment on 2026-10-06: remove the app's Open in text editor action.
 
 ## Recognition grammar
 
