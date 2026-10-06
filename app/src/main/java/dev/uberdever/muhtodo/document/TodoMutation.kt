@@ -25,13 +25,7 @@ object TodoMutation {
             return replaceLine(document.source, lines[task.lineIndex], content)
         }
 
-        var source = document.source
-        val successor = document.tasks.firstOrNull { it.sectionHeaderLine == task.sectionHeaderLine && it.lineIndex > task.lineIndex }
-        if (successor?.form == TagForm.INHERITED) {
-            val oldFields = TaskFields(successor.date, successor.completed, successor.tags, successor.body, successor.hasCheckbox)
-            val content = checkedLine(oldFields, explicitForm(successor.tags), null)
-            source = replaceLine(source, lines[successor.lineIndex], content)
-        }
+        var source = materializeSuccessor(document, task)
         val removed = lines[task.lineIndex]
         source = source.removeRange(removed.start, removed.end)
         val remaining = TodoParser.parse(source)
@@ -40,6 +34,24 @@ object TodoMutation {
             TagForm.INHERITED
         } else explicitForm(fields.tags)
         return insertLine(remaining, fields, form)
+    }
+
+    fun delete(document: ParsedDocument, task: Todo): String {
+        requireTask(document, task)
+        val line = sourceLines(document.source)[task.lineIndex]
+        return materializeSuccessor(document, task).removeRange(line.start, line.end)
+    }
+
+    private fun materializeSuccessor(document: ParsedDocument, task: Todo): String {
+        val lines = sourceLines(document.source)
+        var source = document.source
+        val successor = document.tasks.firstOrNull { it.sectionHeaderLine == task.sectionHeaderLine && it.lineIndex > task.lineIndex }
+        if (successor?.form == TagForm.INHERITED) {
+            val oldFields = TaskFields(successor.date, successor.completed, successor.tags, successor.body, successor.hasCheckbox)
+            val content = checkedLine(oldFields, explicitForm(successor.tags), null)
+            source = replaceLine(source, lines[successor.lineIndex], content)
+        }
+        return source
     }
 
     fun insert(document: ParsedDocument, fields: TaskFields, inheritTags: Boolean): String {

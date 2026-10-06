@@ -296,3 +296,26 @@ tested setup in install_script and service/tool initialization in start_skill
 only where needed. Future cloud tasks use the existing isolated checkout,
 not a new Git worktree. Saved configuration does not publish an environment
 or establish that a new task has been validated.
+
+## 0.4.0 widget refinement amendment
+
+The current user iteration supersedes the widget toolbar: remove its name, gear,
+refresh and global +. Date headers carry +, opening normal creation with that
+editable date. Initial setup stays required; declare reconfigurable so supported
+launchers expose Edit widget. If unavailable, configure only when recreating.
+Moving/resizing alone does not configure. Empty widgets open the app to create
+the first entry; app Refresh widgets remains available after external edits.
+
+Replace the row's UTF-8 return symbol with a vector return-arrow icon.
+Known-tag suggestions and explicit widget tag tokens share stable colors derived
+from exact UTF-8 tag text (SHA-256 hue, readable pastel saturation/lightness).
+No document metadata or separate color store. Inherited shorthand stays neutral.
+Finite colors can be similar in a large tag pool.
+
+Existing-entry editors show a red Delete immediately left of Cancel; creation
+has no Delete. Remove only the selected source line and materialize the first
+same-section inherited successor's old tuple, preserving unrelated text and date
+headings. Reuse stale-source guards and the ViewModel's busy state; refresh/close
+on success and retain the editor on failure. As with moves, refuse a write when
+an empty-tag successor's reserved-looking body cannot be represented explicitly
+without changing its meaning.

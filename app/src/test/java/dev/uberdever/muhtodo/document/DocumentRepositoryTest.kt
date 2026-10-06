@@ -142,4 +142,19 @@ class DocumentRepositoryTest {
         override fun read(uri: Uri): String { readFailure?.let { throw it }; return source }
         override fun write(uri: Uri, source: String) { writeFailure?.let { throw it }; this.source = source; writes += source }
     }
+    @Test fun deleteRereadsAndPreservesUnrelatedExternalEdits() = runBlocking {
+        store.source = source.replace("tail", "external tail")
+        repository.delete(uri, ref())
+        assertEquals(source.replace("- [ ] (#a) first\n", "").replace("tail", "external tail"), store.source)
+        assertEquals(1, store.writes.size)
+    }
+    @Test fun staleDeletionAndChangedDocumentNeverWrite() = runBlocking {
+        store.source = source.replace("first", "changed")
+        assertTrue(runCatching { repository.delete(uri, ref()) }.exceptionOrNull() is DocumentChangedException)
+        store.source = source
+        preferences.setDocumentUri(Uri.parse("content://test/other"))
+        assertTrue(runCatching { repository.delete(uri, ref()) }.exceptionOrNull() is DocumentChangedException)
+        assertEquals(0, store.writes.size)
+    }
+
 }

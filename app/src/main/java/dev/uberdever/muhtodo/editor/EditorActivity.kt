@@ -35,7 +35,7 @@ class EditorActivity : ComponentActivity() {
                 LaunchedEffect(current?.saved) { if (current?.saved == true) finish() }
                 BackHandler(enabled = current?.saving == true) {}
                 Surface {
-                    if (current != null) EditorScreen(current, editor::update, editor::save, { finish() })
+                    if (current != null) EditorScreen(current, editor::update, editor::save, { finish() }, editor::delete)
                     else Column(Modifier.padding(24.dp)) {
                         Text(editor.loadError ?: "Opening document…")
                         TextButton(onClick = { finish() }) { Text("Close") }

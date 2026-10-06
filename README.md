@@ -2,7 +2,7 @@
 
 A small Android app and home-screen widget backed by your own UTF-8 Markdown document. Android 8.0+ (API 26); no accounts, database, Google Play services, or network permission. The document stays where you selected it through Android's document picker.
 
-The app supports creating/editing tasks, direct completion toggles, live tag inheritance, date moves, and manual widget refresh. Each widget has independent **Sort by completion** and **Sort by tags** controls. Each uses three buttons with exactly one selected: **No sort / Incomplete first / Complete first** for completion, and **No sort / a-z and 0-9 / z-a and 9-0** for tags. Completion takes priority over tags; ascending completion puts incomplete tasks first, descending puts completed tasks and plain entries first. Equal sort keys keep file order. Dates appear newest first. Tap the widget's gear to change its settings; sorting changes only the view.
+The app supports creating/editing tasks, direct completion toggles, live tag inheritance, date moves, and manual widget refresh. Each widget has independent **Sort by completion** and **Sort by tags** controls. Each uses three buttons with exactly one selected: **No sort / Incomplete first / Complete first** for completion, and **No sort / a-z and 0-9 / z-a and 9-0** for tags. Completion takes priority over tags; ascending completion puts incomplete tasks first, descending puts completed tasks and plain entries first. Equal sort keys keep file order. Dates appear newest first. Configuration opens when adding a widget. If your launcher offers **Edit widget**, it reopens the same settings; otherwise recreate the widget to change them. Moving/resizing alone does not reopen settings. Sorting changes only the view.
 
 [0.1.1](docs/0.1.1-visual-update.md) applies the first phone feedback: dark theme, slightly smaller text, the `muh todo` name, and the supplied launcher artwork.
 
@@ -12,11 +12,11 @@ The app supports creating/editing tasks, direct completion toggles, live tag inh
 
 [0.2.2](docs/0.2.2-validation.md) replaces sorting checkboxes/radio options with two three-way segmented selectors.
 
-[0.3.0](docs/0.3.0-validation.md) adds anchored creation with editable prefilled tags, cursor-aware known-tag insertion, and ascending tag suggestions. [Later features](docs/roadmap.md) include display-only tag colors.
+[0.3.0](docs/0.3.0-validation.md) adds anchored creation with editable prefilled tags, cursor-aware known-tag insertion, and ascending tag suggestions. [0.4.0](docs/0.4.0-validation.md) removes the toolbar, adds dated creation and launcher reconfiguration, colors tags and suggestions, and adds entry deletion.
 
 ## Try it
 
-Install `app/build/outputs/apk/debug/app-debug.apk`, open muh todo, and select a disposable `.md` document with read/write access. Add **muh todo** through your launcher's widget picker. Use `+` to create, a checkbox to toggle, a task's text to edit, `⏎` to create below it with prefilled tags, and `↻` after external file changes. See [the phone checklist](docs/testing-on-grapheneos.md).
+Install `app/build/outputs/apk/debug/app-debug.apk`, open muh todo, and select a disposable `.md` document with read/write access. Add **muh todo** through your launcher's widget picker. Use a date header's `+` to create on that date, a checkbox to toggle, task text to edit, and the return-arrow icon to create below it with prefilled tags. An empty widget opens the app, where **New todo** creates the first entry. After external file changes, recreate the widget or use **Refresh widgets** in the app. See [the phone checklist](docs/testing-on-grapheneos.md).
 
 ```markdown
 ### 06.10.26
@@ -25,11 +25,13 @@ Install `app/build/outputs/apk/debug/app-debug.apk`, open muh todo, and select a
 - (#life) something to remember
 ```
 
-Exact date headings and checkbox syntax matter. Lowercase `x` marks completion. Tags accept Unicode letters/digits and `_/.!?+*<>=:-`; tuples preserve their order and duplicates. Only recognized tasks inside valid date sections are managed. Other text is preserved. Editing an inherited task's tags changes the following inheritance chain. Moving a task materializes the first source successor's previous tags.
+Exact date headings and checkbox syntax matter. Lowercase `x` marks completion. Tags accept Unicode letters/digits and `_/.!?+*<>=:-`; tuples preserve their order and duplicates. Only recognized tasks inside valid date sections are managed. Other text is preserved. Editing an inherited task's tags changes the following inheritance chain. Moving or deleting a task materializes the first source successor's previous tags. **Delete** appears beside Cancel when editing an existing entry; date headings and unrelated text are retained.
 
 Checkboxes are optional: plain `- BODY` entries support the same tags, inheritance, and dates. They display an aligned bullet instead of a widget checkbox and sort with completed tasks when completion sorting is enabled. Tapping the bullet opens the editor. **Use checkbox** defaults on for new entries; switch it off to create a plain entry. Editing or moving a plain entry keeps it plain. Invalid leading checkbox-like tokens such as `[X] ` remain unrelated Markdown.
 
-Tap a row's **⏎** button to create immediately below that entry in the file. Tags are prefilled and editable; unchanged tags serialize as `^^^`, changed tags are explicit, and cleared tags omit metadata. The date stays fixed to the source entry. Following existing `^^^` lines naturally inherit the inserted entry's tags. Ordinary **+** creation uses explicit tags. The editor has no Completed or Inherit tags checkboxes; toggle completion directly in the widget. Dates default to the phone's current local date; missing sections are created automatically. The editor deliberately accepts one-line bodies. Untagged bodies beginning with reserved metadata (`(#...` or `^^^`) may be unrepresentable and are rejected.
+Tap a row's **return-arrow icon** to create immediately below that entry in the file. Tags are prefilled and editable; unchanged tags serialize as `^^^`, changed tags are explicit, and cleared tags omit metadata. The date stays fixed to the source entry. Following existing `^^^` lines naturally inherit the inserted entry's tags. Date-header **+** creation uses explicit tags and prefills that date, which remains editable. The editor has no Completed or Inherit tags checkboxes; toggle completion directly in the widget. Creation from the app defaults to the phone's current local date; missing sections are created automatically. The editor deliberately accepts one-line bodies. Untagged bodies beginning with reserved metadata (`(#...` or `^^^`) may be unrepresentable and are rejected. Moving/deleting also refuses a write if an inherited successor with empty tags cannot be materialized without reinterpreting its body.
+
+Each exact tag gets a stable display color in widget tag labels and known-tag suggestions. Colors affect only the view; `^^^` remains neutral shorthand. Some tags can share similar colors in large pools.
 
 The file is reread before a change. A stale task or changed document selection requires reopening the editor/refreshing the widget. There is no merge engine, external-edit watcher, or atomic-write promise for arbitrary document providers. Test with a disposable document first.
 

@@ -5,7 +5,7 @@ import dev.uberdever.muhtodo.document.*
 import java.time.LocalDate
 import kotlinx.coroutines.CancellationException
 
-data class EditorState(val snapshot: DocumentSnapshot, val ref: TaskRef?, val fields: TaskFields, val inheritTags: Boolean = false, val canInherit: Boolean = false, val inheritedTags: List<String> = emptyList(), val saving: Boolean = false, val saved: Boolean = false, val error: String? = null, val insertAfter: TaskRef? = null) {
+data class EditorState(val snapshot: DocumentSnapshot, val ref: TaskRef?, val fields: TaskFields, val inheritTags: Boolean = false, val canInherit: Boolean = false, val inheritedTags: List<String> = emptyList(), val saving: Boolean = false, val saved: Boolean = false, val error: String? = null, val insertAfter: TaskRef? = null, val deleting: Boolean = false) {
     fun withDate(date: LocalDate): EditorState {
         if (insertAfter != null) return copy(fields = fields.copy(date = insertAfter.date), error = null)
         if (ref != null) return copy(fields = fields.copy(date = date), error = null)
@@ -44,6 +44,12 @@ data class EditorState(val snapshot: DocumentSnapshot, val ref: TaskRef?, val fi
         copy(saved = true, saving = false, error = null)
     } catch (e: CancellationException) { throw e }
       catch (e: Exception) { copy(saved = false, saving = false, error = e.message ?: "Could not save task.") }
+    suspend fun delete(repository: DocumentRepository): EditorState = try {
+        val reference = ref ?: throw IllegalStateException("Only existing entries can be deleted.")
+        repository.delete(snapshot.uri, reference)
+        copy(saved = true, saving = false, deleting = false, error = null)
+    } catch (e: CancellationException) { throw e }
+      catch (e: Exception) { copy(saved = false, saving = false, deleting = false, error = e.message ?: "Could not delete task.") }
     companion object {
         fun create(snapshot: DocumentSnapshot, today: LocalDate) = EditorState(snapshot, null,
             TaskFields(today, false, emptyList(), "")).withDate(today)

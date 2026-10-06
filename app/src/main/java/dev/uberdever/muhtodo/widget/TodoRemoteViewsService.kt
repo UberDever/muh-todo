@@ -12,9 +12,16 @@ import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.runBlocking
 
 class TodoRemoteViewsService : RemoteViewsService() {
+    internal fun dateViews(date: java.time.LocalDate): RemoteViews = RemoteViews(packageName, R.layout.widget_date).apply {
+        val label = date.format(DateTimeFormatter.ofPattern("dd.MM.yy"))
+        setTextViewText(R.id.date, label)
+        setViewVisibility(R.id.date_add, View.VISIBLE)
+        setContentDescription(R.id.date_add, "New todo on $label")
+        setOnClickFillInIntent(R.id.date_add, WidgetActions.createFillIn(date))
+    }
     internal fun taskViews(row: WidgetRow.Task, uri: Uri?): RemoteViews = RemoteViews(packageName, R.layout.widget_task).apply {
         setTextViewText(R.id.body, row.body)
-        setTextViewText(R.id.tags, row.tagLabel)
+        setTextViewText(R.id.tags, TagLabels.colored(row.tagLabel))
         setViewVisibility(R.id.tags, if (row.tagLabel == null) View.GONE else View.VISIBLE)
         setViewVisibility(R.id.checkbox, View.VISIBLE)
         setTextViewText(R.id.checkbox, if (!row.hasCheckbox) "•" else if (row.completed) "☑" else "☐")
@@ -52,12 +59,13 @@ class TodoRemoteViewsService : RemoteViewsService() {
         override fun getCount() = if (error != null) 1 else rows.size
         override fun getViewAt(position: Int): RemoteViews? {
             error?.let {
-                return RemoteViews(packageName, R.layout.widget_date).apply { setTextViewText(R.id.date, "$it Open the app to select the file.") }
+                return RemoteViews(packageName, R.layout.widget_date).apply {
+                    setTextViewText(R.id.date, "$it Open the app to select the file.")
+                    setViewVisibility(R.id.date_add, View.GONE)
+                }
             }
             return when (val row = rows.getOrNull(position)) {
-                is WidgetRow.DateHeader -> RemoteViews(packageName, R.layout.widget_date).apply {
-                    setTextViewText(R.id.date, row.date.format(DateTimeFormatter.ofPattern("dd.MM.yy")))
-                }
+                is WidgetRow.DateHeader -> dateViews(row.date)
                 is WidgetRow.Task -> taskViews(row, uri)
                 null -> null
             }

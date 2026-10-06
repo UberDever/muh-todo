@@ -82,15 +82,19 @@ class WidgetConfigurationTest {
         assertEquals(WidgetOptions(true, true, true, true), recreated.options)
         assertEquals(WidgetOptions(), preferences.widgetOptions(11))
     }
-    @Test fun settingsTapRoutesToTheSpecificWidgetsConfigurationActivity() {
+    @Test fun providerOffersLauncherReconfigurationWithoutAnOptionalInitialSetup() {
+        val parser = app.resources.getXml(R.xml.todo_widget_info)
+        while (parser.next() != org.xmlpull.v1.XmlPullParser.START_TAG) {}
+        val features = parser.getAttributeIntValue("http://schemas.android.com/apk/res/android", "widgetFeatures", 0)
+        assertEquals(1, features) // reconfigurable; configuration_optional must remain unset.
+        assertEquals(WidgetConfigurationActivity::class.java.name,
+            parser.getAttributeValue("http://schemas.android.com/apk/res/android", "configure"))
+        parser.close()
         WidgetProvider.render(app, manager, intArrayOf(11, 22))
         for (id in listOf(11, 22)) {
-            val settings = shadowOf(manager).getViewFor(id).findViewById<android.view.View>(R.id.settings)
-            assertTrue(settings.performClick())
-            val launched = shadowOf(app).nextStartedActivity
-            assertNotNull(launched)
-            assertEquals(WidgetConfigurationActivity::class.java.name, launched.component?.className)
-            assertEquals(id, launched.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1))
+            val root = shadowOf(manager).getViewFor(id)
+            assertEquals(1, (root as android.view.ViewGroup).childCount)
+            assertNotNull(root.findViewById<android.view.View>(R.id.todo_list))
         }
     }
     @Test fun invalidOrOtherApplicationsWidgetCannotSaveOptions() {

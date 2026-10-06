@@ -18,6 +18,7 @@ object WidgetActions {
         .setAction(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
         .setData(Uri.parse("muhtodo://widget/$widgetId/settings"))
         .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
+    fun createFillIn(date: java.time.LocalDate) = Intent().setAction(EditorIntents.CREATE).putExtra("create.date", date.toString())
     fun toggleFillIn(uri: Uri, ref: TaskRef) = EditorIntents.reference(Intent().setAction(TOGGLE), uri, ref)
     fun createAfterFillIn(uri: Uri, ref: TaskRef) = EditorIntents.reference(Intent().setAction(EditorIntents.CREATE_AFTER), uri, ref)
     fun editFillIn(uri: Uri, ref: TaskRef) = EditorIntents.reference(Intent().setAction(EditorIntents.EDIT), uri, ref)

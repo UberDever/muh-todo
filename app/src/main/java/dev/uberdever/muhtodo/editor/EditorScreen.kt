@@ -10,6 +10,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.BorderStroke
+import dev.uberdever.muhtodo.ui.TagColors
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -19,7 +22,7 @@ import java.util.Calendar
 import dev.uberdever.muhtodo.R
 
 @Composable
-fun EditorScreen(state: EditorState, onChange: (EditorState) -> Unit, onSave: () -> Unit, onCancel: () -> Unit) {
+fun EditorScreen(state: EditorState, onChange: (EditorState) -> Unit, onSave: () -> Unit, onCancel: () -> Unit, onDelete: () -> Unit) {
     val context = LocalContext.current
     val fields = state.fields
     val enabled = !state.saving
@@ -55,8 +58,11 @@ fun EditorScreen(state: EditorState, onChange: (EditorState) -> Unit, onSave: ()
             Text("Insert a known tag", style = MaterialTheme.typography.labelMedium)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 TagInput.knownTags(state.snapshot.document.knownTags).forEach { tag ->
+                    val color = Color(TagColors.color(tag))
                     SuggestionChip(onClick = { changeTags(TagInput.insert(tagInput, tag)) },
-                        label = { Text(tag) }, enabled = enabled)
+                        label = { Text(tag, color = color) }, enabled = enabled,
+                        colors = SuggestionChipDefaults.suggestionChipColors(containerColor = color.copy(alpha = 0.10f)),
+                        border = BorderStroke(1.dp, color.copy(alpha = 0.65f)))
                 }
             }
         }
@@ -64,8 +70,14 @@ fun EditorScreen(state: EditorState, onChange: (EditorState) -> Unit, onSave: ()
             enabled = enabled, label = { Text("Todo") }, singleLine = true, modifier = Modifier.fillMaxWidth())
         (state.error ?: validation?.takeIf { fields.body.isNotEmpty() })?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            if (state.ref != null) {
+                TextButton(onClick = onDelete, enabled = enabled,
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) {
+                    Text(if (state.deleting) "Deleting…" else "Delete")
+                }
+            }
             TextButton(onClick = onCancel, enabled = enabled) { Text("Cancel") }
-            Button(onClick = onSave, enabled = enabled && validation == null) { Text(if (state.saving) "Saving…" else "Save") }
+            Button(onClick = onSave, enabled = enabled && validation == null) { Text(if (state.saving && !state.deleting) "Saving…" else "Save") }
         }
     }
 }

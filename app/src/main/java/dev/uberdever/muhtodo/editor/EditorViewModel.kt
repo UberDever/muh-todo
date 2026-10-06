@@ -33,6 +33,7 @@ class EditorViewModel(private val repository: DocumentRepository, private val re
                 state = if (saved?.containsKey("draft.uri") == true) restore(snapshot, request, saved)
                 else when (request) {
                     EditorRequest.Create -> EditorState.create(snapshot, LocalDate.now())
+                    is EditorRequest.CreateOnDate -> EditorState.create(snapshot, request.date)
                     is EditorRequest.Edit -> EditorState.edit(snapshot, request.ref)
                     is EditorRequest.CreateAfter -> EditorState.createAfter(snapshot, request.ref)
                     null -> throw DocumentChangedException()
@@ -52,6 +53,7 @@ class EditorViewModel(private val repository: DocumentRepository, private val re
     private fun restore(snapshot: DocumentSnapshot, request: EditorRequest?, bundle: Bundle): EditorState {
         val base = when (request) {
             EditorRequest.Create -> EditorState.create(snapshot, LocalDate.now())
+            is EditorRequest.CreateOnDate -> EditorState.create(snapshot, request.date)
             is EditorRequest.CreateAfter -> {
                 if (snapshot.uri != request.uri) throw DocumentChangedException()
                 val tags = bundle.getStringArrayList("draft.tags").orEmpty()
@@ -67,6 +69,16 @@ class EditorViewModel(private val repository: DocumentRepository, private val re
         return base.restoreDraft(bundle)
     }
     fun update(value: EditorState) { if (state?.saving != true) state = value }
+    fun delete() {
+        val current = state ?: return
+        if (current.ref == null || current.saving || current.saved) return
+        state = current.copy(saving = true, deleting = true, error = null)
+        viewModelScope.launch {
+            val result = current.delete(repository)
+            state = result
+            if (result.saved) refresh()
+        }
+    }
     fun save() {
         val current = state ?: return
         if (current.saving || current.saved || current.validationError() != null) return

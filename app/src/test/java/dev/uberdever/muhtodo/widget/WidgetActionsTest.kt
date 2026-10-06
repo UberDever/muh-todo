@@ -89,4 +89,14 @@ class WidgetActionsTest {
         assertNull(shadowOf(one).savedIntent.data)
         assertEquals(WidgetActionActivity::class.java.name, shadowOf(one).savedIntent.component?.className)
     }
+    @Test fun datePlusRoutesToCreationWithThatDate() {
+        val date = java.time.LocalDate.of(2026, 1, 2)
+        val fill = WidgetActions.createFillIn(date)
+        val activity = Robolectric.buildActivity(WidgetActionActivity::class.java, fill).create().get()
+        val started = shadowOf(activity).nextStartedActivity
+        assertEquals(EditorRequest.CreateOnDate(date), EditorIntents.decode(started))
+        assertEquals(EditorActivity::class.java.name, started.component?.className)
+        assertTrue(activity.isFinishing)
+    }
+
 }

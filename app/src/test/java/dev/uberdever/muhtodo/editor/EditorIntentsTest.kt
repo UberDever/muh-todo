@@ -39,4 +39,12 @@ class EditorIntentsTest {
         assertNull(EditorIntents.decode(EditorIntents.edit(context, Uri.parse("file:///tmp/test"), ref)))
         assertNull(EditorIntents.decode(EditorIntents.edit(context, uri, ref.copy(lineIndex = -1))))
     }
+    @Test fun datedCreationRejectsMalformedOrOutOfRangeDates() {
+        val date = LocalDate.of(2026, 1, 2)
+        assertEquals(EditorRequest.CreateOnDate(date), EditorIntents.decode(EditorIntents.create(context, date)))
+        for (value in listOf("garbage", "2026-02-30", "1999-01-01", "2100-01-01")) {
+            assertNull(EditorIntents.decode(EditorIntents.create(context).putExtra("create.date", value)))
+        }
+    }
+
 }

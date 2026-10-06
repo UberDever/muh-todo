@@ -141,4 +141,74 @@ class EditorLifecycleTest {
             assertEquals(1, refreshes)
         } finally { releaseWrite.countDown(); viewModelStore.clear() }
     }
+    @Test fun datedCreationPrefillsAnEditableDate() {
+        val store = object : DocumentStore {
+            override fun read(uri: Uri) = original
+            override fun write(uri: Uri, source: String) {}
+        }
+        val owner = EditorViewModel(repo(store)) {}
+        val chosen = LocalDate.of(2025, 1, 2)
+        owner.open(EditorRequest.CreateOnDate(chosen), null)
+        await { owner.state != null || owner.loadError != null }
+        assertEquals(chosen, owner.state!!.fields.date)
+        assertTrue(owner.state!!.fields.hasCheckbox)
+        assertEquals(day, owner.state!!.withDate(day).fields.date)
+    }
+    @Test fun deletionIgnoresInvalidUnsavedFieldsAndRefreshesOnlyOnce() {
+        var text = original
+        var writes = 0
+        var refreshes = 0
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val store = object : DocumentStore {
+            override fun read(uri: Uri) = text
+            override fun write(uri: Uri, source: String) {
+                entered.countDown()
+                assertTrue(release.await(10, TimeUnit.SECONDS))
+                text = source; writes++
+            }
+        }
+        val doc = TodoParser.parse(original)
+        val owner = EditorViewModel(repo(store)) { refreshes++ }
+        owner.open(EditorRequest.Edit(uri, TaskRef.from(doc, doc.tasks.single())), null)
+        await { owner.state != null || owner.loadError != null }
+        owner.update(owner.state!!.let { it.copy(fields = it.fields.copy(body = "", tags = listOf("invalid"))) })
+        try {
+            owner.delete()
+            await { entered.count == 0L }
+            owner.open(EditorRequest.Edit(uri, TaskRef.from(doc, doc.tasks.single())), Bundle())
+            owner.delete()
+            owner.save()
+            release.countDown()
+            await { owner.state?.saved == true }
+            assertEquals("### 06.10.26\n", text)
+            assertEquals(1, writes)
+            assertEquals(1, refreshes)
+            owner.delete()
+            assertEquals(1, writes)
+        } finally { release.countDown() }
+    }
+    @Test fun failedDeletionRetainsTheEditorAndCreationCannotDelete() {
+        val store = object : DocumentStore {
+            override fun read(uri: Uri) = original
+            override fun write(uri: Uri, source: String) { throw DocumentAccessException("write failed") }
+        }
+        val doc = TodoParser.parse(original)
+        val owner = EditorViewModel(repo(store)) { fail("Failed delete cannot refresh") }
+        owner.open(EditorRequest.Edit(uri, TaskRef.from(doc, doc.tasks.single())), null)
+        await { owner.state != null || owner.loadError != null }
+        owner.delete()
+        await { owner.state?.error != null }
+        assertFalse(owner.state!!.saved)
+        assertFalse(owner.state!!.saving)
+        assertEquals("write failed", owner.state!!.error)
+        assertEquals("original", owner.state!!.fields.body)
+        val creator = EditorViewModel(repo(store)) { fail("Creation cannot delete") }
+        creator.open(EditorRequest.Create, null)
+        await { creator.state != null || creator.loadError != null }
+        creator.delete()
+        assertFalse(creator.state!!.saving)
+        assertNull(creator.state!!.error)
+    }
+
 }

@@ -28,4 +28,14 @@ class WidgetDocumentErrorTest {
         assertNull(row.findViewById<TextView>(R.id.body))
         factory.onDestroy()
     }
+    @Test fun errorRowHasNoDateCreationButton() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        context.getSharedPreferences("todo-metadata", Context.MODE_PRIVATE).edit().clear().commit()
+        val service = Robolectric.buildService(TodoRemoteViewsService::class.java).create().get()
+        val factory = service.onGetViewFactory(Intent())
+        factory.onDataSetChanged()
+        val row = factory.getViewAt(0)!!.apply(context, FrameLayout(context))
+        assertEquals(android.view.View.GONE, row.findViewById<android.view.View>(R.id.date_add).visibility)
+    }
+
 }

@@ -10,7 +10,6 @@ import android.widget.RemoteViews
 import android.widget.Toast
 import dev.uberdever.muhtodo.AppServices
 import dev.uberdever.muhtodo.R
-import dev.uberdever.muhtodo.editor.EditorIntents
 import kotlinx.coroutines.*
 
 class WidgetProvider : AppWidgetProvider() {
@@ -45,14 +44,6 @@ class WidgetProvider : AppWidgetProvider() {
                 views.setRemoteAdapter(R.id.todo_list, adapter)
                 views.setEmptyView(R.id.todo_list, R.id.empty)
                 views.setPendingIntentTemplate(R.id.todo_list, WidgetActions.collectionTemplate(context, id))
-                views.setOnClickPendingIntent(R.id.settings, PendingIntent.getActivity(context, id,
-                    WidgetActions.configurationIntent(context, id),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
-                views.setOnClickPendingIntent(R.id.add, PendingIntent.getActivity(context, id, EditorIntents.create(context),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
-                views.setOnClickPendingIntent(R.id.refresh, PendingIntent.getBroadcast(context, id,
-                    Intent(context, WidgetProvider::class.java).setAction(WidgetActions.REFRESH),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
                 val open = Intent(context, dev.uberdever.muhtodo.MainActivity::class.java)
                 views.setOnClickPendingIntent(R.id.empty, PendingIntent.getActivity(context, id, open,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
