@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.MarkdownTodo.Editor" parent="android:style/Theme.Material.Light.Dialog.NoActionBar">
+    <style name="Theme.MuhTodo" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/todo_background</item>
+        <item name="android:colorAccent">@color/todo_accent</item>
+        <item name="android:statusBarColor">@color/todo_background</item>
+        <item name="android:navigationBarColor">@color/todo_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+    <style name="Theme.MuhTodo.Editor" parent="android:style/Theme.Material.Dialog.NoActionBar">
+        <item name="android:windowBackground">@color/todo_surface</item>
+        <item name="android:colorAccent">@color/todo_accent</item>
         <item name="android:windowCloseOnTouchOutside">false</item>
         <item name="android:windowMinWidthMajor">90%</item>
         <item name="android:windowMinWidthMinor">95%</item>

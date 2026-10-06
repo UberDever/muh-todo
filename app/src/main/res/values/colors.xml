@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="todo_background">#121417</color>
+    <color name="todo_surface">#1B1E23</color>
+    <color name="todo_text">#E6E8EE</color>
+    <color name="todo_secondary_text">#C2C6D0</color>
+    <color name="todo_accent">#AFC6FF</color>
+    <color name="todo_on_accent">#152A54</color>
+</resources>

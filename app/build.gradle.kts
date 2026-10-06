@@ -12,8 +12,8 @@ android {
         applicationId = "dev.uberdever.muhtodo"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.1.1"
     }
     signingConfigs.getByName("debug") {
         System.getenv("MUH_TODO_DEBUG_KEYSTORE")?.let { storeFile = file(it) }

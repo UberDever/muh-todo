@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import dev.uberdever.muhtodo.AppServices
 import dev.uberdever.muhtodo.widget.WidgetActions
+import dev.uberdever.muhtodo.ui.TodoTheme
 
 class EditorActivity : ComponentActivity() {
     private val editor by viewModels<EditorViewModel> {
@@ -29,7 +30,7 @@ class EditorActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         editor.open(EditorIntents.decode(intent), savedInstanceState)
         setContent {
-            MaterialTheme {
+            TodoTheme {
                 val current = editor.state
                 LaunchedEffect(current?.saved) { if (current?.saved == true) finish() }
                 BackHandler(enabled = current?.saving == true) {}

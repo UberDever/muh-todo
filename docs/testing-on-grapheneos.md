@@ -3,7 +3,7 @@
 Target: Google Pixel 10 Pro with GrapheneOS. Cloud tests do not establish launcher/document-provider behavior on this phone.
 
 1. Copy the signed APK to the phone and install it through the file manager. Allow that app to install unknown apps if Android prompts. No Play services are needed.
-2. Create a disposable UTF-8 `.md` file with unrelated Markdown, an exact date heading and a tagged task. Open Markdown Todo and select that file. Confirm it reports the selected filename.
+2. Create a disposable UTF-8 `.md` file with unrelated Markdown, an exact date heading and a tagged task. Open muh todo and select that file. Confirm it reports the selected filename.
 3. Add the widget through the launcher. Tap `+`; create a task with explicit tags, then another with **Inherit tags** enabled. Verify `^^^` in the actual file. Changing dates should select/create sections automatically.
 4. Tap a checkbox. Confirm it changes immediately after refresh, and no editor appears. Tap task text; confirm the compact editor opens. Cancel an edit, then save one.
 5. Change the first task's tags. Confirm following inherited tasks acquire the new tags. Move the first task to another date: only that task moves, and its first source successor gains explicit tags preserving its previous effective tuple.

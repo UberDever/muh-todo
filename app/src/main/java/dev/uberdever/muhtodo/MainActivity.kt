@@ -13,6 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.uberdever.muhtodo.editor.EditorIntents
+import dev.uberdever.muhtodo.ui.TodoTheme
+import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -36,7 +38,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
+            TodoTheme {
                 LaunchedEffect(revision) {
                     try {
                         val snapshot = AppServices.repository(this@MainActivity).read()
@@ -51,7 +53,7 @@ class MainActivity : ComponentActivity() {
                 }
                 Surface(Modifier.fillMaxSize()) {
                     Column(Modifier.fillMaxSize().padding(24.dp).windowInsetsPadding(WindowInsets.safeDrawing), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Text("Markdown Todo", style = MaterialTheme.typography.headlineMedium)
+                        Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineMedium)
                         Text(documentName ?: "Choose your Markdown todo file, then add the widget to your home screen.")
                         Button(onClick = {
                             picker.launch(Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*")

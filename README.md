@@ -1,12 +1,14 @@
-# Markdown Todo
+# muh todo
 
 A small Android app and home-screen widget backed by your own UTF-8 Markdown document. Android 8.0+ (API 26); no accounts, database, Google Play services, or network permission. The document stays where you selected it through Android's document picker.
 
 Increment 1 supports creating/editing tasks, direct completion toggles, live tag inheritance, date moves, opening the file in another text editor, and manual widget refresh. Dates appear newest first; tasks retain file order. Per-widget sorting controls are the next increment.
 
+[0.1.1](docs/0.1.1-visual-update.md) applies the first phone feedback: dark theme, slightly smaller text, the `muh todo` name, and the supplied launcher artwork.
+
 ## Try it
 
-Install `app/build/outputs/apk/debug/app-debug.apk`, open Markdown Todo, and select a disposable `.md` document with read/write access. Add **Markdown Todo** through your launcher's widget picker. Use `+` to create, a checkbox to toggle, a task's text to edit, and `↻` after external file changes. See [the phone checklist](docs/testing-on-grapheneos.md).
+Install `app/build/outputs/apk/debug/app-debug.apk`, open muh todo, and select a disposable `.md` document with read/write access. Add **muh todo** through your launcher's widget picker. Use `+` to create, a checkbox to toggle, a task's text to edit, and `↻` after external file changes. See [the phone checklist](docs/testing-on-grapheneos.md).
 
 ```markdown
 ### 06.10.26

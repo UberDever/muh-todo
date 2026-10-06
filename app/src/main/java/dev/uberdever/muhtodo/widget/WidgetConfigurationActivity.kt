@@ -13,6 +13,9 @@ import androidx.compose.ui.unit.dp
 import dev.uberdever.muhtodo.AppServices
 import dev.uberdever.muhtodo.MainActivity
 import dev.uberdever.muhtodo.document.WidgetOptions
+import dev.uberdever.muhtodo.R
+import dev.uberdever.muhtodo.ui.TodoTheme
+import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.CancellationException
 
 class WidgetConfigurationActivity : ComponentActivity() {
@@ -25,7 +28,7 @@ class WidgetConfigurationActivity : ComponentActivity() {
         val manager = AppWidgetManager.getInstance(this)
         if (id == AppWidgetManager.INVALID_APPWIDGET_ID || manager.getAppWidgetInfo(id)?.provider?.className != WidgetProvider::class.java.name) { finish(); return }
         setContent {
-            MaterialTheme {
+            TodoTheme {
                 var ready by remember { mutableStateOf(false) }
                 var message by remember { mutableStateOf("Opening document…") }
                 LaunchedEffect(revision) {
@@ -35,7 +38,7 @@ class WidgetConfigurationActivity : ComponentActivity() {
                 }
                 Surface(Modifier.fillMaxSize()) {
                     Column(Modifier.padding(24.dp).windowInsetsPadding(WindowInsets.safeDrawing), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Text("Markdown Todo widget", style = MaterialTheme.typography.headlineSmall)
+                        Text(stringResource(R.string.widget_name), style = MaterialTheme.typography.headlineSmall)
                         Text(message)
                         OutlinedButton(onClick = { startActivity(Intent(this@WidgetConfigurationActivity, MainActivity::class.java)) }) { Text("Select or change document") }
                         Button(enabled = ready, onClick = {
