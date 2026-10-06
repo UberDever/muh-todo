@@ -1,7 +1,7 @@
 # Android Markdown Todo Widget
 
 Date: 2026-10-06
-Status: consolidated design for user review; implementation has not started.
+Status: approved by the user on 2026-10-06; implementation has not started.
 
 ## Purpose and scope
 
@@ -155,7 +155,10 @@ rules above.
 
 The editor requires a nonblank single-line body and valid tags. Parsing
 existing documents remains governed by the recognition grammar, rather
-than stricter editor validation. Saving writes the document, refreshes all
+than stricter editor validation. Reject a draft if its selected metadata
+representation would cause its literal body to be parsed as metadata;
+do not silently change the body/tags or invent an escape syntax.
+Saving writes the document, refreshes all
 widgets, and closes the editor. Cancel makes no change.
 
 ## Simple file handling and errors
