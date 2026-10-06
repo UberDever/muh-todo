@@ -275,3 +275,10 @@ Docker build; build/signature checks pass. Native lint has 0 errors/16 warnings;
 offline lint has 0 errors/14 warnings. Independent code review found no issues.
 Cloud start_skill updated and saved; publication/fresh-task restoration is
 unverified. Installation tools and dependencies are unchanged.
+
+## 0.2.2 sorting-control amendment
+
+The user requested three buttons per sort with one active selection, and
+publication of all source work to UberDever/muh-todo. Segmented selectors
+map directly to the existing preferences; sorting semantics are unchanged.
+Native tests/build/lint pass (125 tests; lint 0 errors/16 warnings).

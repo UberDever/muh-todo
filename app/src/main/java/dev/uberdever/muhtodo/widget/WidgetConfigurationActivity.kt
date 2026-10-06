@@ -7,16 +7,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.uberdever.muhtodo.AppServices
 import dev.uberdever.muhtodo.MainActivity
@@ -81,12 +77,11 @@ class WidgetConfigurationActivity : ComponentActivity() {
                         Text(stringResource(R.string.widget_name), style = MaterialTheme.typography.headlineSmall)
                         Text(message)
                         SortControl(stringResource(R.string.sort_completion), options.sortCompletion, options.completionDescending,
-                            onEnabledChange = { options = options.copy(sortCompletion = it) },
-                            onDescendingChange = { options = options.copy(completionDescending = it) },
-                            hint = stringResource(R.string.completion_sort_hint))
+                            labels = listOf(stringResource(R.string.no_sort), stringResource(R.string.incomplete_first), stringResource(R.string.complete_first)),
+                            onChange = { enabled, descending -> options = options.copy(sortCompletion = enabled, completionDescending = descending) })
                         SortControl(stringResource(R.string.sort_tags), options.sortTags, options.tagsDescending,
-                            onEnabledChange = { options = options.copy(sortTags = it) },
-                            onDescendingChange = { options = options.copy(tagsDescending = it) })
+                            labels = listOf(stringResource(R.string.no_sort), stringResource(R.string.tags_ascending), stringResource(R.string.tags_descending)),
+                            onChange = { enabled, descending -> options = options.copy(sortTags = enabled, tagsDescending = descending) })
                         OutlinedButton(onClick = { startActivity(Intent(this@WidgetConfigurationActivity, MainActivity::class.java)) }) { Text("Select or change document") }
                         Button(enabled = ready, onClick = { saveConfiguration() }) { Text(stringResource(R.string.save_widget_settings)) }
                         TextButton(onClick = { finish() }) { Text(stringResource(R.string.cancel_widget_settings)) }
@@ -99,28 +94,25 @@ class WidgetConfigurationActivity : ComponentActivity() {
 
 @Composable
 private fun SortControl(label: String, enabled: Boolean, descending: Boolean,
-    onEnabledChange: (Boolean) -> Unit, onDescendingChange: (Boolean) -> Unit, hint: String? = null) {
-    Column {
-        Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(
-            value = enabled, role = Role.Checkbox, onValueChange = onEnabledChange), verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(checked = enabled, onCheckedChange = null)
-            Text(label, Modifier.padding(start = 12.dp))
-        }
-        if (enabled) {
-            Column(Modifier.padding(start = 24.dp).selectableGroup()) {
-                SortDirectionOption(stringResource(R.string.sort_ascending), !descending) { onDescendingChange(false) }
-                SortDirectionOption(stringResource(R.string.sort_descending), descending) { onDescendingChange(true) }
+    labels: List<String>, onChange: (Boolean, Boolean) -> Unit) {
+    val selected = if (!enabled) 0 else if (descending) 2 else 1
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(label, style = MaterialTheme.typography.titleMedium)
+        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+            labels.forEachIndexed { index, text ->
+                SegmentedButton(
+                    selected = selected == index,
+                    onClick = { onChange(index != 0, if (index == 0) descending else index == 2) },
+                    shape = SegmentedButtonDefaults.itemShape(index, labels.size),
+                    modifier = Modifier.weight(1f).heightIn(min = 64.dp).fillMaxHeight(),
+                    colors = SegmentedButtonDefaults.colors(
+                        activeContainerColor = MaterialTheme.colorScheme.primary,
+                        activeContentColor = MaterialTheme.colorScheme.onPrimary),
+                    icon = {},
+                ) {
+                    Text(text, textAlign = TextAlign.Center, style = MaterialTheme.typography.labelLarge)
+                }
             }
-            hint?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
         }
-    }
-}
-
-@Composable
-private fun SortDirectionOption(label: String, selected: Boolean, choose: () -> Unit) {
-    Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).selectable(selected = selected, role = Role.RadioButton, onClick = choose),
-        verticalAlignment = Alignment.CenterVertically) {
-        RadioButton(selected = selected, onClick = null)
-        Text(label, Modifier.padding(start = 12.dp))
     }
 }

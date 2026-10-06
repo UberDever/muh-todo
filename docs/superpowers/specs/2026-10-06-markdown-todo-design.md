@@ -198,8 +198,13 @@ Group by date, newest first. Combine tasks from repeated sections sharing a
 date for display, retaining physical file order as their stable tie-breaker.
 Each widget independently stores two sorting controls:
 
-1. **Sort by completion**: off (default), ascending, or descending.
-2. **Sort by tags**: off (default), ascending, or descending.
+1. **Sort by completion**: No sort (default), Incomplete first, or Complete first.
+2. **Sort by tags**: No sort (default), a-z and 0-9, or z-a and 9-0.
+
+Each control is a row of three buttons with exactly one selected. The active
+segment is highlighted; labels wrap on narrow screens. Completion choices
+map to off/ascending/descending; tag choices map to the existing case-sensitive
+Unicode tuple comparator, without changing the recognized tag grammar.
 
 Within a displayed date, compare completion when enabled, then effective tag
 tuples when enabled, then original file order. Each comparator follows its

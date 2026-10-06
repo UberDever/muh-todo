@@ -2,13 +2,15 @@
 
 A small Android app and home-screen widget backed by your own UTF-8 Markdown document. Android 8.0+ (API 26); no accounts, database, Google Play services, or network permission. The document stays where you selected it through Android's document picker.
 
-The app supports creating/editing tasks, direct completion toggles, live tag inheritance, date moves, and manual widget refresh. Each widget has independent **Sort by completion** and **Sort by tags** controls. Both can be off, ascending, or descending. Completion takes priority over tags; ascending completion puts incomplete tasks first, descending puts completed tasks and plain entries first. Equal sort keys keep file order. Dates appear newest first. Tap the widget's gear to change its settings; sorting changes only the view.
+The app supports creating/editing tasks, direct completion toggles, live tag inheritance, date moves, and manual widget refresh. Each widget has independent **Sort by completion** and **Sort by tags** controls. Each uses three buttons with exactly one selected: **No sort / Incomplete first / Complete first** for completion, and **No sort / a-z and 0-9 / z-a and 9-0** for tags. Completion takes priority over tags; ascending completion puts incomplete tasks first, descending puts completed tasks and plain entries first. Equal sort keys keep file order. Dates appear newest first. Tap the widget's gear to change its settings; sorting changes only the view.
 
 [0.1.1](docs/0.1.1-visual-update.md) applies the first phone feedback: dark theme, slightly smaller text, the `muh todo` name, and the supplied launcher artwork.
 
 [0.2.0 validation and offline rebuild instructions](docs/0.2.0-validation.md) cover sorting settings, optional checkboxes, and rebuilding the new source with the preserved image.
 
 [0.2.1](docs/0.2.1-validation.md) adds independent sort directions, aligned bullets, and a tag format hint.
+
+[0.2.2](docs/0.2.2-validation.md) replaces sorting checkboxes/radio options with two three-way segmented selectors.
 
 ## Try it
 
