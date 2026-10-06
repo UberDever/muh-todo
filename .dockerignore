@@ -6,4 +6,4 @@
 artifacts
 *.jks
 **/*.keystore
-!toolchain/debug.keystore
+!snapshot/workspace/.muh-todo/debug.keystore

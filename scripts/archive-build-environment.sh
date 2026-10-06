@@ -25,11 +25,13 @@ key = pathlib.Path(os.environ.get('MUH_TODO_DEBUG_KEYSTORE', '/workspace/.muh-to
 if not key.is_file():
     raise SystemExit('Existing signing key required; source the build environment first.')
 skip_source = shutil.ignore_patterns('.git', '.gradle', '.kotlin', '.superpowers', 'build', 'artifacts', 'local.properties', '*.jks', '*.keystore')
-shutil.copytree(repo, context / 'source', ignore=skip_source)
-shutil.copytree(sdk, context / 'toolchain/sdk')
+snapshot = context / 'snapshot/workspace'
+shutil.copytree(repo, snapshot / 'muh-todo', ignore=skip_source)
+shutil.copytree(sdk, snapshot / '.android-sdk')
 for name in ['caches', 'wrapper/dists', 'robolectric-home']:
-    shutil.copytree(cache / name, context / 'toolchain/gradle' / name, ignore=shutil.ignore_patterns('*.lock', '*.lck'))
-shutil.copy2(key, context / 'toolchain/debug.keystore')
+    shutil.copytree(cache / name, snapshot / '.gradle' / name, ignore=shutil.ignore_patterns('*.lock', '*.lck'))
+(snapshot / '.muh-todo').mkdir()
+shutil.copy2(key, snapshot / '.muh-todo/debug.keystore')
 shutil.copy2(repo / 'build-support/Dockerfile', context / 'Dockerfile')
 shutil.copy2(repo / '.dockerignore', context / '.dockerignore')
 PY
