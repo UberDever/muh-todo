@@ -1,0 +1,9 @@
+.git
+.gradle
+.kotlin
+.superpowers
+**/build
+artifacts
+*.jks
+**/*.keystore
+!toolchain/debug.keystore
