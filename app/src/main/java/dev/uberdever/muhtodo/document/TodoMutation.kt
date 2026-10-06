@@ -50,6 +50,21 @@ object TodoMutation {
         return insertLine(document, effective, if (inheritTags) TagForm.INHERITED else explicitForm(effective.tags))
     }
 
+    fun insertAfter(document: ParsedDocument, anchor: Todo, fields: TaskFields): String {
+        requireTask(document, anchor)
+        require(fields.date == anchor.date) { "An inherited entry must use its preceding entry's date." }
+        validate(fields)
+        val form = if (fields.tags == anchor.tags) TagForm.INHERITED else explicitForm(fields.tags)
+        val content = checkedLine(fields, form, anchor.tags)
+        val lines = sourceLines(document.source)
+        val line = lines[anchor.lineIndex]
+        if (line.ending.isEmpty()) {
+            val ending = lines.lastOrNull { it.ending.isNotEmpty() }?.ending ?: "\n"
+            return document.source + ending + content
+        }
+        return document.source.substring(0, line.end) + content + line.ending + document.source.substring(line.end)
+    }
+
     private fun insertLine(document: ParsedDocument, fields: TaskFields, form: TagForm): String {
         val section = document.sections.lastOrNull { it.date == fields.date }
         val preceding = predecessor(document, fields.date)

@@ -31,6 +31,7 @@ class DocumentRepository(private val store: DocumentStore, val preferences: Docu
     }
 
     suspend fun create(expectedUri: Uri, fields: TaskFields, inheritTags: Boolean) = mutate(expectedUri, null) { doc, _ -> TodoMutation.insert(doc, fields, inheritTags) }
+    suspend fun createAfter(expectedUri: Uri, ref: TaskRef, fields: TaskFields) = mutate(expectedUri, ref) { doc, task -> TodoMutation.insertAfter(doc, task!!, fields) }
     suspend fun edit(expectedUri: Uri, ref: TaskRef, fields: TaskFields) = mutate(expectedUri, ref) { doc, task -> TodoMutation.edit(doc, task!!, fields) }
     suspend fun toggle(expectedUri: Uri, ref: TaskRef) = mutate(expectedUri, ref) { doc, task -> TodoMutation.toggle(doc, task!!) }
 

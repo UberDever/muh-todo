@@ -54,6 +54,19 @@ class WidgetActionsTest {
         assertEquals(EditorRequest.Edit(uri, ref), EditorIntents.decode(started))
         assertTrue(activity.isFinishing)
     }
+    @Test fun returnArrowStartsCreationEditorWithTheClickedEntriesReference() {
+        val action = "dev.uberdever.muhtodo.CREATE_AFTER"
+        val fill = WidgetActions.createAfterFillIn(uri, ref)
+        val activity = Robolectric.buildActivity(WidgetActionActivity::class.java, fill).create().get()
+        val started = shadowOf(activity).nextStartedActivity
+        assertNotNull(started)
+        assertEquals(EditorActivity::class.java.name, started.component?.className)
+        assertEquals(action, started.action)
+        assertEquals(EditorRequest.CreateAfter(uri, ref), EditorIntents.decode(started))
+        assertEquals(uri, started.data)
+        assertEquals(ref, EditorIntents.readReference(started)?.ref)
+        assertTrue(activity.isFinishing)
+    }
     @Test fun plusUsesSameEditorInCreateMode() {
         assertEquals(EditorRequest.Create, EditorIntents.decode(EditorIntents.create(context)))
     }

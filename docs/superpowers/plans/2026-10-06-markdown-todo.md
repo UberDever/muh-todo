@@ -282,3 +282,15 @@ The user requested three buttons per sort with one active selection, and
 publication of all source work to UberDever/muh-todo. Segmented selectors
 map directly to the existing preferences; sorting semantics are unchanged.
 Native tests/build/lint pass (125 tests; lint 0 errors/18 warnings).
+
+## 0.3.0 anchored-creation amendment
+
+The user removed Completed/Inherit tags editor controls and requested a ⏎
+action on every widget entry. Creation inserts immediately after that physical
+line with editable prefilled tags; equal tuples use ^^^, changed tuples are
+explicit, cleared tuples omit metadata. Existing following inheritance remains
+live. Date stays fixed to the anchor; Use checkbox still defaults on.
+Known-tag insertion uses the cursor, cleans extra spaces, and shows suggestions
+in ascending lexical order. These are extensions of the existing editor,
+mutation, intent, and RemoteViews flows. Native validation: 140 tests pass;
+lint 0 errors/19 warnings. View-only tag colors are deferred in docs/roadmap.md.

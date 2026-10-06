@@ -24,11 +24,17 @@ class EditorViewModel(private val repository: DocumentRepository, private val re
         viewModelScope.launch {
             try {
                 val snapshot = repository.read()
-                if (request is EditorRequest.Edit && snapshot.uri != request.uri) throw DocumentChangedException()
+                val expectedUri = when (request) {
+                    is EditorRequest.Edit -> request.uri
+                    is EditorRequest.CreateAfter -> request.uri
+                    else -> null
+                }
+                if (expectedUri != null && snapshot.uri != expectedUri) throw DocumentChangedException()
                 state = if (saved?.containsKey("draft.uri") == true) restore(snapshot, request, saved)
                 else when (request) {
                     EditorRequest.Create -> EditorState.create(snapshot, LocalDate.now())
                     is EditorRequest.Edit -> EditorState.edit(snapshot, request.ref)
+                    is EditorRequest.CreateAfter -> EditorState.createAfter(snapshot, request.ref)
                     null -> throw DocumentChangedException()
                 }
             } catch (e: CancellationException) { throw e }
@@ -46,6 +52,12 @@ class EditorViewModel(private val repository: DocumentRepository, private val re
     private fun restore(snapshot: DocumentSnapshot, request: EditorRequest?, bundle: Bundle): EditorState {
         val base = when (request) {
             EditorRequest.Create -> EditorState.create(snapshot, LocalDate.now())
+            is EditorRequest.CreateAfter -> {
+                if (snapshot.uri != request.uri) throw DocumentChangedException()
+                val tags = bundle.getStringArrayList("draft.tags").orEmpty()
+                EditorState(snapshot, null, TaskFields(request.ref.date, false, tags, ""),
+                    inheritedTags = tags, insertAfter = request.ref)
+            }
             is EditorRequest.Edit -> {
                 if (snapshot.uri != request.uri) throw DocumentChangedException()
                 EditorState(snapshot, request.ref, TaskFields(request.ref.date, false, emptyList(), ""))

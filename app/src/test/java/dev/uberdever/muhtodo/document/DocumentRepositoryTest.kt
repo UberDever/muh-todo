@@ -126,6 +126,15 @@ class DocumentRepositoryTest {
         assertEquals(WidgetOptions(true, true), DocumentPreferences(context).widgetOptions(11))
     }
 
+    @Test fun createAfterRejectsStaleAnchorWithoutWriting() = runBlocking {
+        val ref = TaskRef.from(TodoParser.parse(source), TodoParser.parse(source).tasks.single())
+        store.source = source.replace("first", "changed externally")
+        assertThrows(DocumentChangedException::class.java) {
+            runBlocking { repository.createAfter(uri, ref, TaskFields(LocalDate.of(2026, 10, 2), false, emptyList(), "child")) }
+        }
+        assertTrue(store.writes.isEmpty())
+    }
+
     private class MemoryStore(@Volatile var source: String) : DocumentStore {
         val writes = mutableListOf<String>()
         var readFailure: Exception? = null

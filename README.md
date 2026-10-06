@@ -12,9 +12,11 @@ The app supports creating/editing tasks, direct completion toggles, live tag inh
 
 [0.2.2](docs/0.2.2-validation.md) replaces sorting checkboxes/radio options with two three-way segmented selectors.
 
+[0.3.0](docs/0.3.0-validation.md) adds anchored creation with editable prefilled tags, cursor-aware known-tag insertion, and ascending tag suggestions. [Later features](docs/roadmap.md) include display-only tag colors.
+
 ## Try it
 
-Install `app/build/outputs/apk/debug/app-debug.apk`, open muh todo, and select a disposable `.md` document with read/write access. Add **muh todo** through your launcher's widget picker. Use `+` to create, a checkbox to toggle, a task's text to edit, and `↻` after external file changes. See [the phone checklist](docs/testing-on-grapheneos.md).
+Install `app/build/outputs/apk/debug/app-debug.apk`, open muh todo, and select a disposable `.md` document with read/write access. Add **muh todo** through your launcher's widget picker. Use `+` to create, a checkbox to toggle, a task's text to edit, `⏎` to create below it with prefilled tags, and `↻` after external file changes. See [the phone checklist](docs/testing-on-grapheneos.md).
 
 ```markdown
 ### 06.10.26
@@ -27,7 +29,7 @@ Exact date headings and checkbox syntax matter. Lowercase `x` marks completion. 
 
 Checkboxes are optional: plain `- BODY` entries support the same tags, inheritance, and dates. They display an aligned bullet instead of a widget checkbox and sort with completed tasks when completion sorting is enabled. Tapping the bullet opens the editor. **Use checkbox** defaults on for new entries; switch it off to create a plain entry. Editing or moving a plain entry keeps it plain. Invalid leading checkbox-like tokens such as `[X] ` remain unrelated Markdown.
 
-Creation's **Inherit tags** toggle starts off. It inherits the preceding recognized task in the target section when enabled, including an empty tuple. Dates default to the phone's current local date; missing sections are created automatically. The editor deliberately accepts one-line bodies. Untagged bodies beginning with reserved metadata (`(#...` or `^^^`) may be unrepresentable and are rejected.
+Tap a row's **⏎** button to create immediately below that entry in the file. Tags are prefilled and editable; unchanged tags serialize as `^^^`, changed tags are explicit, and cleared tags omit metadata. The date stays fixed to the source entry. Following existing `^^^` lines naturally inherit the inserted entry's tags. Ordinary **+** creation uses explicit tags. The editor has no Completed or Inherit tags checkboxes; toggle completion directly in the widget. Dates default to the phone's current local date; missing sections are created automatically. The editor deliberately accepts one-line bodies. Untagged bodies beginning with reserved metadata (`(#...` or `^^^`) may be unrepresentable and are rejected.
 
 The file is reread before a change. A stale task or changed document selection requires reopening the editor/refreshing the widget. There is no merge engine, external-edit watcher, or atomic-write promise for arbitrary document providers. Test with a disposable document first.
 

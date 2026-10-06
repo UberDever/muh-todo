@@ -127,14 +127,18 @@ only the separators needed to make the header and task separate lines.
 Use the surrounding line-ending style, or LF for an empty document. Keep
 existing section ordering; display ordering is independent.
 
-Creation has an Inherit tags toggle, off by default. When enabled, display
-the preceding task's effective tags as read-only and serialize `^^^`.
-An empty effective tuple may also be inherited. Disable the toggle when
-there is no preceding recognized task in the chosen insertion section.
-Changing the date recomputes inheritance availability and the shown tuple.
-When disabled, write selected tags explicitly even if they match the
-preceding task, or omit metadata for an empty tuple. Never infer inheritance
-automatically for a new task.
+Normal + creation writes tags explicitly and uses the section insertion
+policy above. There is no Inherit tags checkbox in the editor.
+
+Each widget entry exposes a ⏎ button to create an entry immediately below
+that specific physical source line. Its date is fixed to the anchor's date;
+tags are prefilled from the anchor's effective tuple and remain editable.
+If unchanged, serialize `^^^`, including for an empty tuple. If changed,
+serialize explicit tags, or omit metadata when cleared. Following existing
+`^^^` lines naturally inherit from the newly inserted entry; leave their
+text unchanged, consistent with live inheritance. Preserve unrelated lines,
+line endings, and BOM. Repeated dates and widget sorting do not change the
+selected physical insertion location. Use checkbox still defaults on.
 
 ### Moving to another date
 
@@ -152,16 +156,18 @@ it. Explicit task tags remain explicit. Do not remove empty source sections.
 
 ## Lightweight editor
 
-Use a compact, dialog-like normal Activity, launched by task taps or +.
-It contains date, Use checkbox, completed state when a checkbox is enabled,
-ordered tags, body, Save, and Cancel. Use checkbox defaults on for creation;
+Use a compact, dialog-like normal Activity, launched by task taps, +, or ⏎.
+It contains date, Use checkbox, ordered tags, body, Save, and Cancel.
+Completion is toggled through the widget; editor saves retain existing state. Use checkbox defaults on for creation;
 editing loads the entry's existing checkbox presence. Turning it off removes
 the completion state and writes a plain entry.
-Creation additionally exposes Inherit tags.
+The ⏎ action prefills editable tags and fixes the date to its source anchor.
 
 Keep tag input simple: an ordered space-separated tag field with suggestions
-from the document, allowing new valid tags. Adding a suggested tag appends
-it; do not silently sort or discard duplicates. For an existing inherited
+from the document, allowing new valid tags. Sort suggestions lexicographically
+by Unicode code point. Insert a suggestion at the cursor, replacing a selection
+when present, adding one separator where needed and removing excess ASCII
+spaces. Do not sort the selected tuple or discard duplicate tags. For an existing inherited
 task, show its effective tags, and retain `^^^` when those tags are unchanged
 and it stays in the same date section. Date moves follow the materialization
 rules above.
@@ -231,7 +237,8 @@ tuples together, because doing so would violate the chosen ordering.
 Entries without checkboxes display a bullet in the same column as checkbox
 controls, preserving text alignment. Tapping a bullet opens the editor.
 Checkbox taps mutate completion directly. Body taps open the editor. +
-opens creation. A small refresh button rereads the document and refreshes
+opens ordinary creation. Each row has a 48dp ⏎ target for anchored creation
+with prefilled editable tags. A small refresh button rereads the document and refreshes
 widgets after external edits. App mutations refresh every widget instance.
 There is no periodic background refresh or file watcher.
 

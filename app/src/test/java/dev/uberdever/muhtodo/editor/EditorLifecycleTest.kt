@@ -36,6 +36,56 @@ class EditorLifecycleTest {
         while (!condition() && System.nanoTime() < until) { shadowOf(Looper.getMainLooper()).idle(); Thread.sleep(5) }
         assertTrue("Asynchronous operation did not finish", condition())
     }
+    @Test fun arrowCreationSavesBelowItsAnchorAndRefreshesOnce() {
+        val source = """
+            ### 06.10.26
+            - [x] (#a) anchor
+            - (#b) last
+        """.trimIndent()
+        val snapshot = DocumentSnapshot(uri, TodoParser.parse(source))
+        val ref = TaskRef.from(snapshot.document, snapshot.document.tasks.first())
+        var text = source
+        var writes = 0
+        var refreshes = 0
+        val store = object : DocumentStore {
+            override fun read(uri: Uri) = text
+            override fun write(uri: Uri, source: String) { text = source; writes++ }
+        }
+        val owner = EditorViewModel(repo(store)) { refreshes++ }
+        owner.open(EditorRequest.CreateAfter(uri, ref), null)
+        await { owner.state != null || owner.loadError != null }
+        val state = owner.state!!
+        assertEquals(listOf("#a"), state.inheritedTags)
+        owner.update(state.copy(fields = state.fields.copy(body = "child", hasCheckbox = false)))
+        owner.save()
+        await { owner.state?.saved == true }
+        assertEquals("""
+            ### 06.10.26
+            - [x] (#a) anchor
+            - ^^^ child
+            - (#b) last
+        """.trimIndent(), text)
+        assertEquals(1, writes)
+        assertEquals(1, refreshes)
+    }
+    @Test fun staleInheritedAnchorRestoresBodyButCannotSaveAfterProcessRecreation() {
+        val snapshot = DocumentSnapshot(uri, TodoParser.parse(original))
+        val ref = TaskRef.from(snapshot.document, snapshot.document.tasks.single())
+        val draft = EditorState.createAfter(snapshot, ref).let { it.copy(fields = it.fields.copy(body = "keep me")) }
+        val saved = Bundle().also(draft::writeDraft)
+        val store = object : DocumentStore {
+            override fun read(uri: Uri) = original.replace("original", "changed externally")
+            override fun write(uri: Uri, source: String) { fail("A stale anchor cannot write") }
+        }
+        val owner = EditorViewModel(repo(store)) {}
+        owner.open(EditorRequest.CreateAfter(uri, ref), saved)
+        await { owner.state != null || owner.loadError != null }
+        assertEquals("keep me", owner.state?.fields?.body)
+        assertEquals(ref, owner.state?.insertAfter)
+        assertNotNull(owner.state?.validationError())
+        owner.save()
+        assertFalse(owner.state!!.saved)
+    }
     @Test fun staleTaskStillRestoresEnteredDraftAfterProcessRecreation() {
         val snapshot = DocumentSnapshot(uri, TodoParser.parse(original))
         val ref = TaskRef.from(snapshot.document, snapshot.document.tasks.single())

@@ -42,6 +42,29 @@ class EditorStateTest {
     private val uri = Uri.parse("content://test/todos")
     private fun snapshot(text: String = "") = DocumentSnapshot(uri, TodoParser.parse(text.trimIndent()))
 
+    @Test fun createAfterPrefillsEditableTagsFromTheSelectedEntryAndRetainsItsDraft() {
+        val snapshot = snapshot("""
+            ### 06.10.26
+            - (#a #b #a) anchor
+            - (#other) last
+        """)
+        val ref = TaskRef.from(snapshot.document, snapshot.document.tasks.first())
+        val state = EditorState.createAfter(snapshot, ref)
+        assertEquals(ref, state.insertAfter)
+        assertEquals(listOf("#a", "#b", "#a"), state.fields.tags)
+        assertTrue(state.fields.hasCheckbox)
+        assertFalse(state.fields.completed)
+        assertEquals(listOf("#a", "#b", "#a"), state.inheritedTags)
+        assertEquals(today, state.withDate(today.plusDays(1)).fields.date)
+        val draft = state.copy(fields = state.fields.copy(body = "child", tags = listOf("#edited"), hasCheckbox = false))
+        val restored = EditorState.createAfter(snapshot, ref).restoreDraft(Bundle().also(draft::writeDraft))
+        assertEquals(ref, restored.insertAfter)
+        assertEquals("child", restored.fields.body)
+        assertFalse(restored.fields.hasCheckbox)
+        assertEquals(listOf("#edited"), restored.fields.tags)
+        assertNull(restored.validationError())
+    }
+
     @Test fun creationDefaultsToTodayWithoutInheritance() {
         val state = EditorState.create(snapshot(), today)
         assertEquals(today, state.fields.date)

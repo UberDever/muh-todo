@@ -5,4 +5,5 @@
         <TextView android:id="@+id/tags" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="11sp" android:textColor="@color/todo_secondary_text" />
         <TextView android:id="@+id/body" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="@color/todo_text" />
     </LinearLayout>
+    <TextView android:id="@+id/create_after" android:layout_width="48dp" android:layout_height="48dp" android:gravity="center" android:text="⏎" android:textSize="24sp" android:textColor="@color/todo_secondary_text" />
 </LinearLayout>

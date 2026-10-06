@@ -23,10 +23,12 @@ class TodoRemoteViewsService : RemoteViewsService() {
             row.completed -> "Mark incomplete: ${row.body}"
             else -> "Mark complete: ${row.body}"
         })
+        setContentDescription(R.id.create_after, "Create inherited entry after: ${row.body}")
         uri?.let {
             // Replace a recycled checkbox's action as well as its appearance.
             setOnClickFillInIntent(R.id.checkbox, if (row.hasCheckbox) WidgetActions.toggleFillIn(it, row.ref) else WidgetActions.editFillIn(it, row.ref))
             setOnClickFillInIntent(R.id.task_text, WidgetActions.editFillIn(it, row.ref))
+            setOnClickFillInIntent(R.id.create_after, WidgetActions.createAfterFillIn(it, row.ref))
         }
     }
     override fun onGetViewFactory(intent: Intent): RemoteViewsFactory = Factory(intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1))

@@ -8,12 +8,15 @@ import java.time.LocalDate
 
 sealed interface EditorRequest {
     data object Create : EditorRequest
+    data class CreateAfter(val uri: Uri, val ref: TaskRef) : EditorRequest
     data class Edit(val uri: Uri, val ref: TaskRef) : EditorRequest
 }
 object EditorIntents {
     const val CREATE = "dev.uberdever.muhtodo.CREATE"
+    const val CREATE_AFTER = "dev.uberdever.muhtodo.CREATE_AFTER"
     const val EDIT = "dev.uberdever.muhtodo.EDIT"
     fun create(context: Context) = Intent(context, EditorActivity::class.java).setAction(CREATE)
+    fun createAfter(context: Context, uri: Uri, ref: TaskRef) = reference(Intent(context, EditorActivity::class.java).setAction(CREATE_AFTER), uri, ref)
     fun edit(context: Context, uri: Uri, ref: TaskRef) = reference(Intent(context, EditorActivity::class.java).setAction(EDIT), uri, ref)
     fun reference(intent: Intent, uri: Uri, ref: TaskRef): Intent = intent.setData(uri)
         .putExtra("task.line", ref.lineIndex).putExtra("task.original", ref.expectedLine).putExtra("task.date", ref.date.toString())
@@ -28,6 +31,7 @@ object EditorIntents {
     fun decode(intent: Intent): EditorRequest? = when (intent.action) {
         CREATE -> EditorRequest.Create
         EDIT -> readReference(intent)
+        CREATE_AFTER -> readReference(intent)?.let { EditorRequest.CreateAfter(it.uri, it.ref) }
         else -> null
     }
 }

@@ -5,15 +5,17 @@ import dev.uberdever.muhtodo.document.*
 import java.time.LocalDate
 import kotlinx.coroutines.CancellationException
 
-data class EditorState(val snapshot: DocumentSnapshot, val ref: TaskRef?, val fields: TaskFields, val inheritTags: Boolean = false, val canInherit: Boolean = false, val inheritedTags: List<String> = emptyList(), val saving: Boolean = false, val saved: Boolean = false, val error: String? = null) {
+data class EditorState(val snapshot: DocumentSnapshot, val ref: TaskRef?, val fields: TaskFields, val inheritTags: Boolean = false, val canInherit: Boolean = false, val inheritedTags: List<String> = emptyList(), val saving: Boolean = false, val saved: Boolean = false, val error: String? = null, val insertAfter: TaskRef? = null) {
     fun withDate(date: LocalDate): EditorState {
+        if (insertAfter != null) return copy(fields = fields.copy(date = insertAfter.date), error = null)
         if (ref != null) return copy(fields = fields.copy(date = date), error = null)
         val previous = predecessor(snapshot, date)
         return copy(fields = fields.copy(date = date), canInherit = previous != null,
             inheritedTags = previous?.tags.orEmpty(), inheritTags = inheritTags && previous != null, error = null)
     }
     fun validationError(): String? = try {
-        if (ref == null) TodoMutation.insert(snapshot.document, fields, inheritTags)
+        if (insertAfter != null) TodoMutation.insertAfter(snapshot.document, selected(snapshot, insertAfter), fields)
+        else if (ref == null) TodoMutation.insert(snapshot.document, fields, inheritTags)
         else TodoMutation.edit(snapshot.document, selected(snapshot, ref), fields)
         null
     } catch (e: Exception) { e.message ?: "Check the task fields." }
@@ -33,10 +35,11 @@ data class EditorState(val snapshot: DocumentSnapshot, val ref: TaskRef?, val fi
         return dated.copy(fields = dated.fields.copy(body = bundle.getString("draft.body").orEmpty(),
             tags = bundle.getStringArrayList("draft.tags").orEmpty(), completed = bundle.getBoolean("draft.completed"),
             hasCheckbox = bundle.getBoolean("draft.has-checkbox", fields.hasCheckbox)),
-            inheritTags = dated.canInherit && bundle.getBoolean("draft.inherit"))
+            inheritTags = insertAfter == null && dated.canInherit && bundle.getBoolean("draft.inherit"))
     }
     suspend fun save(repository: DocumentRepository): EditorState = try {
-        if (ref == null) repository.create(snapshot.uri, fields, inheritTags)
+        if (insertAfter != null) repository.createAfter(snapshot.uri, insertAfter, fields)
+        else if (ref == null) repository.create(snapshot.uri, fields, inheritTags)
         else repository.edit(snapshot.uri, ref, fields)
         copy(saved = true, saving = false, error = null)
     } catch (e: CancellationException) { throw e }
@@ -44,6 +47,11 @@ data class EditorState(val snapshot: DocumentSnapshot, val ref: TaskRef?, val fi
     companion object {
         fun create(snapshot: DocumentSnapshot, today: LocalDate) = EditorState(snapshot, null,
             TaskFields(today, false, emptyList(), "")).withDate(today)
+        fun createAfter(snapshot: DocumentSnapshot, ref: TaskRef): EditorState {
+            val task = selected(snapshot, ref)
+            return EditorState(snapshot, null, TaskFields(task.date, false, task.tags, ""),
+                inheritedTags = task.tags, insertAfter = ref)
+        }
         fun edit(snapshot: DocumentSnapshot, ref: TaskRef): EditorState {
             val task = selected(snapshot, ref)
             return EditorState(snapshot, ref, TaskFields(task.date, task.completed, task.tags, task.body, task.hasCheckbox))
