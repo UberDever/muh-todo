@@ -36,6 +36,10 @@
 4. Stale widget actions or malformed action extras: reject the action instead of toggling a different task or crashing (Tasks 3 and 5).
 5. URI grants and APK identity survive process restarts and app updates: reload preferences and reuse the signing key; verify actual behavior on the phone (Tasks 3 and 7).
 
+## Execution status
+
+Increment 1 (Tasks 1–5) implemented and checked with 84 passing tests, build/lint, independent review fixes, and a private offline build image. Delivery is the hands-on checkpoint below. Tasks 6–7 remain pending phone feedback; README and the phone checklist were brought forward to support the first handoff. Evidence: [Increment 1 validation](../../increment1-validation.md).
+
 ## Increments and file ownership
 
 **Increment 1 — Tasks 1–5:** a functional APK with document selection, external-editor access, creation/editing, inheritance, date moves, and a refreshable widget with direct checkboxes. Display uses newest-first dates and original task order. Advanced sorting controls arrive in Increment 2.
@@ -58,13 +62,13 @@ All product Kotlin paths below are relative to `app/src/main/java/dev/uberdever/
 - `Todo(lineIndex: Int, sectionHeaderLine: Int, date: LocalDate, completed: Boolean, body: String, tags: List<String>, form: TagForm)`; tags are effective full tokens including #; `TagForm = NONE | EXPLICIT | INHERITED`.
 - `TodoParser.parse(source: String): ParsedDocument`; `TagSyntax.isValidToken(token: String): Boolean`.
 
-- [ ] **1. Bootstrap pinned tools and test infrastructure without adding app behavior.** Keep SDK and Gradle caches outside the checkout, under `/workspace/.android-sdk` and `/workspace/.gradle`. Reuse Java 21 but obtain a full JDK if the compiler is absent. Obtain command-line tools 19.0 (`commandlinetools-linux-13114758_latest.zip`) from Google's official repository and verify its published checksum from repository metadata; planning observed SHA-1 `5fdcc763663eefb86a5b8879697aa6088b041e70`. Install `platforms;android-36`, `build-tools;36.0.0`, and `platform-tools` with sdkmanager, accepting the SDK licenses noninteractively while preserving command exit status. Verify the Gradle distribution SHA-256 `20f1b1176237254a6fc204d8434196fa11a4cfb387567519c61556e8710aed78`, and set `distributionSha256Sum` in the wrapper. Preserve TLS and artifact verification. Set Gradle memory to 2 GiB and at most two workers, adjusting only if actual resources require it. Configure JUnit and Robolectric with Android resources; use the official Maven Central repository for Robolectric runtime artifacts.
-- [ ] **1a. Before any Gradle build, prepare local activation and stable signing.** Create `/workspace/.muh-todo/env.sh` setting JAVA_HOME, ANDROID_HOME, GRADLE_USER_HOME, and the tool PATH. Generate/reuse a private debug keystore at `/workspace/.muh-todo/debug.keystore`, configure debug signing to that retained path, and never replace an existing key. Keep both files outside Git.
-- [ ] **2. Add failing parser tests.** Anchor assertion:
+- [x] **1. Bootstrap pinned tools and test infrastructure without adding app behavior.** Keep SDK and Gradle caches outside the checkout, under `/workspace/.android-sdk` and `/workspace/.gradle`. Reuse Java 21 but obtain a full JDK if the compiler is absent. Obtain command-line tools 19.0 (`commandlinetools-linux-13114758_latest.zip`) from Google's official repository and verify its published checksum from repository metadata; planning observed SHA-1 `5fdcc763663eefb86a5b8879697aa6088b041e70`. Install `platforms;android-36`, `build-tools;36.0.0`, and `platform-tools` with sdkmanager, accepting the SDK licenses noninteractively while preserving command exit status. Verify the Gradle distribution SHA-256 `20f1b1176237254a6fc204d8434196fa11a4cfb387567519c61556e8710aed78`, and set `distributionSha256Sum` in the wrapper. Preserve TLS and artifact verification. Set Gradle memory to 2 GiB and at most two workers, adjusting only if actual resources require it. Configure JUnit and Robolectric with Android resources; use the official Maven Central repository for Robolectric runtime artifacts.
+- [x] **1a. Before any Gradle build, prepare local activation and stable signing.** Create `/workspace/.muh-todo/env.sh` setting JAVA_HOME, ANDROID_HOME, GRADLE_USER_HOME, and the tool PATH. Generate/reuse a private debug keystore at `/workspace/.muh-todo/debug.keystore`, configure debug signing to that retained path, and never replace an existing key. Keep both files outside Git.
+- [x] **2. Add failing parser tests.** Anchor assertion:
 
 ```kotlin
 @Test fun inheritanceSkipsUnrelatedLines() {
-    val doc = TodoParser.parse("### 02.10.26\n- [ ] (#work/project #123 #work/project) first\ncomment\n- [x] ^^^ second\n")
+    val doc = TodoParser.parse("### 02.10.26\n- [x] (#work/project #123 #work/project) first\ncomment\n- [x] ^^^ second\n")
     assertEquals(2, doc.tasks.size)
     assertEquals(listOf("#work/project", "#123", "#work/project"), doc.tasks[1].tags)
     assertTrue(doc.tasks[1].completed)
@@ -72,10 +76,10 @@ All product Kotlin paths below are relative to `app/src/main/java/dev/uberdever/
 ```
 
 Also add named cases for invalid calendar dates, exact header width/trailing whitespace, uppercase/indented checkboxes, malformed reserved prefixes, inheritance before any todo, chain boundaries, untagged predecessors, arbitrary body text, duplicate date headings, numeric-leading and supplementary-letter tags, tuple spacing/order/duplicates, and BOM plus mixed line endings. Assert malformed lines stay in `source` and do not become tasks. A plain parenthesized body such as `(remember this)` remains a todo; malformed `(#broken tag)` does not.
-- [ ] **3. Run** `./gradlew :app:testDebugUnitTest --tests '*TodoParserTest'`. Confirm failure comes from missing parser behavior, not an unresolved SDK or dependency.
-- [ ] **4. Implement the three document files.** Scan physical lines while retaining exact offsets/endings; parse the first line after a BOM without deleting it from source. Validate dates strictly. Reset inheritance only on recognized headers; ignore malformed/unrelated lines without changing the predecessor. Collect known explicit tags in first-appearance order with unique suggestions.
-- [ ] **5. Rerun the targeted command.** Require executed passing tests, then run `./gradlew :app:assembleDebug` to verify the pinned Android toolchain; this is not yet a user-testable app.
-- [ ] **6. Commit only this task's files:** `feat: add strict Markdown todo parser`.
+- [x] **3. Run** `./gradlew :app:testDebugUnitTest --tests '*TodoParserTest'`. Confirm failure comes from missing parser behavior, not an unresolved SDK or dependency.
+- [x] **4. Implement the three document files.** Scan physical lines while retaining exact offsets/endings; parse the first line after a BOM without deleting it from source. Validate dates strictly. Reset inheritance only on recognized headers; ignore malformed/unrelated lines without changing the predecessor. Collect known explicit tags in first-appearance order with unique suggestions.
+- [x] **5. Rerun the targeted command.** Require executed passing tests, then run `./gradlew :app:assembleDebug` to verify the pinned Android toolchain; this is not yet a user-testable app.
+- [x] **6. Commit only this task's files:** `feat: add strict Markdown todo parser`.
 
 ### Task 2: Minimal mutations and inheritance semantics
 
@@ -83,14 +87,14 @@ Also add named cases for invalid calendar dates, exact header width/trailing whi
 
 **Interfaces:** Consume Task 1 models. Produce `TodoMutation.toggle(document: ParsedDocument, task: Todo): String`, `edit(document: ParsedDocument, task: Todo, fields: TaskFields): String`, and `insert(document: ParsedDocument, fields: TaskFields, inheritTags: Boolean): String`. Reject invalid draft bodies/tags/dates and unavailable inheritance; return the full updated source string without Android dependencies.
 
-- [ ] **1. Add failing mutation tests.** Anchor assertion:
+- [x] **1. Add failing mutation tests.** Anchor assertion:
 
 ```kotlin
 @Test fun movingMaterializesOnlyFirstSourceSuccessor() {
-    val source = "### 02.10.26\n- [ ] (#a) first\ncomment\n- [ ] ^^^ second\n- [ ] ^^^ third\n"
+    val source = "### 02.10.26\n- [x] (#a) first\ncomment\n- [x] ^^^ second\n- [x] ^^^ third\n"
     val doc = TodoParser.parse(source)
     val changed = TodoMutation.edit(doc, doc.tasks[0], TaskFields(LocalDate.of(2026, 10, 3), false, listOf("#a"), "first"))
-    assertTrue(changed.contains("comment\n- [ ] (#a) second\n- [ ] ^^^ third\n"))
+    assertTrue(changed.contains("comment\n- [x] (#a) second\n- [x] ^^^ third\n"))
     assertEquals(listOf("#a"), TodoParser.parse(changed).tasks.single { it.body == "first" }.tags)
 }
 ```
@@ -98,10 +102,10 @@ Also add named cases for invalid calendar dates, exact header width/trailing whi
 Add cases asserting checkbox-only character changes; unchanged metadata on body edits; tag-edit propagation; empty-tuple materialization; insertion after the last recognized task across unrelated lines; header-only and repeated sections; absent sections appended without reordering; explicit insertion despite matching predecessor; enabled inheritance including empty tags; inherited movement into matching/mismatching destination contexts; source chains across comments; simultaneous date/tag edits using old tags for the source successor; and byte-exact preservation of unrelated text, BOM, and CRLF. Reject newlines, blank editor bodies, dates outside 2000–2099, and invalid tag tokens.
 Add `ambiguousPlainBodyIsRejected`: inserting an untagged literal body `(#work) literal` with inheritance off must reject rather than silently changing its tags/body. The same body must round-trip when preceded by valid explicit or inherited metadata. Add `unrepresentableEmptyTagSuccessorRejectsMove`: when materializing an empty inherited tuple would reinterpret the successor's literal body as metadata, reject the whole move before writing. Validate every emitted task line against its intended fields rather than inventing escapes or enabling inheritance automatically.
 
-- [ ] **2. Run** `./gradlew :app:testDebugUnitTest --tests '*TodoMutationTest'` and confirm the intended failure.
-- [ ] **3. Implement the three mutation methods.** Use source spans/retained line endings, not task-only serialization. Resolve moves and successor materialization from the original parse before calculating destination insertion. Keep empty sections. Explicit moved lines remain explicit; inherited moved lines materialize only when their intended effective tags cannot be supplied at the destination. Never normalize existing metadata during completion/body edits.
-- [ ] **4. Rerun parser and mutation tests:** `./gradlew :app:testDebugUnitTest --tests '*TodoParserTest' --tests '*TodoMutationTest'`. Require positive executed test counts and no failures.
-- [ ] **5. Commit:** `feat: add document mutations and controlled inheritance`.
+- [x] **2. Run** `./gradlew :app:testDebugUnitTest --tests '*TodoMutationTest'` and confirm the intended failure.
+- [x] **3. Implement the three mutation methods.** Use source spans/retained line endings, not task-only serialization. Resolve moves and successor materialization from the original parse before calculating destination insertion. Keep empty sections. Explicit moved lines remain explicit; inherited moved lines materialize only when their intended effective tags cannot be supplied at the destination. Never normalize existing metadata during completion/body edits.
+- [x] **4. Rerun parser and mutation tests:** `./gradlew :app:testDebugUnitTest --tests '*TodoParserTest' --tests '*TodoMutationTest'`. Require positive executed test counts and no failures.
+- [x] **5. Commit:** `feat: add document mutations and controlled inheritance`.
 
 ### Task 3: SAF repository and persistent metadata
 
@@ -116,7 +120,7 @@ Add `ambiguousPlainBodyIsRejected`: inserting an untagged literal body `(#work) 
 - DocumentRepository exposes `select(uri: Uri, grantFlags: Int): Unit`; suspend `read(): DocumentSnapshot`, `create(expectedUri: Uri, fields: TaskFields, inheritTags: Boolean): Unit`, `edit(expectedUri: Uri, ref: TaskRef, fields: TaskFields): Unit`, and `toggle(expectedUri: Uri, ref: TaskRef): Unit`.
 - `TaskRef.from(document: ParsedDocument, task: Todo): TaskRef` captures the original line. `DocumentChangedException` identifies a changed URI/task; `DocumentAccessException` represents I/O/permission/encoding failure without exposing document contents.
 
-- [ ] **1. Add failing repository/store tests.** Use a fake DocumentStore for mutations and a Robolectric ContentProvider for stream modes and permission persistence. Assert `edit` rejects a changed original line and performs zero writes; rejects a changed selected URI even if another document has the same line; rereads before writes and preserves external changes to unrelated lines; serializes concurrent app writes; and propagates read, truncate/write, and permission failures. Assert rebuilding DocumentPreferences reloads the URI and distinct widget settings. Strict UTF-8 decoding must reject invalid bytes and preserve a BOM; output must use a supported truncating stream, not append or delete/recreate.
+- [x] **1. Add failing repository/store tests.** Use a fake DocumentStore for mutations and a Robolectric ContentProvider for stream modes and permission persistence. Assert `edit` rejects a changed original line and performs zero writes; rejects a changed selected URI even if another document has the same line; rereads before writes and preserves external changes to unrelated lines; serializes concurrent app writes; and propagates read, truncate/write, and permission failures. Assert rebuilding DocumentPreferences reloads the URI and distinct widget settings. Strict UTF-8 decoding must reject invalid bytes and preserve a BOM; output must use a supported truncating stream, not append or delete/recreate.
 Use a fixture with selected URI `content://test/todos`, one parsed task, and a fake store recording `writes: MutableList<String>`. Anchor:
 
 ```kotlin
@@ -130,10 +134,10 @@ Use a fixture with selected URI `content://test/todos`, one parsed task, and a f
 }
 ```
 
-- [ ] **2. Run** `./gradlew :app:testDebugUnitTest --tests '*DocumentRepositoryTest' --tests '*ContentResolverDocumentStoreTest'`; confirm intentional failures.
-- [ ] **3. Implement the repository.** Perform stream I/O on Dispatchers.IO and protect reread/mutate/write with a Mutex. Use the URI grant flags actually returned by the picker, masked to read/write. Verify TaskRef still identifies a recognized task at that line and date. Use short typed errors for no document, document changed, unsupported text, and I/O/permission failure; no merge or recovery engine. Never copy tasks into preferences.
-- [ ] **4. Rerun targeted tests.** Execute provider-backed tests on Robolectric API 26 and 35; distinguish these checks from actual GrapheneOS provider behavior.
-- [ ] **5. Commit:** `feat: persist document access and write through SAF`.
+- [x] **2. Run** `./gradlew :app:testDebugUnitTest --tests '*DocumentRepositoryTest' --tests '*ContentResolverDocumentStoreTest'`; confirm intentional failures.
+- [x] **3. Implement the repository.** Perform stream I/O on Dispatchers.IO and protect reread/mutate/write with a Mutex. Use the URI grant flags actually returned by the picker, masked to read/write. Verify TaskRef still identifies a recognized task at that line and date. Use short typed errors for no document, document changed, unsupported text, and I/O/permission failure; no merge or recovery engine. Never copy tasks into preferences.
+- [x] **4. Rerun targeted tests.** Execute provider-backed tests on Robolectric API 26 and 35; distinguish these checks from actual GrapheneOS provider behavior.
+- [x] **5. Commit:** `feat: persist document access and write through SAF`.
 
 ### Task 4: Document controls and compact editor
 
@@ -143,7 +147,7 @@ Use a fixture with selected URI `content://test/todos`, one parsed task, and a f
 
 Expose `fields: TaskFields`, `inheritTags: Boolean`, `canInherit: Boolean`, and `inheritedTags: List<String>`. Factories `EditorState.create(snapshot: DocumentSnapshot, today: LocalDate): EditorState` and `edit(snapshot: DocumentSnapshot, ref: TaskRef): EditorState` initialize it. `withDate(date: LocalDate): EditorState` recomputes creation inheritance.
 
-- [ ] **1. Add failing editor tests.** Assert creation defaults to local today and unchecked, inheritance is off, changing date recalculates the last matching section's predecessor, and unavailable inheritance cannot produce an orphan marker. Assert body-only edits preserve inherited tags, manual tag edits become explicit, ordered/duplicate tags round-trip, invalid drafts cannot save, missing/stale intent extras produce a safe error, and a failed save retains entered fields.
+- [x] **1. Add failing editor tests.** Assert creation defaults to local today and unchecked, inheritance is off, changing date recalculates the last matching section's predecessor, and unavailable inheritance cannot produce an orphan marker. Assert body-only edits preserve inherited tags, manual tag edits become explicit, ordered/duplicate tags round-trip, invalid drafts cannot save, missing/stale intent extras produce a safe error, and a failed save retains entered fields.
 Anchor:
 
 ```kotlin
@@ -157,10 +161,10 @@ Anchor:
 }
 ```
 
-- [ ] **2. Run** `./gradlew :app:testDebugUnitTest --tests '*EditorStateTest' --tests '*EditorIntentsTest'` and inspect intentional failures.
-- [ ] **3. Implement UI and intent wiring.** MainActivity has Select/change document and Open in editor; Task 5 adds Refresh widgets once that backend exists. Use ACTION_OPEN_DOCUMENT, persisted read/write grants, and temporary grants for ACTION_EDIT. The editor is a normal compact Activity with date, completion, ordered space-separated tags plus appendable known-tag suggestions, one-line body, Save, and Cancel. Disable tag editing while creation inheritance is on. Restrict selectable dates to the format's 2000–2099 range. Read on open; call the repository on save and close only after success. Do not add a second in-app task list or section-management UI.
-- [ ] **4. Rerun tests and build:** `./gradlew :app:testDebugUnitTest :app:assembleDebug`. Inspect manifest exports: launcher public, editor internal; no storage/all-files permissions.
-- [ ] **5. Commit:** `feat: add document selection and compact task editor`.
+- [x] **2. Run** `./gradlew :app:testDebugUnitTest --tests '*EditorStateTest' --tests '*EditorIntentsTest'` and inspect intentional failures.
+- [x] **3. Implement UI and intent wiring.** MainActivity has Select/change document and Open in editor; Task 5 adds Refresh widgets once that backend exists. Use ACTION_OPEN_DOCUMENT, persisted read/write grants, and temporary grants for ACTION_EDIT. The editor is a normal compact Activity with date, completion, ordered space-separated tags plus appendable known-tag suggestions, one-line body, Save, and Cancel. Disable tag editing while creation inheritance is on. Restrict selectable dates to the format's 2000–2099 range. Read on open; call the repository on save and close only after success. Do not add a second in-app task list or section-management UI.
+- [x] **4. Rerun tests and build:** `./gradlew :app:testDebugUnitTest :app:assembleDebug`. Inspect manifest exports: launcher public, editor internal; no storage/all-files permissions.
+- [x] **5. Commit:** `feat: add document selection and compact task editor`.
 
 ### Task 5: Functional widget and first hands-on APK
 
@@ -168,23 +172,23 @@ Anchor:
 
 **Interfaces:** `WidgetProjection.project(document: ParsedDocument, options: WidgetOptions): List<WidgetRow>`, with `WidgetRow.DateHeader(date: LocalDate)` and `WidgetRow.Task(ref: TaskRef, completed: Boolean, body: String, tagLabel: String?)`. This increment exposes default options only. `WidgetActions.refreshAll(context: Context): Unit`; action intents include the widget ID, expected document URI, TaskRef, and an explicit toggle/edit/refresh action.
 
-- [ ] **1. Add failing widget tests.** Assert newest-first date headers, combined repeated-date tasks in original order, and current-source TaskRefs. Assert a checkbox action calls repository toggle without opening the editor, body action constructs the edit intent, + opens creation, malformed actions cause zero writes, different widget instances have distinct action identities, and a stale action surfaces a safe failure. Test empty documents and permission-error states without substituting fake sample tasks.
+- [x] **1. Add failing widget tests.** Assert newest-first date headers, combined repeated-date tasks in original order, and current-source TaskRefs. Assert a checkbox action calls repository toggle without opening the editor, body action constructs the edit intent, + opens creation, malformed actions cause zero writes, different widget instances have distinct action identities, and a stale action surfaces a safe failure. Test empty documents and permission-error states without substituting fake sample tasks.
 Anchor:
 
 ```kotlin
 @Test fun repeatedDatesCombineWithoutReorderingTheirTasks() {
-    val doc = TodoParser.parse("### 01.10.26\n- [ ] old1\n### 02.10.26\n- [ ] new\n### 01.10.26\n- [ ] old2\n")
+    val doc = TodoParser.parse("### 01.10.26\n- [x] old1\n### 02.10.26\n- [x] new\n### 01.10.26\n- [x] old2\n")
     val rows = WidgetProjection.project(doc, WidgetOptions()).filterIsInstance<WidgetRow.Task>()
     assertEquals(listOf("new", "old1", "old2"), rows.map { it.body })
 }
 ```
 
-- [ ] **2. Run** `./gradlew :app:testDebugUnitTest --tests '*WidgetProjectionTest' --tests '*WidgetActionsTest'` and confirm intentional failures.
-- [ ] **3. Implement RemoteViews collection rendering and actions.** Use a RemoteViewsService-backed ListView for API 26 compatibility. Scope collection PendingIntent templates and fill-in intents to explicit app components; use mutability only where collection fill-in requires it. Route toggle to repository mutation without displaying the editor, and route row edits to the compact Activity. Keep asynchronous broadcast work within goAsync completion and update widgets after successful mutation. Test launcher editor routing on the phone before claiming current Android background-activity behavior works. Expose header + and refresh; show a document-selection prompt when needed. Configuration initially selects a document if missing and adds a widget with default options. Remove only widget-specific preferences on deletion.
-- [ ] **4. Verify** `./gradlew :app:testDebugUnitTest :app:assembleDebug :app:lintDebug`. Check current-run test counts and reports. Reuse the private debug signing key established in Task 1. Verify the APK with SDK apksigner, record its certificate fingerprint and APK SHA-256, and retain the downloadable artifact at `app/build/outputs/apk/debug/app-debug.apk`.
-- [ ] **5. Commit:** `feat: add interactive Markdown todo widget`.
-- [ ] **5a. Add durable build delivery before the first APK handoff.** Create a digest-pinned Dockerfile, .dockerignore, and documented build/archive commands. Seed a private build image with the verified toolchain and resolved dependencies, verify the actual project can build/test with Docker networking disabled and Gradle offline, and preserve image/APK checksums. Include a way to export/import that image and retain the private signing key. Keep generated images, caches, archives, and keys out of Git; do not publish images or keys to a registry. A future host need not install the historical SDK/JDK. State that future Android OS compatibility still requires a real-device test.
-- [ ] **6. Deliver Increment 1 and pause for hands-on feedback.** Provide the APK through the available artifact delivery mechanism and a short checklist: select a disposable file, add widget, create explicit/inherited tasks, toggle, edit tags, move dates, launch external editor, externally edit and refresh. Tell the user advanced sorting is the next increment. Verify checkbox/editor routing on GrapheneOS from actual results. If artifact delivery is unavailable, report the exact retrieval limitation rather than presenting an unusable preview or download link.
+- [x] **2. Run** `./gradlew :app:testDebugUnitTest --tests '*WidgetProjectionTest' --tests '*WidgetActionsTest'` and confirm intentional failures.
+- [x] **3. Implement RemoteViews collection rendering and actions.** Use a RemoteViewsService-backed ListView for API 26 compatibility. Scope collection PendingIntent templates and fill-in intents to explicit app components; use mutability only where collection fill-in requires it. Route toggle to repository mutation without displaying the editor, and route row edits to the compact Activity. Keep asynchronous broadcast work within goAsync completion and update widgets after successful mutation. Test launcher editor routing on the phone before claiming current Android background-activity behavior works. Expose header + and refresh; show a document-selection prompt when needed. Configuration initially selects a document if missing and adds a widget with default options. Remove only widget-specific preferences on deletion.
+- [x] **4. Verify** `./gradlew :app:testDebugUnitTest :app:assembleDebug :app:lintDebug`. Check current-run test counts and reports. Reuse the private debug signing key established in Task 1. Verify the APK with SDK apksigner, record its certificate fingerprint and APK SHA-256, and retain the downloadable artifact at `app/build/outputs/apk/debug/app-debug.apk`.
+- [x] **5. Commit:** `feat: add interactive Markdown todo widget`.
+- [x] **5a. Add durable build delivery before the first APK handoff.** Create a digest-pinned Dockerfile, .dockerignore, and documented build/archive commands. Seed a private build image with the verified toolchain and resolved dependencies, verify the actual project can build/test with Docker networking disabled and Gradle offline, and preserve image/APK checksums. Include a way to export/import that image and retain the private signing key. Keep generated images, caches, archives, and keys out of Git; do not publish images or keys to a registry. A future host need not install the historical SDK/JDK. State that future Android OS compatibility still requires a real-device test.
+- [x] **6. Deliver Increment 1 and pause for hands-on feedback.** Provide the APK through the available artifact delivery mechanism and a short checklist: select a disposable file, add widget, create explicit/inherited tasks, toggle, edit tags, move dates, launch external editor, externally edit and refresh. Tell the user advanced sorting is the next increment. Verify checkbox/editor routing on GrapheneOS from actual results. If artifact delivery is unavailable, report the exact retrieval limitation rather than presenting an unusable preview or download link.
 
 ### Task 6: Sorting settings and final rendering
 
