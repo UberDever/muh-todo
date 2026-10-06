@@ -21,7 +21,7 @@ class TodoRemoteViewsService : RemoteViewsService() {
     }
     internal fun taskViews(row: WidgetRow.Task, uri: Uri?): RemoteViews = RemoteViews(packageName, R.layout.widget_task).apply {
         setTextViewText(R.id.body, row.body)
-        setTextViewText(R.id.tags, TagLabels.colored(row.tagLabel))
+        setTextViewText(R.id.tags, TagLabels.colored(row.tagLabel, row.tags))
         setViewVisibility(R.id.tags, if (row.tagLabel == null) View.GONE else View.VISIBLE)
         setViewVisibility(R.id.checkbox, View.VISIBLE)
         setTextViewText(R.id.checkbox, if (!row.hasCheckbox) "•" else if (row.completed) "☑" else "☐")

@@ -1,7 +1,7 @@
 # Ordered tuple colors and the 0–99 priority picker
 
-Status: proposed design and standalone prototypes. Android behavior is still
-0.4.0; these files do not implement the new picker in the app.
+Status: implemented in Android 0.5.0. The images/HTML are earlier design
+illustrations; use the APK for hands-on validation. See ../0.5.0-validation.md.
 
 The user requested stable, pool-independent colors for ordered tag tuples,
 visible prefix relationships and unified tuple labels. Known-tag suggestions
@@ -41,7 +41,7 @@ for a fixed semantic tuple. Known-tag chips and the bottom tuple preview are ill
 preview is not a proposed extra editor field.
 It does not write a document. JavaScript syntax was checked; a browser gesture
 run was unavailable because the cloud machine has no Playwright browser binary.
-Actual Android gesture behavior is a later implementation/device check.
+Actual Android gesture behavior is implemented; physical-device checks remain.
 
 ## Markdown and editing
 

@@ -52,20 +52,21 @@ class WidgetEntryRenderingTest {
     @Test fun coloredTagsAreReplacedWhenARowIsReused() {
         val service = Robolectric.buildService(TodoRemoteViewsService::class.java).create().get()
         val ref = TaskRef(1, "- [ ] (#buy #cook) body", LocalDate.of(2026, 10, 2))
-        val row = WidgetRow.Task(ref, false, "body", "#buy #cook")
+        val row = WidgetRow.Task(ref, false, "body", "#buy #cook", tags = listOf("#buy", "#cook"))
         val view = service.taskViews(row, null).apply(service, FrameLayout(service))
         val text = view.findViewById<TextView>(R.id.tags).text as android.text.Spanned
         val spans = text.getSpans(0, text.length, android.text.style.ForegroundColorSpan::class.java)
-        assertEquals(2, spans.size)
-        assertEquals(dev.uberdever.muhtodo.ui.TagColors.color("#buy"), spans[0].foregroundColor)
-        assertEquals(dev.uberdever.muhtodo.ui.TagColors.color("#cook"), spans[1].foregroundColor)
+        assertEquals(1, spans.size)
+        assertEquals(dev.uberdever.muhtodo.ui.TagColors.color(row.tags), spans[0].foregroundColor)
         assertEquals(0, text.getSpanStart(spans[0]))
-        assertEquals(4, text.getSpanEnd(spans[0]))
-        assertEquals(5, text.getSpanStart(spans[1]))
+        assertEquals(text.length, text.getSpanEnd(spans[0]))
         service.taskViews(row.copy(tagLabel = "^^^"), null).reapply(service, view)
         val shorthand = view.findViewById<TextView>(R.id.tags).text
         assertEquals("^^^", shorthand.toString())
-        if (shorthand is android.text.Spanned) assertEquals(0, shorthand.getSpans(0, shorthand.length, android.text.style.ForegroundColorSpan::class.java).size)
+        val inherited = shorthand as android.text.Spanned
+        val inheritedSpans = inherited.getSpans(0, inherited.length, android.text.style.ForegroundColorSpan::class.java)
+        assertEquals(1, inheritedSpans.size)
+        assertEquals(spans[0].foregroundColor, inheritedSpans[0].foregroundColor)
         service.taskViews(row.copy(tagLabel = null), null).reapply(service, view)
         assertEquals(View.GONE, view.findViewById<View>(R.id.tags).visibility)
     }

@@ -8,18 +8,17 @@
 - Vector return-arrow action for anchored creation.
 - Delete existing entries from the editor, preserving successor tags and unrelated Markdown.
 
-## Proposed next iteration
+## Implemented in 0.5.0
 
 - Ordered tuple OKLCH colors, shared color across the tuple and inherited shorthand.
 - Individual primary colors remain on known semantic tag suggestions.
 - Priority 0–99 stored as a numeric tag, excluded from known-tag suggestions;
   fast round-value buttons and secondary exact adjustment.
 
-[Design and prototypes](design/tuple-colors-priority.md) are ready for review.
-These features are not yet implemented in the Android app.
+[Algorithm reference](design/tuple-colors-priority.md); [validation and phone checks](0.5.0-validation.md).
 
 ## Next checks
 
-Hands-on validation on the Pixel 10 Pro/GrapheneOS: launcher Edit widget availability,
-widget action routing, color readability/distinction, editor Delete layout and interaction.
-See testing-on-grapheneos.md. The new color/priority design is the next proposed feature iteration.
+The user confirmed launcher widget settings and the 0.4.0 layout were available.
+Next: hands-on priority picker gestures, numeric-tag persistence and tuple colors
+on Pixel 10 Pro/GrapheneOS. No further feature iteration is currently agreed.

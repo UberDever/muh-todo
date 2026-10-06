@@ -29,7 +29,7 @@ class TagInputTest {
     }
     @Test fun knownTagSuggestionsSortByAscendingCodePointsWithoutChangingThePool() {
         val tags = listOf("#𐐀", "#cook", "#buy", "#Ａ", "#123", "#A")
-        assertEquals(listOf("#123", "#A", "#buy", "#cook", "#Ａ", "#𐐀"), TagInput.knownTags(tags))
+        assertEquals(listOf("#A", "#buy", "#cook", "#Ａ", "#𐐀"), TagInput.knownTags(tags))
         assertEquals("#𐐀", tags.first())
     }
 }

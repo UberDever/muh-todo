@@ -16,6 +16,32 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35], manifest = Config.NONE)
 class EditorStateTest {
+    @Test fun typingNumericTextDoesNotCaptureAndDuplicateAnUnfinishedToken() {
+        val state = EditorState.create(snapshot(), today)
+        val typed = state.withTags(listOf("#3"), state.fields.tags)
+            .withTags(listOf("#35"), state.fields.tags)
+        assertEquals(listOf("#35"), typed.fields.tags)
+        assertEquals(35, PriorityTags.value(typed.fields.tags))
+        assertEquals(listOf("#69"), typed.withPriority(69).fields.tags)
+    }
+    @Test fun priorityEditsKeepTheirPositionAndSurviveDraftRestoration() {
+        val snapshot = snapshot("""
+            ### 06.10.26
+            - [ ] (#buy #0035 #cook #69) body
+            - [ ] ^^^ child
+        """)
+        val ref = TaskRef.from(snapshot.document, snapshot.document.tasks.first())
+        val edited = EditorState.edit(snapshot, ref).withPriority(70)
+            .withTags(listOf("#work", "#cook", "#69"))
+        assertEquals(listOf("#work", "#70", "#cook", "#69"), edited.fields.tags)
+        val restored = EditorState.edit(snapshot, ref).restoreDraft(Bundle().also(edited::writeDraft))
+        assertEquals(edited.fields, restored.fields)
+        val changed = TodoParser.parse(TodoMutation.edit(snapshot.document, snapshot.document.tasks.first(), edited.fields))
+        assertEquals(edited.fields.tags, changed.tasks.last().tags)
+        val inherited = EditorState.createAfter(snapshot, ref)
+        assertEquals(35, PriorityTags.value(inherited.fields.tags))
+        assertEquals(listOf("#buy", "#0", "#cook", "#69"), inherited.withPriority(0).fields.tags)
+    }
     @Test fun plainEntryEditAndDraftRestorationPreserveCheckboxAbsence() {
         val snapshot = snapshot("""
             ### 06.10.26

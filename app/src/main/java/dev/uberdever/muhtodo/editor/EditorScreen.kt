@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.BorderStroke
 import dev.uberdever.muhtodo.ui.TagColors
+import dev.uberdever.muhtodo.ui.PriorityPicker
+import dev.uberdever.muhtodo.document.PriorityTags
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -27,13 +29,17 @@ fun EditorScreen(state: EditorState, onChange: (EditorState) -> Unit, onSave: ()
     val fields = state.fields
     val enabled = !state.saving
     val validation = state.validationError()
-    val initialTags = (if (state.inheritTags) state.inheritedTags else fields.tags).joinToString(" ")
+    val initialTags = PriorityTags.withoutPriority(if (state.inheritTags) state.inheritedTags else fields.tags).joinToString(" ")
     var tagInput by rememberSaveable(state.ref, state.insertAfter, state.snapshot.uri.toString(), stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(initialTags, TextRange(initialTags.length)))
     }
+    // Keep the managed token distinct from numeric text being typed in this field.
+    var prioritySource by rememberSaveable(state.ref, state.insertAfter, state.snapshot.uri.toString()) {
+        mutableStateOf(ArrayList(fields.tags))
+    }
     fun changeTags(value: TextFieldValue) {
         tagInput = value
-        onChange(state.copy(fields = fields.copy(tags = if (value.text.isEmpty()) emptyList() else value.text.split(" ")), error = null))
+        onChange(state.withTags(if (value.text.isEmpty()) emptyList() else value.text.split(" "), prioritySource))
     }
     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(if (state.ref == null) "New todo" else "Edit todo", style = MaterialTheme.typography.headlineSmall)
@@ -48,16 +54,24 @@ fun EditorScreen(state: EditorState, onChange: (EditorState) -> Unit, onSave: ()
             Checkbox(fields.hasCheckbox, { onChange(state.copy(fields = fields.copy(hasCheckbox = it, completed = fields.completed && it), error = null)) }, enabled = enabled)
             Text(stringResource(R.string.use_checkbox))
         }
+        PriorityPicker(fields.tags, enabled = enabled, onChange = {
+            val changed = state.withPriority(it)
+            prioritySource = ArrayList(changed.fields.tags)
+            val visible = PriorityTags.withoutPriority(changed.fields.tags).joinToString(" ")
+            tagInput = TextFieldValue(visible, TextRange(visible.length))
+            onChange(changed)
+        })
         OutlinedTextField(
             value = tagInput,
             onValueChange = ::changeTags,
             enabled = enabled && !state.inheritTags, label = { Text("Tags, in order") },
             supportingText = { Text(stringResource(R.string.tag_format_example)) },
             singleLine = true, modifier = Modifier.fillMaxWidth())
-        if (!state.inheritTags && state.snapshot.document.knownTags.isNotEmpty()) {
+        val knownTags = TagInput.knownTags(state.snapshot.document.knownTags)
+        if (!state.inheritTags && knownTags.isNotEmpty()) {
             Text("Insert a known tag", style = MaterialTheme.typography.labelMedium)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                TagInput.knownTags(state.snapshot.document.knownTags).forEach { tag ->
+                knownTags.forEach { tag ->
                     val color = Color(TagColors.color(tag))
                     SuggestionChip(onClick = { changeTags(TagInput.insert(tagInput, tag)) },
                         label = { Text(tag, color = color) }, enabled = enabled,

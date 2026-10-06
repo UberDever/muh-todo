@@ -6,6 +6,9 @@ import java.time.LocalDate
 import kotlinx.coroutines.CancellationException
 
 data class EditorState(val snapshot: DocumentSnapshot, val ref: TaskRef?, val fields: TaskFields, val inheritTags: Boolean = false, val canInherit: Boolean = false, val inheritedTags: List<String> = emptyList(), val saving: Boolean = false, val saved: Boolean = false, val error: String? = null, val insertAfter: TaskRef? = null, val deleting: Boolean = false) {
+    fun withPriority(value: Int) = copy(fields = fields.copy(tags = PriorityTags.withPriority(fields.tags, value)), error = null)
+    fun withTags(tags: List<String>, prioritySource: List<String> = fields.tags) =
+        copy(fields = fields.copy(tags = PriorityTags.withOrdinaryTags(prioritySource, tags)), error = null)
     fun withDate(date: LocalDate): EditorState {
         if (insertAfter != null) return copy(fields = fields.copy(date = insertAfter.date), error = null)
         if (ref != null) return copy(fields = fields.copy(date = date), error = null)

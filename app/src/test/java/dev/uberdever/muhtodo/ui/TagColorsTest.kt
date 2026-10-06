@@ -10,6 +10,32 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35], manifest = Config.NONE)
 class TagColorsTest {
+    @Test fun orderedTupleColorsMatchThePortableReference() {
+        val examples = listOf(
+            listOf("#3") to 0xFFA3ADB7.toInt(),
+            listOf("#3", "#belongings") to 0xFFE587BA.toInt(),
+            listOf("#3", "#belongings", "#relocation") to 0xFFE988A4.toInt(),
+            listOf("#3", "#belongings", "#storage") to 0xFFDD7DDF.toInt(),
+            listOf("#3", "#relocation", "#belongings") to 0xFFAFB768.toInt(),
+            listOf("#belongings", "#3") to 0xFFE587BB.toInt(),
+        )
+        for ((tags, expected) in examples) assertEquals(tags.toString(), expected, TagColors.color(tags))
+    }
+    @Test fun priorityLightnessIncreasesAndChildrenKeepThePrefixFamily() {
+        var previous = 0.0
+        for (priority in 0..99) {
+            val spec = TagColors.oklch(listOf("#$priority", "#belongings", "#relocation"))
+            assertTrue(spec.lightness > previous)
+            previous = spec.lightness
+        }
+        val prefix = TagColors.oklch(listOf("#3", "#belongings"))
+        for (tag in listOf("#relocation", "#storage", "#packing", "#delivery")) {
+            val child = TagColors.oklch(listOf("#3", "#belongings", tag))
+            val hueDelta = kotlin.math.abs(prefix.hue - child.hue).let { minOf(it, 360 - it) }
+            assertTrue(hueDelta <= 32)
+            assertTrue(kotlin.math.abs(prefix.lightness - child.lightness) <= .018)
+        }
+    }
     @Test fun exactUnicodeTagsHaveStableReadableColors() {
         for (tag in listOf("#buy", "#cook", "#work", "#life", "#покупки", "#𐐀", "#0/a!") + (0..999).map { "#tag$it" }) {
             val color = TagColors.color(tag)
@@ -23,14 +49,10 @@ class TagColorsTest {
         }
         assertNotEquals(TagColors.color("#𐐀"), TagColors.color("#𐐁"))
     }
-    @Test fun commonTagsAreVisiblySeparated() {
-        val colors = listOf("#buy", "#cook", "#work", "#life").map(TagColors::color)
-        for (i in colors.indices) for (j in 0 until i) {
-            val distance = kotlin.math.sqrt(listOf(16, 8, 0).sumOf { shift ->
-                val d = ((colors[i] shr shift) and 255) - ((colors[j] shr shift) and 255)
-                d * d.toDouble()
-            })
-            assertTrue("Common tag colors too close: $distance", distance >= 60)
-        }
+    @Test fun orderDuplicatesAndExactSpellingRemainPartOfTheColorIdentity() {
+        assertNotEquals(TagColors.color(listOf("#buy", "#cook")), TagColors.color(listOf("#cook", "#buy")))
+        assertNotEquals(TagColors.color(listOf("#buy")), TagColors.color(listOf("#buy", "#buy")))
+        assertNotEquals(TagColors.color("#buy"), TagColors.color("#BUY"))
+        assertNotEquals(TagColors.color(listOf("#35", "#buy")), TagColors.color(listOf("#buy", "#35")))
     }
 }

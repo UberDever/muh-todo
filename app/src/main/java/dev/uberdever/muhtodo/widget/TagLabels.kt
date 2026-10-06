@@ -6,14 +6,10 @@ import android.text.style.ForegroundColorSpan
 import dev.uberdever.muhtodo.ui.TagColors
 
 object TagLabels {
-    fun colored(label: String?): CharSequence? {
-        if (label == null || label == "^^^") return label
+    fun colored(label: String?, tags: List<String>): CharSequence? {
+        if (label == null) return null
         return SpannableString(label).apply {
-            var start = 0
-            label.split(" ").forEach { tag ->
-                setSpan(ForegroundColorSpan(TagColors.color(tag)), start, start + tag.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                start += tag.length + 1
-            }
+            setSpan(ForegroundColorSpan(TagColors.color(tags)), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 }

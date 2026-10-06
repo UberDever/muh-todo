@@ -12,7 +12,7 @@ The app supports creating/editing tasks, direct completion toggles, live tag inh
 
 [0.2.2](docs/0.2.2-validation.md) replaces sorting checkboxes/radio options with two three-way segmented selectors.
 
-[0.3.0](docs/0.3.0-validation.md) adds anchored creation with editable prefilled tags, cursor-aware known-tag insertion, and ascending tag suggestions. [0.4.0](docs/0.4.0-validation.md) removes the toolbar, adds dated creation and launcher reconfiguration, colors tags and suggestions, and adds entry deletion.
+[0.3.0](docs/0.3.0-validation.md) adds anchored creation with editable prefilled tags, cursor-aware known-tag insertion, and ascending tag suggestions. [0.4.0](docs/0.4.0-validation.md) removes the toolbar, adds dated creation and launcher reconfiguration, colors tags and suggestions, and adds entry deletion. [0.5.0](docs/0.5.0-validation.md) adds the 0–99 priority picker and unified ordered-tuple OKLCH colors.
 
 ## Try it
 

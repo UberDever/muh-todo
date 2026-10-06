@@ -3,6 +3,7 @@ package dev.uberdever.muhtodo.editor
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import dev.uberdever.muhtodo.document.TagSyntax
+import dev.uberdever.muhtodo.document.PriorityTags
 
 internal object TagInput {
     fun insert(value: TextFieldValue, tag: String): TextFieldValue {
@@ -14,5 +15,5 @@ internal object TagInput {
         val text = prefix + tag + suffix
         return TextFieldValue(text, TextRange(text.length))
     }
-    fun knownTags(tags: List<String>): List<String> = tags.sortedWith(TagSyntax::compareTokens)
+    fun knownTags(tags: List<String>): List<String> = tags.filter { PriorityTags.numericValue(it) == null }.sortedWith(TagSyntax::compareTokens)
 }

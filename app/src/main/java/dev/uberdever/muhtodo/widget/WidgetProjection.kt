@@ -5,7 +5,7 @@ import java.time.LocalDate
 
 sealed interface WidgetRow {
     data class DateHeader(val date: LocalDate) : WidgetRow
-    data class Task(val ref: TaskRef, val completed: Boolean, val body: String, val tagLabel: String?, val hasCheckbox: Boolean = true) : WidgetRow
+    data class Task(val ref: TaskRef, val completed: Boolean, val body: String, val tagLabel: String?, val hasCheckbox: Boolean = true, val tags: List<String> = emptyList()) : WidgetRow
 }
 object WidgetProjection {
     fun project(document: ParsedDocument, options: WidgetOptions): List<WidgetRow> = buildList {
@@ -31,7 +31,7 @@ object WidgetProjection {
                     task.tags == previousTags -> "^^^"
                     else -> task.tags.joinToString(" ")
                 }
-                add(WidgetRow.Task(TaskRef.from(document, task), task.completed, task.body, label, task.hasCheckbox))
+                add(WidgetRow.Task(TaskRef.from(document, task), task.completed, task.body, label, task.hasCheckbox, task.tags))
                 previousTags = task.tags
             }
         }
