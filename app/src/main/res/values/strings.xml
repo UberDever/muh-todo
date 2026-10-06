@@ -9,6 +9,7 @@
     <string name="sort_tags">Sort by tags</string>
     <string name="save_widget_settings">Save</string>
     <string name="cancel_widget_settings">Cancel</string>
+    <string name="use_checkbox">Use checkbox</string>
     <string name="new_todo">New todo</string>
     <string name="refresh_widgets">Refresh widgets</string>
     <string name="widget_empty">No recognized todos. Tap to open the app.</string>

@@ -17,7 +17,7 @@
 - Persistent app metadata consists of the selected document URI and per-widget display settings.
 - Preserve unrelated text, UTF-8 BOM, existing line endings, tag spelling, case, tuple order, and duplicates.
 - Exact date headings: `### DD.MM.YY`, valid calendar date, year 2000 + YY.
-- Exact task prefixes: `- [ ] ` and `- [x] `; lowercase x only; no indentation.
+- Exact entry prefix: `- `, with optional `[ ] ` or `[x] `; lowercase x only; no indentation. Invalid leading checkbox-like markers remain unrelated Markdown.
 - Tag token regex: `#[\p{L}\p{Nd}_/.!?+*<>=:-]+`; no quoting or escaping.
 - Creation inheritance is an explicit toggle, off by default; no automatic matching-tag compression.
 - Tag edits propagate through the following inheritance chain. Moves materialize its first source successor.
@@ -39,6 +39,8 @@
 ## Execution status
 
 Phone feedback amendment on 2026-10-06: use the `muh todo` display name, dark theme, slightly smaller text, and supplied launcher artwork (0.1.1). The user approved that update and requested Increment 2. Remove the app's Open in text editor action in this increment; the user opens the file independently.
+
+Increment 2 amendment: accept checkbox-free `- BODY`, `- (TAGS) BODY`, and `- ^^^ BODY` entries. They have no widget completion control and sort with completed tasks. Use checkbox defaults on for creation and is editable per entry. Preserve checkbox absence during editing, date moves, and inherited-successor materialization. Tests cover parser strictness, mixed inheritance, representation preservation, draft restoration, rejected direct toggles, and widget view reuse. The original task descriptions below record the initial plan; this amendment governs the updated behavior.
 
 Increment 1 (Tasks 1–5) implemented and checked with 84 passing tests, build/lint, independent review fixes, and a private offline build image. Delivery is the hands-on checkpoint below. Tasks 6–7 remain pending phone feedback; README and the phone checklist were brought forward to support the first handoff. Evidence: [Increment 1 validation](../../increment1-validation.md).
 

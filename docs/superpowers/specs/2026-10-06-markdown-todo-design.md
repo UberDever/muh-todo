@@ -44,8 +44,11 @@ is 2000 + YY. A recognized section extends until the next recognized date
 header. Invalid headings are unrelated text and do not end the current
 section. Tasks outside a valid section are not recognized.
 
-A todo starts exactly with `- [ ] ` or `- [x] `. Only lowercase x is valid.
-Its payload is one of:
+A recognized entry starts exactly with `- `, optionally followed by `[ ] `
+or `[x] `. Only lowercase x is valid. A bracketed token followed by whitespace
+or end of line is reserved for checkbox syntax; invalid forms such as `[X] `
+and `[maybe] ` remain unrelated Markdown. Markdown links such as `[docs](url)`
+are valid plain bodies. Its payload is one of:
 
 ```text
 BODY
@@ -84,6 +87,11 @@ The known tag pool is gathered from explicit parsed tuples. It supplies
 editor suggestions; it does not require separate storage. Deduplicating
 suggestions must not deduplicate a task's chosen tuple.
 
+User amendment on 2026-10-06: checkbox-free entries share dates, tags,
+inheritance, editing, and movement with tasks. They have no completion
+control and sort with completed tasks in incomplete-first mode. Their lack
+of a checkbox is represented by the file itself, never separate metadata.
+
 ## Document mutations
 
 Keep source text and physical source locations so operations can make
@@ -93,7 +101,10 @@ tasks or reorder unrelated content.
 ### Completion and ordinary edits
 
 Completion changes only the checkbox character between space and x.
-Editing body or completion keeps the existing tag representation.
+Only entries with a checkbox can be toggled. Editing body or completion keeps
+the existing tag representation. Preserve checkbox presence during ordinary
+edits, moves, and successor materialization; adding/removing it requires an
+explicit editor change.
 
 When effective tags are changed, write the chosen tuple explicitly, or
 omit tag metadata for an empty tuple. Leave following inheritance markers
@@ -142,7 +153,10 @@ it. Explicit task tags remain explicit. Do not remove empty source sections.
 ## Lightweight editor
 
 Use a compact, dialog-like normal Activity, launched by task taps or +.
-It contains date, completed state, ordered tags, body, Save, and Cancel.
+It contains date, Use checkbox, completed state when a checkbox is enabled,
+ordered tags, body, Save, and Cancel. Use checkbox defaults on for creation;
+editing loads the entry's existing checkbox presence. Turning it off removes
+the completion state and writes a plain entry.
 Creation additionally exposes Inherit tags.
 
 Keep tag input simple: an ordered space-separated tag field with suggestions
@@ -196,6 +210,9 @@ Within a displayed date, ordering is:
 | incomplete first | off | unchecked before checked, then file order |
 | incomplete first | on | unchecked before checked, then effective tag tuple, then file order |
 
+Checkbox-free entries belong to the checked group for sorting only. This does
+not add a checkbox or completion marker to them.
+
 Compare tag identifiers case-sensitively by Unicode code point, and tuples
 element by element. A shorter equal-prefix tuple sorts first; empty tuples
 sort first. No locale collation or normalization.
@@ -207,6 +224,7 @@ display choice and does not reflect whether a file line is explicit or
 inherited. When tag sorting is off, do not collect nonconsecutive matching
 tuples together, because doing so would violate the chosen ordering.
 
+Entries without checkboxes display plain text without a completion control.
 Checkbox taps mutate completion directly. Body taps open the editor. +
 opens creation. A small refresh button rereads the document and refreshes
 widgets after external edits. App mutations refresh every widget instance.

@@ -5,6 +5,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class WidgetProjectionTest {
+    @Test fun checkboxFreeEntriesSortAsCompletedAndKeepTheirPhysicalReferences() {
+        val doc = TodoParser.parse("""
+            ### 02.10.26
+            - (#a) plain
+            - [x] (#b) done
+            - [ ] (#b) openB
+            - [ ] (#a) openA
+        """.trimIndent())
+        assertEquals(4, doc.tasks.size)
+        assertEquals(listOf("plain", "done", "openB", "openA"), tasks(doc, WidgetOptions()).map { it.body })
+        assertEquals(listOf("openB", "openA", "plain", "done"), tasks(doc, WidgetOptions(true, false)).map { it.body })
+        val sorted = tasks(doc, WidgetOptions(true, true))
+        assertEquals(listOf("openA", "openB", "plain", "done"), sorted.map { it.body })
+        assertEquals(TaskRef.from(doc, doc.tasks.first()), sorted.single { it.body == "plain" }.ref)
+        assertFalse(sorted.single { it.body == "plain" }.hasCheckbox)
+    }
     private val modeDocument = TodoParser.parse("""
         ### 02.10.26
         - [x] (#a) doneA

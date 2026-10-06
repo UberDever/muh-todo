@@ -14,9 +14,12 @@ Install `app/build/outputs/apk/debug/app-debug.apk`, open muh todo, and select a
 ### 06.10.26
 - [ ] (#groceries #life) buy milk
 - [ ] ^^^ buy butter
+- (#life) something to remember
 ```
 
 Exact date headings and checkbox syntax matter. Lowercase `x` marks completion. Tags accept Unicode letters/digits and `_/.!?+*<>=:-`; tuples preserve their order and duplicates. Only recognized tasks inside valid date sections are managed. Other text is preserved. Editing an inherited task's tags changes the following inheritance chain. Moving a task materializes the first source successor's previous tags.
+
+Checkboxes are optional: plain `- BODY` entries support the same tags, inheritance, and dates. They have no widget checkbox and sort with completed tasks in incomplete-first mode. **Use checkbox** defaults on for new entries; switch it off to create a plain entry. Editing or moving a plain entry keeps it plain. Invalid leading checkbox-like tokens such as `[X] ` remain unrelated Markdown.
 
 Creation's **Inherit tags** toggle starts off. It inherits the preceding recognized task in the target section when enabled, including an empty tuple. Dates default to the phone's current local date; missing sections are created automatically. The editor deliberately accepts one-line bodies. Untagged bodies beginning with reserved metadata (`(#...` or `^^^`) may be unrepresentable and are rejected.
 

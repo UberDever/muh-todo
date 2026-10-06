@@ -9,6 +9,7 @@ object TodoMutation {
 
     fun toggle(document: ParsedDocument, task: Todo): String {
         requireTask(document, task)
+        require(task.hasCheckbox) { "This entry has no checkbox." }
         val start = sourceLines(document.source)[task.lineIndex].start
         return document.source.replaceRange(start + 3, start + 4, if (task.completed) " " else "x")
     }
@@ -27,7 +28,7 @@ object TodoMutation {
         var source = document.source
         val successor = document.tasks.firstOrNull { it.sectionHeaderLine == task.sectionHeaderLine && it.lineIndex > task.lineIndex }
         if (successor?.form == TagForm.INHERITED) {
-            val oldFields = TaskFields(successor.date, successor.completed, successor.tags, successor.body)
+            val oldFields = TaskFields(successor.date, successor.completed, successor.tags, successor.body, successor.hasCheckbox)
             val content = checkedLine(oldFields, explicitForm(successor.tags), null)
             source = replaceLine(source, lines[successor.lineIndex], content)
         }
@@ -71,7 +72,11 @@ object TodoMutation {
     }
 
     private fun checkedLine(fields: TaskFields, form: TagForm, precedingTags: List<String>?): String {
-        val checkbox = if (fields.completed) "- [x] " else "- [ ] "
+        val checkbox = when {
+            !fields.hasCheckbox -> "- "
+            fields.completed -> "- [x] "
+            else -> "- [ ] "
+        }
         val metadata = when (form) {
             TagForm.NONE -> ""
             TagForm.EXPLICIT -> "(${fields.tags.joinToString(" ")}) "
@@ -88,8 +93,8 @@ object TodoMutation {
             append(line)
         }
         val parsed = TodoParser.parse(context).tasks.lastOrNull()
-        require(parsed != null && parsed.body == fields.body && parsed.tags == fields.tags && parsed.completed == fields.completed && parsed.form == form) {
-            "Body looks like tag metadata. Add tags or change the body."
+        require(parsed != null && parsed.body == fields.body && parsed.tags == fields.tags && parsed.completed == fields.completed && parsed.form == form && parsed.hasCheckbox == fields.hasCheckbox) {
+            "Body looks like task metadata. Add a checkbox or tags, or change the body."
         }
         return line
     }
@@ -102,6 +107,7 @@ object TodoMutation {
         require(fields.date.year in 2000..2099) { "Date must be between 2000 and 2099." }
         require(fields.body.isNotBlank() && '\n' !in fields.body && '\r' !in fields.body) { "Enter a nonblank, single-line task." }
         require(fields.tags.all(TagSyntax::isValidToken)) { "Enter valid space-separated #tags." }
+        require(fields.hasCheckbox || !fields.completed) { "An entry without a checkbox cannot have a completion state." }
     }
 
     private fun requireTask(document: ParsedDocument, task: Todo) {

@@ -12,6 +12,7 @@ Target: Google Pixel 10 Pro with GrapheneOS. Cloud tests do not establish launch
 8. Restart the app/phone. Confirm document access remains. Try a second widget instance. Update using a later APK signed with the same key and check the selection still exists.
 
 9. Tap the gear on each of two widgets. Check all four combinations of completion ordering and tag sorting. Save different options for each instance, reopen their settings, and confirm they are independent. Cancel a changed setting and confirm it was not applied. Sort a widget, toggle/edit a task, and confirm the correct original file line changes. The settings themselves must not rewrite the document.
+10. Create an entry with **Use checkbox** off (new entries should default to on). Check that it has no widget checkbox and appears with completed tasks under incomplete-first ordering. Edit its body/tags and move its date; confirm it remains checkbox-free. Try inheritance between plain entries and tasks. Explicitly enable a checkbox in its editor and confirm normal completion controls appear.
 
 Report which step failed, what appeared, and whether the backing file changed. Particularly useful: document-provider/editor app names, Android/GrapheneOS version, and whether checkbox taps flash or unexpectedly open an editor.
 

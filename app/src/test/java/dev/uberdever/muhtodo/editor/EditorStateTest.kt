@@ -16,6 +16,28 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35], manifest = Config.NONE)
 class EditorStateTest {
+    @Test fun plainEntryEditAndDraftRestorationPreserveCheckboxAbsence() {
+        val snapshot = snapshot("""
+            ### 06.10.26
+            - (#a) plain
+        """)
+        assertEquals(1, snapshot.document.tasks.size)
+        val state = EditorState.edit(snapshot, TaskRef.from(snapshot.document, snapshot.document.tasks.single()))
+        assertFalse(state.fields.hasCheckbox)
+        val entered = state.copy(fields = state.fields.copy(body = "draft"))
+        val saved = Bundle().also(entered::writeDraft)
+        assertFalse(EditorState.create(snapshot, today).restoreDraft(saved).fields.hasCheckbox)
+        assertNull(entered.validationError())
+    }
+    @Test fun checkboxPresenceDefaultsOnButCanBeRemovedFromCreationDraft() {
+        val state = EditorState.create(snapshot(), today)
+        assertTrue(state.fields.hasCheckbox)
+        val entered = state.copy(fields = state.fields.copy(body = "plain", hasCheckbox = false))
+        val saved = Bundle().also(entered::writeDraft)
+        val restored = EditorState.create(snapshot(), today).restoreDraft(saved)
+        assertFalse(restored.fields.hasCheckbox)
+        assertNull(restored.validationError())
+    }
     private val today = LocalDate.of(2026, 10, 6)
     private val uri = Uri.parse("content://test/todos")
     private fun snapshot(text: String = "") = DocumentSnapshot(uri, TodoParser.parse(text.trimIndent()))

@@ -12,6 +12,18 @@ import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.runBlocking
 
 class TodoRemoteViewsService : RemoteViewsService() {
+    internal fun taskViews(row: WidgetRow.Task, uri: Uri?): RemoteViews = RemoteViews(packageName, R.layout.widget_task).apply {
+        setTextViewText(R.id.body, row.body)
+        setTextViewText(R.id.tags, row.tagLabel)
+        setViewVisibility(R.id.tags, if (row.tagLabel == null) View.GONE else View.VISIBLE)
+        setViewVisibility(R.id.checkbox, if (row.hasCheckbox) View.VISIBLE else View.GONE)
+        setTextViewText(R.id.checkbox, if (row.completed) "☑" else "☐")
+        setContentDescription(R.id.checkbox, if (row.completed) "Mark incomplete: ${row.body}" else "Mark complete: ${row.body}")
+        uri?.let {
+            if (row.hasCheckbox) setOnClickFillInIntent(R.id.checkbox, WidgetActions.toggleFillIn(it, row.ref))
+            setOnClickFillInIntent(R.id.task_text, WidgetActions.editFillIn(it, row.ref))
+        }
+    }
     override fun onGetViewFactory(intent: Intent): RemoteViewsFactory = Factory(intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1))
     private inner class Factory(private val widgetId: Int) : RemoteViewsFactory {
         private var rows: List<WidgetRow> = emptyList()
@@ -39,17 +51,7 @@ class TodoRemoteViewsService : RemoteViewsService() {
                 is WidgetRow.DateHeader -> RemoteViews(packageName, R.layout.widget_date).apply {
                     setTextViewText(R.id.date, row.date.format(DateTimeFormatter.ofPattern("dd.MM.yy")))
                 }
-                is WidgetRow.Task -> RemoteViews(packageName, R.layout.widget_task).apply {
-                    setTextViewText(R.id.body, row.body)
-                    setTextViewText(R.id.tags, row.tagLabel)
-                    setViewVisibility(R.id.tags, if (row.tagLabel == null) View.GONE else View.VISIBLE)
-                    setTextViewText(R.id.checkbox, if (row.completed) "☑" else "☐")
-                    setContentDescription(R.id.checkbox, if (row.completed) "Mark incomplete: ${row.body}" else "Mark complete: ${row.body}")
-                    uri?.let {
-                        setOnClickFillInIntent(R.id.checkbox, WidgetActions.toggleFillIn(it, row.ref))
-                        setOnClickFillInIntent(R.id.task_text, WidgetActions.editFillIn(it, row.ref))
-                    }
-                }
+                is WidgetRow.Task -> taskViews(row, uri)
                 null -> null
             }
         }

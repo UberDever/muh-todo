@@ -23,6 +23,7 @@ data class EditorState(val snapshot: DocumentSnapshot, val ref: TaskRef?, val fi
         bundle.putString("draft.body", fields.body)
         bundle.putStringArrayList("draft.tags", ArrayList(fields.tags))
         bundle.putBoolean("draft.completed", fields.completed)
+        bundle.putBoolean("draft.has-checkbox", fields.hasCheckbox)
         bundle.putBoolean("draft.inherit", inheritTags)
     }
     fun restoreDraft(bundle: Bundle): EditorState {
@@ -30,7 +31,8 @@ data class EditorState(val snapshot: DocumentSnapshot, val ref: TaskRef?, val fi
         if (bundle.getString("draft.uri") != snapshot.uri.toString()) throw DocumentChangedException()
         val dated = withDate(LocalDate.parse(bundle.getString("draft.date")))
         return dated.copy(fields = dated.fields.copy(body = bundle.getString("draft.body").orEmpty(),
-            tags = bundle.getStringArrayList("draft.tags").orEmpty(), completed = bundle.getBoolean("draft.completed")),
+            tags = bundle.getStringArrayList("draft.tags").orEmpty(), completed = bundle.getBoolean("draft.completed"),
+            hasCheckbox = bundle.getBoolean("draft.has-checkbox", fields.hasCheckbox)),
             inheritTags = dated.canInherit && bundle.getBoolean("draft.inherit"))
     }
     suspend fun save(repository: DocumentRepository): EditorState = try {
@@ -44,7 +46,7 @@ data class EditorState(val snapshot: DocumentSnapshot, val ref: TaskRef?, val fi
             TaskFields(today, false, emptyList(), "")).withDate(today)
         fun edit(snapshot: DocumentSnapshot, ref: TaskRef): EditorState {
             val task = selected(snapshot, ref)
-            return EditorState(snapshot, ref, TaskFields(task.date, task.completed, task.tags, task.body))
+            return EditorState(snapshot, ref, TaskFields(task.date, task.completed, task.tags, task.body, task.hasCheckbox))
         }
         private fun predecessor(snapshot: DocumentSnapshot, date: LocalDate): Todo? {
             val section = snapshot.document.sections.lastOrNull { it.date == date } ?: return null

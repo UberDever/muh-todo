@@ -8,10 +8,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import dev.uberdever.muhtodo.R
 
 @Composable
 fun EditorScreen(state: EditorState, onChange: (EditorState) -> Unit, onSave: () -> Unit, onCancel: () -> Unit) {
@@ -29,6 +31,10 @@ fun EditorScreen(state: EditorState, onChange: (EditorState) -> Unit, onSave: ()
             }.show()
         }) { Text(fields.date.format(DateTimeFormatter.ofPattern("dd.MM.yy"))) }
         Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Checkbox(fields.hasCheckbox, { onChange(state.copy(fields = fields.copy(hasCheckbox = it, completed = fields.completed && it), error = null)) }, enabled = enabled)
+            Text(stringResource(R.string.use_checkbox))
+        }
+        if (fields.hasCheckbox) Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Checkbox(fields.completed, { onChange(state.copy(fields = fields.copy(completed = it), error = null)) }, enabled = enabled)
             Text("Completed")
         }

@@ -5,6 +5,8 @@ import java.time.LocalDate
 
 object TodoParser {
     private val header = Regex("### ([0-9]{2})\\.([0-9]{2})\\.([0-9]{2})")
+    // Reserve checkbox-like tokens while allowing Markdown links as plain bodies.
+    private val checkboxLike = Regex("^\\[[^]]*\\](?:\\s|$)")
 
     fun parse(source: String): ParsedDocument {
         val lines = sourceLines(source)
@@ -22,9 +24,12 @@ object TodoParser {
                 continue
             }
             val section = sections.lastOrNull() ?: continue
-            if (!text.startsWith("- [ ] ") && !text.startsWith("- [x] ")) continue
-            val payload = payload(text.substring(6), previousTags) ?: continue
-            tasks += Todo(index, section.headerLineIndex, section.date, text[3] == 'x', payload.body, payload.tags, payload.form)
+            if (!text.startsWith("- ")) continue
+            val hasCheckbox = text.startsWith("- [ ] ") || text.startsWith("- [x] ")
+            val remainder = text.substring(if (hasCheckbox) 6 else 2)
+            if (!hasCheckbox && checkboxLike.containsMatchIn(remainder)) continue
+            val payload = payload(remainder, previousTags) ?: continue
+            tasks += Todo(index, section.headerLineIndex, section.date, hasCheckbox && text[3] == 'x', payload.body, payload.tags, payload.form, hasCheckbox)
             previousTags = payload.tags
             if (payload.form == TagForm.EXPLICIT) knownTags += payload.tags
         }
