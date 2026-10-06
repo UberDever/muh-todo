@@ -41,8 +41,17 @@ Files: new ui/TagColors.kt and widget/TagLabels.kt; editor screen/state/viewmode
 
 ## Task 3: Delivery
 
-- [ ] Review complete diff with a fresh read-only reviewer and address substantive findings.
-- [ ] Run full tests/build/lint natively and fresh offline Docker source overlay; inspect actual counts and signing identity.
-- [ ] Deliver 0.4.0/code 7 (version bumped), document phone checks and actual validation, export APK/source backups/checksums, push main without force, verify remote identity.
+- [x] Review complete diff with a fresh read-only reviewer and address substantive findings.
+- [x] Run full tests/build/lint natively and fresh offline Docker source overlay; inspect actual counts and signing identity.
+- [x] Deliver 0.4.0/code 7 (version bumped), document phone checks and actual validation, export APK/source backups/checksums, push main without force, verify remote identity.
 
 Self-review: all current requests have a task; source preservation and lifecycle failure modes have meaningful regression tests. Actual launcher UI remains a phone check.
+
+## Result
+
+160 tests pass natively and in a fresh network-disabled offline Docker build,
+zero failures/errors/skips. Lint: zero errors, 20 warnings native and 18 offline.
+Independent reviewer confirmed the initial color-separation finding resolved;
+no actionable findings remain. APK signature verified with the existing key.
+Phone/launcher checks remain separate. Implementation commit 149a0b5 pushed
+to main; final validation/source-export documentation follows.
