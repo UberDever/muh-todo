@@ -10,7 +10,7 @@ class TagInputTest {
         for ((text, cursor) in listOf("#buy #cook" to 5, "#buy   #cook" to 6)) {
             val inserted = TagInput.insert(TextFieldValue(text, TextRange(cursor)), "#eat")
             assertEquals("#buy #eat #cook", inserted.text)
-            assertEquals(TextRange(9), inserted.selection)
+            assertEquals(TextRange(inserted.text.length), inserted.selection)
         }
     }
     @Test fun replacesSelectionAndRemovesExtraSpacesWithoutReorderingOrDeduplicating() {
@@ -18,7 +18,7 @@ class TagInputTest {
         val start = text.indexOf("#old")
         val inserted = TagInput.insert(TextFieldValue(text, TextRange(start, start + 4)), "#cook")
         assertEquals("#buy #cook #buy", inserted.text)
-        assertEquals(TextRange(10), inserted.selection)
+        assertEquals(TextRange(inserted.text.length), inserted.selection)
     }
     @Test fun appendsWithoutLeadingTrailingOrRepeatedSpaces() {
         for (text in listOf("", " ", "#buy", "#buy ", "  #buy   ")) {

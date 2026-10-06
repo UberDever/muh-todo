@@ -167,7 +167,8 @@ Keep tag input simple: an ordered space-separated tag field with suggestions
 from the document, allowing new valid tags. Sort suggestions lexicographically
 by Unicode code point. Insert a suggestion at the cursor, replacing a selection
 when present, adding one separator where needed and removing excess ASCII
-spaces. Do not sort the selected tuple or discard duplicate tags. For an existing inherited
+spaces. After insertion, move the cursor to the end of the whole tag field.
+Do not sort the selected tuple or discard duplicate tags. For an existing inherited
 task, show its effective tags, and retain `^^^` when those tags are unchanged
 and it stays in the same date section. Date moves follow the materialization
 rules above.

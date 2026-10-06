@@ -11,7 +11,8 @@ internal object TagInput {
         val after = clean(value.text.substring(value.selection.max))
         val prefix = if (before.isEmpty()) "" else "$before "
         val suffix = if (after.isEmpty()) "" else " $after"
-        return TextFieldValue(prefix + tag + suffix, TextRange(prefix.length + tag.length))
+        val text = prefix + tag + suffix
+        return TextFieldValue(text, TextRange(text.length))
     }
     fun knownTags(tags: List<String>): List<String> = tags.sortedWith(TagSyntax::compareTokens)
 }
