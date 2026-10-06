@@ -294,3 +294,9 @@ Known-tag insertion uses the cursor, cleans extra spaces, and shows suggestions
 in ascending lexical order. These are extensions of the existing editor,
 mutation, intent, and RemoteViews flows. Native validation: 140 tests pass;
 lint 0 errors/19 warnings. View-only tag colors are deferred in docs/roadmap.md.
+
+0.3.0 final source including cursor amendment: 140 tests pass natively and
+in the fresh network-disabled Docker build; lint 0 errors/19 warnings native,
+0 errors/17 warnings offline. APK signature verified, version 0.3.0/code 6,
+retained certificate. Source implementation pushed to main; phone checks and
+cloud fresh-task restoration remain unverified.
