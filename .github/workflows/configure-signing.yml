@@ -49,7 +49,7 @@ jobs:
               request = urllib.request.Request(url + 'MUH_TODO_DEBUG_KEYSTORE_BASE64', data=payload,
                                                headers=dict(headers, **{'Content-Type': 'application/json'}), method='PUT')
               with urllib.request.urlopen(request, timeout=30) as response:
-                  if response.status != 204:
+                  if response.status not in (201, 204):
                       raise SystemExit('Unexpected signing-secret response.')
               print('::notice title=Signing configured::Existing signing key stored successfully.')
           PY

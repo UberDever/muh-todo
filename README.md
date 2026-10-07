@@ -28,15 +28,17 @@ private key as repository Actions secret `MUH_TODO_DEBUG_KEYSTORE_BASE64`.
 Without it, CI uses a fresh runner debug key: those test APKs cannot update the
 previously installed app. The APK built in the prepared environment retains
 the existing key.
-This environment's GitHub integration cannot manage repository secrets.
-With the private preserved build image and your own authenticated GitHub CLI,
-set the secret without printing the key or committing it:
-
-```sh
-docker run --rm --entrypoint bash muh-todo-build:0.1.0 \
-  -c 'base64 -w0 "$MUH_TODO_DEBUG_KEYSTORE"' | \
-  gh secret set MUH_TODO_DEBUG_KEYSTORE_BASE64 --repo UberDever/muh-todo
-```
+The cloud environment's default GitHub credential cannot manage repository
+secrets. The browser-only alternative is the **Configure signing** workflow:
+store a temporary fine-grained token with this repository's **Secrets: read
+and write** permission as repository Actions secret `GH_TOKEN`. The cloud
+agent requests GitHub's public encryption key through that workflow, encrypts
+the retained signing key locally using a libsodium sealed box, and dispatches
+the workflow with only the ciphertext and key ID. The workflow stores
+`MUH_TODO_DEBUG_KEYSTORE_BASE64` through GitHub's encrypted-secret API.
+No plaintext signing key or token is committed or supplied as workflow input.
+Once a CI build's certificate matches the installed app, the temporary token
+can be revoked; normal APK builds use only the retained signing secret.
 
 ## Try it
 
