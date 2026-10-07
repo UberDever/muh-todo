@@ -1,0 +1,55 @@
+name: Configure signing
+
+on:
+  workflow_dispatch:
+    inputs:
+      encrypted_value:
+        description: GitHub sealed-box ciphertext (leave empty to request the public encryption key)
+        required: false
+        type: string
+      key_id:
+        description: GitHub public encryption key ID
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  configure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Configure the signing secret
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          ENCRYPTED_VALUE: ${{ inputs.encrypted_value }}
+          KEY_ID: ${{ inputs.key_id }}
+        run: |
+          python3 - <<'PY'
+          import base64, json, os, urllib.request
+          token = os.environ.get('GH_TOKEN')
+          if not token:
+              raise SystemExit('The repository GH_TOKEN secret is missing.')
+          url = 'https://api.github.com/repos/' + os.environ['GITHUB_REPOSITORY'] + '/actions/secrets/'
+          headers = {'Authorization': 'Bearer ' + token,
+                     'Accept': 'application/vnd.github+json',
+                     'X-GitHub-Api-Version': '2022-11-28',
+                     'User-Agent': 'muh-todo-signing-setup'}
+          with urllib.request.urlopen(urllib.request.Request(url + 'public-key', headers=headers), timeout=30) as response:
+              key = json.load(response)
+          encrypted = os.environ.get('ENCRYPTED_VALUE', '')
+          if not encrypted:
+              print('::notice title=Signing public key::' + json.dumps(key, separators=(',', ':')))
+          else:
+              if os.environ.get('KEY_ID') != key['key_id']:
+                  raise SystemExit('Encryption key changed; request the public key again.')
+              base64.b64decode(encrypted, validate=True)
+              payload = json.dumps({'encrypted_value': encrypted, 'key_id': key['key_id']}).encode()
+              request = urllib.request.Request(url + 'MUH_TODO_DEBUG_KEYSTORE_BASE64', data=payload,
+                                               headers=dict(headers, **{'Content-Type': 'application/json'}), method='PUT')
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  if response.status != 204:
+                      raise SystemExit('Unexpected signing-secret response.')
+              print('::notice title=Signing configured::Existing signing key stored successfully.')
+          PY
