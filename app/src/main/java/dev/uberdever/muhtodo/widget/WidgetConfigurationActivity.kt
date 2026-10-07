@@ -46,6 +46,8 @@ class WidgetConfigurationActivity : ComponentActivity() {
         outState.putBoolean("sort-tags", options.sortTags)
         outState.putBoolean("completion-descending", options.completionDescending)
         outState.putBoolean("tags-descending", options.tagsDescending)
+        outState.putBoolean("sort-dates", options.sortDates)
+        outState.putBoolean("dates-older-first", options.datesOlderFirst)
         super.onSaveInstanceState(outState)
     }
 
@@ -60,6 +62,7 @@ class WidgetConfigurationActivity : ComponentActivity() {
             options = WidgetOptions(
                 savedInstanceState.getBoolean("incomplete-first"), savedInstanceState.getBoolean("sort-tags"),
                 savedInstanceState.getBoolean("completion-descending"), savedInstanceState.getBoolean("tags-descending"),
+                savedInstanceState.getBoolean("sort-dates"), savedInstanceState.getBoolean("dates-older-first"),
             )
         }
         setContent {
@@ -67,7 +70,7 @@ class WidgetConfigurationActivity : ComponentActivity() {
                 var ready by remember { mutableStateOf(false) }
                 var message by remember { mutableStateOf("Opening document…") }
                 LaunchedEffect(revision) {
-                    try { AppServices.repository(this@WidgetConfigurationActivity).read(); ready = true; message = "Dates appear newest first. Sorting changes only this widget's view." }
+                    try { AppServices.repository(this@WidgetConfigurationActivity).read(); ready = true; message = "Sorting changes only this widget’s view. Completion, then tags, then date; ties keep file order." }
                     catch (e: CancellationException) { throw e }
                     catch (e: Exception) { ready = false; message = e.message ?: "Select your Markdown file." }
                 }
@@ -82,6 +85,9 @@ class WidgetConfigurationActivity : ComponentActivity() {
                         SortControl(stringResource(R.string.sort_tags), options.sortTags, options.tagsDescending,
                             labels = listOf(stringResource(R.string.no_sort), stringResource(R.string.tags_ascending), stringResource(R.string.tags_descending)),
                             onChange = { enabled, descending -> options = options.copy(sortTags = enabled, tagsDescending = descending) })
+                        SortControl(stringResource(R.string.sort_dates), options.sortDates, options.datesOlderFirst,
+                            labels = listOf(stringResource(R.string.no_sort), stringResource(R.string.newer_first), stringResource(R.string.older_first)),
+                            onChange = { enabled, olderFirst -> options = options.copy(sortDates = enabled, datesOlderFirst = olderFirst) })
                         OutlinedButton(onClick = { startActivity(Intent(this@WidgetConfigurationActivity, MainActivity::class.java)) }) { Text("Select or change document") }
                         Button(enabled = ready, onClick = { saveConfiguration() }) { Text(stringResource(R.string.save_widget_settings)) }
                         TextButton(onClick = { finish() }) { Text(stringResource(R.string.cancel_widget_settings)) }

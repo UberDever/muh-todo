@@ -14,6 +14,8 @@ data class WidgetOptions(
     val sortTags: Boolean = false,
     val completionDescending: Boolean = false,
     val tagsDescending: Boolean = false,
+    val sortDates: Boolean = false,
+    val datesOlderFirst: Boolean = false,
 )
 class DocumentChangedException : Exception("Document changed; reopen task.")
 class DocumentAccessException(message: String, cause: Throwable? = null) : Exception(message, cause)

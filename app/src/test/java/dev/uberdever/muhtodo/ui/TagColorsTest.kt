@@ -13,11 +13,11 @@ class TagColorsTest {
     @Test fun orderedTupleColorsMatchThePortableReference() {
         val examples = listOf(
             listOf("#3") to 0xFFA3ADB7.toInt(),
-            listOf("#3", "#belongings") to 0xFFE587BA.toInt(),
-            listOf("#3", "#belongings", "#relocation") to 0xFFE988A4.toInt(),
-            listOf("#3", "#belongings", "#storage") to 0xFFDD7DDF.toInt(),
-            listOf("#3", "#relocation", "#belongings") to 0xFFAFB768.toInt(),
-            listOf("#belongings", "#3") to 0xFFE587BB.toInt(),
+            listOf("#3", "#belongings") to 0xFFA9A0E2.toInt(),
+            listOf("#3", "#belongings", "#relocation") to 0xFFBC96E7.toInt(),
+            listOf("#3", "#belongings", "#storage") to 0xFF91A5DF.toInt(),
+            listOf("#3", "#relocation", "#belongings") to 0xFF6FBEC8.toInt(),
+            listOf("#belongings", "#3") to 0xFFA8A0E2.toInt(),
         )
         for ((tags, expected) in examples) assertEquals(tags.toString(), expected, TagColors.color(tags))
     }

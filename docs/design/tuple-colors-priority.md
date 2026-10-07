@@ -1,6 +1,6 @@
 # Ordered tuple colors and the 0–99 priority picker
 
-Status: implemented in Android 0.5.0. The images/HTML are earlier design
+Status: implemented in Android 0.5.0; palette updated in 0.6.0 to reserve age hues. The images/HTML are earlier design
 illustrations; use the APK for hands-on validation. See ../0.5.0-validation.md.
 
 The user requested stable, pool-independent colors for ordered tag tuples,
@@ -124,7 +124,7 @@ q is the fraction of the available sRGB chroma, not absolute OKLCH chroma.
 Increasing priority increases base lightness and relative saturation; gamut
 shape can make absolute chroma decrease as lightness rises.
 
-The first semantic tag establishes the major hue h = 360*u[0], with small
+The first semantic tag establishes the major hue h = 145 + 150*u[0], with small
 base variations L += 0.008*v[2] and q += 0.03*v[3]. A numeric-only tuple uses
 h = 250 degrees and low chroma C = 0.018 + 0.022*p: no semantic hue family
 exists yet, so its gray tint gains a family when a semantic tag is appended.
@@ -202,3 +202,20 @@ an unknown global pool or ML.
 ![Tuple families and priority progression](tuple-colors-0-99.png)
 
 These are design-probe results, not native Android test or device results.
+
+## Age labels (0.6.0)
+
+The widget prepends a view-only day count, e.g. `34d`, to every entry's tag
+label. It is today's local calendar date minus the Markdown section date.
+Today is `0d`; future dates are negative. The full count is displayed even
+beyond 60 days. This never becomes a tag or changes the Markdown document.
+
+Nonpositive ages are white. For positive ages, `t = clamp(days, 0, 60)/60`,
+`L = .98 - .22*t`, `h = 40*t`, and
+`C = min(.30*t, .99*maximumChroma(L,h))`. Age hue increases towards a glaring saturated
+orange; the label is bold, then caps at 60 days. Semantic roots now use `145 + 150*u[0]`;
+all bounded perturbations keep tag hues above 80 degrees. This reserves the
+0–60 degree range for age labels, with a gap between the two palettes, while
+keeping child tuples near their prefixes. Existing tag colors change in
+this version. Known-tag chips and tuple labels use the same updated protocol.
+The older prototype images and HTML predate this palette update.

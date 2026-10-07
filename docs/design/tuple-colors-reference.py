@@ -66,7 +66,7 @@ def color(tags):
   raw=hashlib.sha256(b'muh-todo:tuple-color:v1\x00'+t.encode('utf-8')).digest()
   seed=hashlib.sha256(seed+raw).digest()
   if root is None:
-   root=360*u[0]
+   root=145+150*u[0]
    # Root variation is independent of numeric priority; ordered numeric offsets remain in hue.
    L+=.008*v[2];q+=.03*v[3]
   else:

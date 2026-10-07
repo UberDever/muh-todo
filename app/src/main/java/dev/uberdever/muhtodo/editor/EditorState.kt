@@ -10,14 +10,13 @@ data class EditorState(val snapshot: DocumentSnapshot, val ref: TaskRef?, val fi
     fun withTags(tags: List<String>, prioritySource: List<String> = fields.tags) =
         copy(fields = fields.copy(tags = PriorityTags.withOrdinaryTags(prioritySource, tags)), error = null)
     fun withDate(date: LocalDate): EditorState {
-        if (insertAfter != null) return copy(fields = fields.copy(date = insertAfter.date), error = null)
         if (ref != null) return copy(fields = fields.copy(date = date), error = null)
         val previous = predecessor(snapshot, date)
         return copy(fields = fields.copy(date = date), canInherit = previous != null,
             inheritedTags = previous?.tags.orEmpty(), inheritTags = inheritTags && previous != null, error = null)
     }
     fun validationError(): String? = try {
-        if (insertAfter != null) TodoMutation.insertAfter(snapshot.document, selected(snapshot, insertAfter), fields)
+        if (insertAfter != null && fields.date == insertAfter.date) TodoMutation.insertAfter(snapshot.document, selected(snapshot, insertAfter), fields)
         else if (ref == null) TodoMutation.insert(snapshot.document, fields, inheritTags)
         else TodoMutation.edit(snapshot.document, selected(snapshot, ref), fields)
         null
@@ -41,7 +40,7 @@ data class EditorState(val snapshot: DocumentSnapshot, val ref: TaskRef?, val fi
             inheritTags = insertAfter == null && dated.canInherit && bundle.getBoolean("draft.inherit"))
     }
     suspend fun save(repository: DocumentRepository): EditorState = try {
-        if (insertAfter != null) repository.createAfter(snapshot.uri, insertAfter, fields)
+        if (insertAfter != null && fields.date == insertAfter.date) repository.createAfter(snapshot.uri, insertAfter, fields)
         else if (ref == null) repository.create(snapshot.uri, fields, inheritTags)
         else repository.edit(snapshot.uri, ref, fields)
         copy(saved = true, saving = false, error = null)
@@ -58,7 +57,7 @@ data class EditorState(val snapshot: DocumentSnapshot, val ref: TaskRef?, val fi
             TaskFields(today, false, emptyList(), "")).withDate(today)
         fun createAfter(snapshot: DocumentSnapshot, ref: TaskRef): EditorState {
             val task = selected(snapshot, ref)
-            return EditorState(snapshot, null, TaskFields(task.date, false, task.tags, ""),
+            return EditorState(snapshot, null, TaskFields(task.date, task.completed, task.tags, "", task.hasCheckbox),
                 inheritedTags = task.tags, insertAfter = ref)
         }
         fun edit(snapshot: DocumentSnapshot, ref: TaskRef): EditorState {

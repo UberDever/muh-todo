@@ -15,5 +15,9 @@
     <string name="new_todo">New todo</string>
     <string name="refresh_widgets">Refresh widgets</string>
     <string name="widget_empty">No recognized todos. Tap to open the app.</string>
-    <string name="create_after">Create inherited entry below</string>
+    <string name="create_after">New entry using these fields</string>
+    <string name="new_entry">+ New entry</string>
+    <string name="sort_dates">Sort by date</string>
+    <string name="newer_first">Newer first</string>
+    <string name="older_first">Older first</string>
 </resources>

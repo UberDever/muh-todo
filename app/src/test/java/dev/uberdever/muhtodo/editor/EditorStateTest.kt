@@ -16,6 +16,19 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35], manifest = Config.NONE)
 class EditorStateTest {
+    @Test fun copiedCreationKeepsAllFieldsExceptBodyAndAllowsChangingDate() {
+        val snapshot = snapshot("""
+            ### 06.10.26
+            - (#35 #buy) source
+        """)
+        val ref = TaskRef.from(snapshot.document, snapshot.document.tasks.single())
+        val copy = EditorState.createAfter(snapshot, ref)
+        assertEquals("", copy.fields.body)
+        assertFalse(copy.fields.hasCheckbox)
+        assertEquals(listOf("#35", "#buy"), copy.fields.tags)
+        assertEquals(today.plusDays(1), copy.withDate(today.plusDays(1)).fields.date)
+    }
+
     @Test fun typingNumericTextDoesNotCaptureAndDuplicateAnUnfinishedToken() {
         val state = EditorState.create(snapshot(), today)
         val typed = state.withTags(listOf("#3"), state.fields.tags)
@@ -78,10 +91,10 @@ class EditorStateTest {
         val state = EditorState.createAfter(snapshot, ref)
         assertEquals(ref, state.insertAfter)
         assertEquals(listOf("#a", "#b", "#a"), state.fields.tags)
-        assertTrue(state.fields.hasCheckbox)
+        assertFalse(state.fields.hasCheckbox)
         assertFalse(state.fields.completed)
         assertEquals(listOf("#a", "#b", "#a"), state.inheritedTags)
-        assertEquals(today, state.withDate(today.plusDays(1)).fields.date)
+        assertEquals(today.plusDays(1), state.withDate(today.plusDays(1)).fields.date)
         val draft = state.copy(fields = state.fields.copy(body = "child", tags = listOf("#edited"), hasCheckbox = false))
         val restored = EditorState.createAfter(snapshot, ref).restoreDraft(Bundle().also(draft::writeDraft))
         assertEquals(ref, restored.insertAfter)

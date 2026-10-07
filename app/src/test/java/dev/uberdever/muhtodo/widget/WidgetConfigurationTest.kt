@@ -54,9 +54,9 @@ class WidgetConfigurationTest {
     @Test fun savePersistsOneInstanceAndReturnsItsIdWithoutChangingTheDocument() {
         preferences.setWidgetOptions(22, WidgetOptions(false, true, false, true))
         val activity = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(11)).create().get()
-        activity.options = WidgetOptions(true, true, true, true)
+        activity.options = WidgetOptions(true, true, true, true, true, true)
         activity.saveConfiguration()
-        assertEquals(WidgetOptions(true, true, true, true), DocumentPreferences(app).widgetOptions(11))
+        assertEquals(WidgetOptions(true, true, true, true, true, true), DocumentPreferences(app).widgetOptions(11))
         assertEquals(WidgetOptions(false, true, false, true), DocumentPreferences(app).widgetOptions(22))
         assertEquals(uri, DocumentPreferences(app).documentUri())
         assertTrue(activity.isFinishing)
@@ -75,11 +75,11 @@ class WidgetConfigurationTest {
     }
     @Test fun recreationKeepsUnsavedOptionsWithoutPersistingThem() {
         val controller = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(11)).create()
-        controller.get().options = WidgetOptions(true, true, true, true)
+        controller.get().options = WidgetOptions(true, true, true, true, true, true)
         val saved = Bundle()
         controller.saveInstanceState(saved)
         val recreated = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(11)).create(saved).get()
-        assertEquals(WidgetOptions(true, true, true, true), recreated.options)
+        assertEquals(WidgetOptions(true, true, true, true, true, true), recreated.options)
         assertEquals(WidgetOptions(), preferences.widgetOptions(11))
     }
     @Test fun providerOffersLauncherReconfigurationWithoutAnOptionalInitialSetup() {
@@ -104,7 +104,7 @@ class WidgetConfigurationTest {
         for (id in listOf(-1, 44, 33)) {
             val activity = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(id)).create().get()
             assertTrue(activity.isFinishing)
-            activity.options = WidgetOptions(true, true, true, true)
+            activity.options = WidgetOptions(true, true, true, true, true, true)
             activity.saveConfiguration()
             assertEquals(WidgetOptions(), preferences.widgetOptions(id))
             assertEquals(Activity.RESULT_CANCELED, shadowOf(activity).resultCode)

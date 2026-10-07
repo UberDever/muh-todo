@@ -8,21 +8,16 @@ import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import dev.uberdever.muhtodo.AppServices
 import dev.uberdever.muhtodo.R
-import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.runBlocking
 
 class TodoRemoteViewsService : RemoteViewsService() {
-    internal fun dateViews(date: java.time.LocalDate): RemoteViews = RemoteViews(packageName, R.layout.widget_date).apply {
-        val label = date.format(DateTimeFormatter.ofPattern("dd.MM.yy"))
-        setTextViewText(R.id.date, label)
-        setViewVisibility(R.id.date_add, View.VISIBLE)
-        setContentDescription(R.id.date_add, "New todo on $label")
-        setOnClickFillInIntent(R.id.date_add, WidgetActions.createFillIn(date))
+    internal fun creationViews(): RemoteViews = RemoteViews(packageName, R.layout.widget_create).apply {
+        setOnClickFillInIntent(R.id.create_entry, WidgetActions.createFillIn())
     }
     internal fun taskViews(row: WidgetRow.Task, uri: Uri?): RemoteViews = RemoteViews(packageName, R.layout.widget_task).apply {
         setTextViewText(R.id.body, row.body)
-        setTextViewText(R.id.tags, TagLabels.colored(row.tagLabel, row.tags))
-        setViewVisibility(R.id.tags, if (row.tagLabel == null) View.GONE else View.VISIBLE)
+        setTextViewText(R.id.tags, TagLabels.withAge(row.ageDays, row.tagLabel, row.tags))
+        setViewVisibility(R.id.tags, View.VISIBLE)
         setViewVisibility(R.id.checkbox, View.VISIBLE)
         setTextViewText(R.id.checkbox, if (!row.hasCheckbox) "•" else if (row.completed) "☑" else "☐")
         setContentDescription(R.id.checkbox, when {
@@ -30,7 +25,7 @@ class TodoRemoteViewsService : RemoteViewsService() {
             row.completed -> "Mark incomplete: ${row.body}"
             else -> "Mark complete: ${row.body}"
         })
-        setContentDescription(R.id.create_after, "Create inherited entry after: ${row.body}")
+        setContentDescription(R.id.create_after, "New entry using: ${row.body}")
         uri?.let {
             // Replace a recycled checkbox's action as well as its appearance.
             setOnClickFillInIntent(R.id.checkbox, if (row.hasCheckbox) WidgetActions.toggleFillIn(it, row.ref) else WidgetActions.editFillIn(it, row.ref))
@@ -65,13 +60,13 @@ class TodoRemoteViewsService : RemoteViewsService() {
                 }
             }
             return when (val row = rows.getOrNull(position)) {
-                is WidgetRow.DateHeader -> dateViews(row.date)
+                WidgetRow.Create -> creationViews()
                 is WidgetRow.Task -> taskViews(row, uri)
                 null -> null
             }
         }
         override fun getLoadingView(): RemoteViews? = null
-        override fun getViewTypeCount() = 2
+        override fun getViewTypeCount() = 3
         override fun getItemId(position: Int) = position.toLong()
         override fun hasStableIds() = false
     }

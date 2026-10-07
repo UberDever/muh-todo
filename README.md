@@ -2,7 +2,7 @@
 
 A small Android app and home-screen widget backed by your own UTF-8 Markdown document. Android 8.0+ (API 26); no accounts, database, Google Play services, or network permission. The document stays where you selected it through Android's document picker.
 
-The app supports creating/editing tasks, direct completion toggles, live tag inheritance, date moves, and manual widget refresh. Each widget has independent **Sort by completion** and **Sort by tags** controls. Each uses three buttons with exactly one selected: **No sort / Incomplete first / Complete first** for completion, and **No sort / a-z and 0-9 / z-a and 9-0** for tags. Completion takes priority over tags; ascending completion puts incomplete tasks first, descending puts completed tasks and plain entries first. Equal sort keys keep file order. Dates appear newest first. Configuration opens when adding a widget. If your launcher offers **Edit widget**, it reopens the same settings; otherwise recreate the widget to change them. Moving/resizing alone does not reopen settings. Sorting changes only the view.
+The app supports creating/editing tasks, direct completion toggles, live tag inheritance, date moves, and manual widget refresh. Each widget has independent **Sort by completion**, **Sort by tags**, and **Sort by date** controls. Each uses three buttons with exactly one selected: **No sort / Incomplete first / Complete first** for completion, and **No sort / a-z and 0-9 / z-a and 9-0** for tags. Completion takes priority over tags; ascending completion puts incomplete tasks first, descending puts completed tasks and plain entries first. Equal sort keys keep file order. Date sorting offers **No sort / Newer first / Older first** after completion and tags. Configuration opens when adding a widget. If your launcher offers **Edit widget**, it reopens the same settings; otherwise recreate the widget to change them. Moving/resizing alone does not reopen settings. Sorting changes only the view.
 
 [0.1.1](docs/0.1.1-visual-update.md) applies the first phone feedback: dark theme, slightly smaller text, the `muh todo` name, and the supplied launcher artwork.
 
@@ -40,7 +40,7 @@ docker run --rm --entrypoint bash muh-todo-build:0.1.0 \
 
 ## Try it
 
-Install `app/build/outputs/apk/debug/app-debug.apk`, open muh todo, and select a disposable `.md` document with read/write access. Add **muh todo** through your launcher's widget picker. Use a date header's `+` to create on that date, a checkbox to toggle, task text to edit, and the return-arrow icon to create below it with prefilled tags. An empty widget opens the app, where **New todo** creates the first entry. After external file changes, recreate the widget or use **Refresh widgets** in the app. See [the phone checklist](docs/testing-on-grapheneos.md).
+Install `app/build/outputs/apk/debug/app-debug.apk`, open muh todo, and select a disposable `.md` document with read/write access. Add **muh todo** through your launcher's widget picker. Use the scrollable `+ New entry` row to create with today's date, a checkbox to toggle, task text to edit, and the smaller return-arrow icon to copy all fields except the body into an editable new entry. An empty widget opens the app, where **New todo** creates the first entry. After external file changes, recreate the widget or use **Refresh widgets** in the app. See [the phone checklist](docs/testing-on-grapheneos.md).
 
 ```markdown
 ### 06.10.26
@@ -53,7 +53,7 @@ Exact date headings and checkbox syntax matter. Lowercase `x` marks completion. 
 
 Checkboxes are optional: plain `- BODY` entries support the same tags, inheritance, and dates. They display an aligned bullet instead of a widget checkbox and sort with completed tasks when completion sorting is enabled. Tapping the bullet opens the editor. **Use checkbox** defaults on for new entries; switch it off to create a plain entry. Editing or moving a plain entry keeps it plain. Invalid leading checkbox-like tokens such as `[X] ` remain unrelated Markdown.
 
-Tap a row's **return-arrow icon** to create immediately below that entry in the file. Tags are prefilled and editable; unchanged tags serialize as `^^^`, changed tags are explicit, and cleared tags omit metadata. The date stays fixed to the source entry. Following existing `^^^` lines naturally inherit the inserted entry's tags. Date-header **+** creation uses explicit tags and prefills that date, which remains editable. The editor has no Completed or Inherit tags checkboxes; toggle completion directly in the widget. Creation from the app defaults to the phone's current local date; missing sections are created automatically. The editor deliberately accepts one-line bodies. Untagged bodies beginning with reserved metadata (`(#...` or `^^^`) may be unrepresentable and are rejected. Moving/deleting also refuses a write if an inherited successor with empty tags cannot be materialized without reinterpreting its body.
+Tap a row's **return-arrow icon** to create immediately below that entry in the file. Tags are prefilled and editable; unchanged tags serialize as `^^^`, changed tags are explicit, and cleared tags omit metadata. The date is prefilled from the source and editable; changing it inserts into the selected date section. Following existing `^^^` lines naturally inherit the inserted entry's tags. Date-header **+** creation uses explicit tags and prefills that date, which remains editable. The editor has no Completed or Inherit tags checkboxes; toggle completion directly in the widget. Creation from the app defaults to the phone's current local date; missing sections are created automatically. The editor deliberately accepts one-line bodies. Untagged bodies beginning with reserved metadata (`(#...` or `^^^`) may be unrepresentable and are rejected. Moving/deleting also refuses a write if an inherited successor with empty tags cannot be materialized without reinterpreting its body.
 
 Each exact tag gets a stable display color in widget tag labels and known-tag suggestions. Colors affect only the view; `^^^` remains neutral shorthand. Some tags can share similar colors in large pools.
 
@@ -98,3 +98,20 @@ docker rm muh-todo-rebuild
 This image is Linux **amd64**; an ARM host needs Docker's amd64 emulation. A preserved image avoids future package servers, but still needs a working container runtime/kernel. Byte-for-byte APK reproducibility is not promised. Keeping the key preserves signing identity; keep the same application ID and increase `versionCode` when releasing updates. The key is valid until 2054.
 
 A future Ubuntu host can use that archive to build the historical app. A hypothetical future Xiaomi/Android release may require compatibility changes: an offline build cannot guarantee future OS installation/widget rules. That part must be checked on the actual phone.
+
+### Widget view in 0.6.0
+
+The widget is a flat list. Every entry begins its tag line with its age in
+days (`34d`), calculated from its Markdown date section to today's local date.
+Each age has its own reserved warm color; today/future entries are white, and
+color intensity/hue caps at 60 days while the number remains exact. Repeated
+effective tags use `^^^` across date boundaries. Age is display metadata only.
+
+Per-widget date sorting offers No sort / Newer first / Older first. Sort
+precedence is completion, tags, date, then original file order; with all sorts
+off the document order is preserved. Widgets request a refresh every 30 minutes
+to update ages after midnight, subject to Android's scheduling. The scrollable
+40dp creation row remains first regardless of sorting. Copy-based creation
+retains date, checkbox/completion state, priority and ordered tags, clears the
+body, and permits changing all editor fields. Keeping its date inserts below
+the source; changing the date inserts into the chosen section.

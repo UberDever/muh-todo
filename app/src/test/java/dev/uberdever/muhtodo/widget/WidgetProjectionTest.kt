@@ -5,6 +5,44 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class WidgetProjectionTest {
+    @Test fun dateSortIsOptionalWithinCompletionAndTagGroupsAndAgeUsesSectionDate() {
+        val source = """
+            ### 01.10.26
+            - [x] (#b) oldDone
+            - [ ] (#a) oldOpen
+            ### 06.10.26
+            - [ ] (#a) newOpen
+            - [ ] (#b) newB
+            ### 08.10.26
+            - [ ] (#a) futureOpen
+        """.trimIndent()
+        val doc = TodoParser.parse(source)
+        val today = java.time.LocalDate.of(2026, 10, 7)
+        val rows = WidgetProjection.project(doc, WidgetOptions(true, true, sortDates = true), today)
+        assertEquals(WidgetRow.Create, rows.first())
+        val entries = rows.filterIsInstance<WidgetRow.Task>()
+        assertEquals(listOf("futureOpen", "newOpen", "oldOpen", "newB", "oldDone"), entries.map { it.body })
+        assertEquals(listOf(-1L, 1L, 6L, 1L, 6L), entries.map { it.ageDays })
+        assertEquals(listOf("#a", "^^^", "^^^", "#b", "^^^"), entries.map { it.tagLabel })
+        assertEquals(listOf("oldOpen", "newOpen", "futureOpen", "newB", "oldDone"),
+            tasks(doc, WidgetOptions(true, true, sortDates = true, datesOlderFirst = true)).map { it.body })
+        assertEquals(listOf("oldDone", "oldOpen", "newOpen", "newB", "futureOpen"), tasks(doc, WidgetOptions()).map { it.body })
+        assertEquals(source, doc.source)
+    }
+
+    @Test fun entriesFromDifferentDatesFormOneTagRunInFileOrder() {
+        val doc = TodoParser.parse("""
+            ### 01.10.26
+            - (#a) older
+            ### 06.10.26
+            - (#a) newer
+        """.trimIndent())
+        val rows = WidgetProjection.project(doc, WidgetOptions())
+        assertEquals(listOf("older", "newer"), rows.filterIsInstance<WidgetRow.Task>().map { it.body })
+        assertEquals(listOf("#a", "^^^"), rows.filterIsInstance<WidgetRow.Task>().map { it.tagLabel })
+        assertEquals(3, rows.size) // one scrollable creation row plus two entries
+    }
+
     @Test fun completionDescendingIncludesPlainEntriesAndKeepsTiesInFileOrder() {
         val doc = TodoParser.parse("""
             ### 02.10.26
@@ -34,8 +72,8 @@ class WidgetProjectionTest {
         """.trimIndent()
         val doc = TodoParser.parse(source)
         val rows = tasks(doc, WidgetOptions(sortTags = true, tagsDescending = true))
-        assertEquals(listOf("supplementary", "fullwidth", "longer", "duplicate", "firstA", "secondA", "untagged", "older"), rows.map { it.body })
-        assertEquals(listOf("#𐐀", "#Ａ", "#a #b", "#a #a", "#a", "^^^", null, "#z"), rows.map { it.tagLabel })
+        assertEquals(listOf("supplementary", "fullwidth", "older", "longer", "duplicate", "firstA", "secondA", "untagged"), rows.map { it.body })
+        assertEquals(listOf("#𐐀", "#Ａ", "#z", "#a #b", "#a #a", "#a", "^^^", null), rows.map { it.tagLabel })
         rows.forEach { assertEquals(TaskRef.from(doc, doc.tasks.single { task -> task.body == it.body }), it.ref) }
         assertEquals(source, doc.source)
     }
@@ -122,7 +160,7 @@ class WidgetProjectionTest {
         assertEquals(listOf("numeric", "uppercase", "lowercase", "slash", "fullwidth", "supplementary"),
             tasks(doc, WidgetOptions(false, true)).map { it.body })
     }
-    @Test fun labelsResetAtTupleAndDateBoundariesWithoutEmptyShorthand() {
+    @Test fun labelsOnlyResetAtTupleBoundariesWithoutEmptyShorthand() {
         val doc = TodoParser.parse("""
             ### 03.10.26
             - [ ] (#a) first
@@ -135,7 +173,7 @@ class WidgetProjectionTest {
             ### 02.10.26
             - [ ] (#a) older
         """.trimIndent())
-        assertEquals(listOf("#a", "^^^", null, null, "#a", "#b", "#a", "#a"),
+        assertEquals(listOf("#a", "^^^", null, null, "#a", "#b", "#a", "^^^"),
             tasks(doc, WidgetOptions()).map { it.tagLabel })
     }
     @Test fun sortedRunsUseEffectiveTuplesInsteadOfFileTagRepresentation() {
@@ -181,11 +219,12 @@ class WidgetProjectionTest {
             - [ ] old2
         """.trimIndent())
         val rows = WidgetProjection.project(doc, WidgetOptions())
-        assertEquals(listOf("new", "old1", "old2"), rows.filterIsInstance<WidgetRow.Task>().map { it.body })
-        assertEquals(listOf("2026-10-02", "2026-10-01"), rows.filterIsInstance<WidgetRow.DateHeader>().map { it.date.toString() })
+        assertEquals(listOf("old1", "new", "old2"), rows.filterIsInstance<WidgetRow.Task>().map { it.body })
+        assertEquals(WidgetRow.Create, rows.first())
+        assertEquals(4, rows.size)
         val first = rows.filterIsInstance<WidgetRow.Task>().first()
-        assertTrue(first.completed)
-        assertEquals(TaskRef.from(doc, doc.tasks[1]), first.ref)
+        assertFalse(first.completed)
+        assertEquals(TaskRef.from(doc, doc.tasks[0]), first.ref)
     }
     @Test fun labelsUseEffectiveTagsAndPreserveOrder() {
         val doc = TodoParser.parse("""
@@ -198,6 +237,6 @@ class WidgetProjectionTest {
         assertEquals(listOf("#b #a #b", "^^^"), rows.map { it.tagLabel })
     }
     @Test fun emptyDocumentHasNoSampleTasks() {
-        assertTrue(WidgetProjection.project(TodoParser.parse("notes"), WidgetOptions()).isEmpty())
+        assertEquals(listOf(WidgetRow.Create), WidgetProjection.project(TodoParser.parse("notes"), WidgetOptions()))
     }
 }

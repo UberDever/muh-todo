@@ -20,7 +20,9 @@ object TagColors {
     }
     fun color(tag: String): Int = color(listOf(tag))
     fun color(tags: List<String>): Int {
-        val spec = oklch(tags)
+        return toArgb(oklch(tags))
+    }
+    internal fun toArgb(spec: Oklch): Int {
         val channels = linearRgb(spec.lightness, spec.chroma, spec.hue).map { linear ->
             val encoded = if (linear <= .0031308) 12.92 * linear else 1.055 * StrictMath.pow(linear, 1 / 2.4) - .055
             StrictMath.rint(encoded.coerceIn(0.0, 1.0) * 255).toInt()
@@ -43,7 +45,8 @@ object TagColors {
             } else {
                 path = hash(path + digest)
                 if (root == null) {
-                    root = 360 * u[0]
+                    // Reserve warm hues 0..60 for age; bounded perturbations stay above 80.
+                    root = 145 + 150 * u[0]
                     lightness += .008 * (2 * u[2] - 1)
                     relativeChroma += .03 * (2 * u[3] - 1)
                 } else {
@@ -66,7 +69,7 @@ object TagColors {
         val chroma = if (root == null) .018 + .022 * priority else relativeChroma * maximumChroma(lightness, hue)
         return Oklch(lightness, chroma, hue)
     }
-    private fun maximumChroma(lightness: Double, hue: Double): Double {
+    internal fun maximumChroma(lightness: Double, hue: Double): Double {
         var lower = 0.0
         var upper = .4
         repeat(24) {
@@ -75,7 +78,7 @@ object TagColors {
         }
         return lower
     }
-    private fun linearRgb(lightness: Double, chroma: Double, hue: Double): DoubleArray {
+    internal fun linearRgb(lightness: Double, chroma: Double, hue: Double): DoubleArray {
         val radians = StrictMath.toRadians(hue)
         val a = chroma * StrictMath.cos(radians)
         val b = chroma * StrictMath.sin(radians)

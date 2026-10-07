@@ -36,6 +36,41 @@ class EditorLifecycleTest {
         while (!condition() && System.nanoTime() < until) { shadowOf(Looper.getMainLooper()).idle(); Thread.sleep(5) }
         assertTrue("Asynchronous operation did not finish", condition())
     }
+    @Test fun copiedEntryCanChangeDateAndRestoreItsDraftBeforeSavingInAnotherSection() {
+        var text = """
+            ### 06.10.26
+            - [x] (#35 #a) anchor
+            - ^^^ follower
+        """.trimIndent()
+        val doc = TodoParser.parse(text)
+        val ref = TaskRef.from(doc, doc.tasks.first())
+        val store = object : DocumentStore {
+            override fun read(uri: Uri) = text
+            override fun write(uri: Uri, source: String) { text = source }
+        }
+        val first = EditorViewModel(repo(store)) {}
+        first.open(EditorRequest.CreateAfter(uri, ref), null)
+        await { first.state != null || first.loadError != null }
+        val opened = first.state!!
+        assertTrue(opened.fields.completed)
+        assertEquals("", opened.fields.body)
+        val changed = opened.withDate(day.plusDays(1)).let { it.copy(fields = it.fields.copy(body = "copied")) }
+        val bundle = Bundle().also(changed::writeDraft)
+        val restored = EditorViewModel(repo(store)) {}
+        restored.open(EditorRequest.CreateAfter(uri, ref), bundle)
+        await { restored.state != null || restored.loadError != null }
+        assertEquals(day.plusDays(1), restored.state!!.fields.date)
+        assertNull(restored.state!!.validationError())
+        restored.save()
+        await { restored.state?.saved == true }
+        val saved = TodoParser.parse(text)
+        assertEquals(listOf("anchor", "follower", "copied"), saved.tasks.map { it.body })
+        assertEquals(day.plusDays(1), saved.tasks.last().date)
+        assertTrue(saved.tasks.last().completed)
+        assertEquals(listOf("#35", "#a"), saved.tasks.last().tags)
+        assertEquals("- ^^^ follower", text.lines()[2])
+    }
+
     @Test fun arrowCreationSavesBelowItsAnchorAndRefreshesOnce() {
         val source = """
             ### 06.10.26
@@ -56,7 +91,7 @@ class EditorLifecycleTest {
         await { owner.state != null || owner.loadError != null }
         val state = owner.state!!
         assertEquals(listOf("#a"), state.inheritedTags)
-        owner.update(state.copy(fields = state.fields.copy(body = "child", hasCheckbox = false)))
+        owner.update(state.copy(fields = state.fields.copy(body = "child", hasCheckbox = false, completed = false)))
         owner.save()
         await { owner.state?.saved == true }
         assertEquals("""

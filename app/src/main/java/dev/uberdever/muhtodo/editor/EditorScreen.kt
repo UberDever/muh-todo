@@ -43,7 +43,7 @@ fun EditorScreen(state: EditorState, onChange: (EditorState) -> Unit, onSave: ()
     }
     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(if (state.ref == null) "New todo" else "Edit todo", style = MaterialTheme.typography.headlineSmall)
-        OutlinedButton(enabled = enabled && state.insertAfter == null, onClick = {
+        OutlinedButton(enabled = enabled, onClick = {
             DatePickerDialog(context, { _, year, month, day -> onChange(state.withDate(LocalDate.of(year, month + 1, day))) },
                 fields.date.year, fields.date.monthValue - 1, fields.date.dayOfMonth).apply {
                 datePicker.minDate = Calendar.getInstance().apply { set(2000, 0, 1, 0, 0, 0) }.timeInMillis
