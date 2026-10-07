@@ -16,12 +16,20 @@ The app supports creating/editing tasks, direct completion toggles, live tag inh
 
 ## Download and CI
 
+[GitHub Releases](https://github.com/UberDever/muh-todo/releases) retain each
+published version with a directly downloadable `muh-todo.apk`, checksum and
+signing certificate. [Latest APK](https://github.com/UberDever/muh-todo/releases/latest/download/muh-todo.apk)
+always points to the latest release. No ZIP or local build is needed.
+
+Push a version tag such as `v0.6.0` after setting Android `versionName` to
+`0.6.0`. CI verifies the version matches, runs tests/lint, builds with the
+retained signing key, and publishes the release automatically. A missing
+signing key fails a release. Published assets are preserved on reruns.
+
 [GitHub Actions builds](https://github.com/UberDever/muh-todo/actions/workflows/android.yml)
-run on every push to main, pull request, and manual dispatch. Each successful
-main build publishes a downloadable `muh-todo-<run number>` artifact containing
-the APK, SHA-256 checksum, and signing certificate. Tests/lint reports are also
-retained; APKs are never committed to Git. Open a successful run and download
-its artifact at the bottom of the page (GitHub login required for artifacts).
+also run on every push to main, pull request, and manual dispatch. Successful
+main builds upload ZIP artifacts for development snapshots; APKs are never
+committed to Git. These artifacts require GitHub login and expire after 90 days.
 
 To let CI update the app already installed on your phone, add the existing
 private key as repository Actions secret `MUH_TODO_DEBUG_KEYSTORE_BASE64`.
