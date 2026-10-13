@@ -11,11 +11,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.uberdever.muhtodo.AppServices
 import dev.uberdever.muhtodo.MainActivity
+import dev.uberdever.muhtodo.document.EntryGroupOrder
 import dev.uberdever.muhtodo.document.WidgetOptions
 import dev.uberdever.muhtodo.document.DocumentPreferences
 import dev.uberdever.muhtodo.R
@@ -42,9 +44,8 @@ class WidgetConfigurationActivity : ComponentActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt("widget-id", widgetId)
-        outState.putBoolean("incomplete-first", options.sortCompletion)
+        outState.putStringArrayList("group-order", ArrayList(options.groupOrder.map { it.name }))
         outState.putBoolean("sort-tags", options.sortTags)
-        outState.putBoolean("completion-descending", options.completionDescending)
         outState.putBoolean("tags-descending", options.tagsDescending)
         outState.putBoolean("sort-dates", options.sortDates)
         outState.putBoolean("dates-older-first", options.datesOlderFirst)
@@ -60,17 +61,25 @@ class WidgetConfigurationActivity : ComponentActivity() {
         options = preferences.widgetOptions(widgetId)
         if (savedInstanceState?.getInt("widget-id", AppWidgetManager.INVALID_APPWIDGET_ID) == widgetId) {
             options = WidgetOptions(
-                savedInstanceState.getBoolean("incomplete-first"), savedInstanceState.getBoolean("sort-tags"),
-                savedInstanceState.getBoolean("completion-descending"), savedInstanceState.getBoolean("tags-descending"),
-                savedInstanceState.getBoolean("sort-dates"), savedInstanceState.getBoolean("dates-older-first"),
+                sortTags = savedInstanceState.getBoolean("sort-tags"),
+                tagsDescending = savedInstanceState.getBoolean("tags-descending"),
+                sortDates = savedInstanceState.getBoolean("sort-dates"),
+                datesOlderFirst = savedInstanceState.getBoolean("dates-older-first"),
+                groupOrder = EntryGroupOrder.parse(savedInstanceState.getStringArrayList("group-order").orEmpty()),
             )
         }
         setContent {
             TodoTheme {
+                var ordering by rememberSaveable { mutableStateOf(false) }
+                if (ordering) {
+                    GroupOrderDialog(options.groupOrder,
+                        onConfirm = { options = options.copy(groupOrder = it); ordering = false },
+                        onDismiss = { ordering = false })
+                }
                 var ready by remember { mutableStateOf(false) }
                 var message by remember { mutableStateOf("Opening document…") }
                 LaunchedEffect(revision) {
-                    try { AppServices.repository(this@WidgetConfigurationActivity).read(); ready = true; message = "Sorting changes only this widget’s view. Completion, then tags, then date; ties keep file order." }
+                    try { AppServices.repository(this@WidgetConfigurationActivity).read(); ready = true; message = "Sorting changes only this widget’s view. Groups, then tags, then date; ties keep file order." }
                     catch (e: CancellationException) { throw e }
                     catch (e: Exception) { ready = false; message = e.message ?: "Select your Markdown file." }
                 }
@@ -79,9 +88,12 @@ class WidgetConfigurationActivity : ComponentActivity() {
                         .verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         Text(stringResource(R.string.widget_name), style = MaterialTheme.typography.headlineSmall)
                         Text(message)
-                        SortControl(stringResource(R.string.sort_completion), options.sortCompletion, options.completionDescending,
-                            labels = listOf(stringResource(R.string.no_sort), stringResource(R.string.incomplete_first), stringResource(R.string.complete_first)),
-                            onChange = { enabled, descending -> options = options.copy(sortCompletion = enabled, completionDescending = descending) })
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(stringResource(R.string.sort_completion), style = MaterialTheme.typography.titleMedium)
+                            OutlinedButton(onClick = { ordering = true }, modifier = Modifier.fillMaxWidth()) {
+                                Text(options.groupOrder.map { groupLabel(it) }.joinToString(" → "), textAlign = TextAlign.Center)
+                            }
+                        }
                         SortControl(stringResource(R.string.sort_tags), options.sortTags, options.tagsDescending,
                             labels = listOf(stringResource(R.string.no_sort), stringResource(R.string.tags_ascending), stringResource(R.string.tags_descending)),
                             onChange = { enabled, descending -> options = options.copy(sortTags = enabled, tagsDescending = descending) })

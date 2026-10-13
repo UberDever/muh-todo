@@ -94,15 +94,15 @@ class DocumentRepositoryTest {
     }
 
     @Test fun preferencesSurviveRecreationAndWidgetDeletionIsLocal() {
-        preferences.setWidgetOptions(11, WidgetOptions(true, false, true, false))
-        preferences.setWidgetOptions(22, WidgetOptions(false, true, false, true))
+        preferences.setWidgetOptions(11, WidgetOptions(groupOrder = listOf(EntryGroup.COMPLETE, EntryGroup.BULLETS, EntryGroup.INCOMPLETE)))
+        preferences.setWidgetOptions(22, WidgetOptions(sortTags = true, tagsDescending = true))
         val reloaded = DocumentPreferences(context)
         assertEquals(uri, reloaded.documentUri())
-        assertEquals(WidgetOptions(true, false, true, false), reloaded.widgetOptions(11))
-        assertEquals(WidgetOptions(false, true, false, true), reloaded.widgetOptions(22))
+        assertEquals(WidgetOptions(groupOrder = listOf(EntryGroup.COMPLETE, EntryGroup.BULLETS, EntryGroup.INCOMPLETE)), reloaded.widgetOptions(11))
+        assertEquals(WidgetOptions(sortTags = true, tagsDescending = true), reloaded.widgetOptions(22))
         reloaded.removeWidget(11)
         assertEquals(WidgetOptions(), reloaded.widgetOptions(11))
-        assertEquals(WidgetOptions(false, true, false, true), reloaded.widgetOptions(22))
+        assertEquals(WidgetOptions(sortTags = true, tagsDescending = true), reloaded.widgetOptions(22))
         assertEquals(uri, reloaded.documentUri())
     }
 
@@ -120,10 +120,20 @@ class DocumentRepositoryTest {
         assertEquals(uri, preferences.documentUri())
     }
 
+    @Test fun previousCompleteFirstPreferenceMigratesAndInvalidNewOrderIsSafe() {
+        val prefs = context.getSharedPreferences("todo-metadata", Context.MODE_PRIVATE)
+        prefs.edit().putBoolean("widget-11-incomplete", true)
+            .putBoolean("widget-11-completion-descending", true).commit()
+        assertEquals(listOf(EntryGroup.COMPLETE, EntryGroup.BULLETS, EntryGroup.INCOMPLETE),
+            DocumentPreferences(context).widgetOptions(11).groupOrder)
+        prefs.edit().putString("widget-11-group-order", "COMPLETE,COMPLETE,BULLETS").commit()
+        assertEquals(EntryGroupOrder.default, DocumentPreferences(context).widgetOptions(11).groupOrder)
+    }
+
     @Test fun previousVersionWidgetPreferencesKeepTheirSortsWithAscendingDefaults() {
         context.getSharedPreferences("todo-metadata", Context.MODE_PRIVATE).edit()
             .putBoolean("widget-11-incomplete", true).putBoolean("widget-11-tags", true).commit()
-        assertEquals(WidgetOptions(true, true), DocumentPreferences(context).widgetOptions(11))
+        assertEquals(WidgetOptions(sortTags = true), DocumentPreferences(context).widgetOptions(11))
     }
 
     @Test fun createAfterRejectsStaleAnchorWithoutWriting() = runBlocking {

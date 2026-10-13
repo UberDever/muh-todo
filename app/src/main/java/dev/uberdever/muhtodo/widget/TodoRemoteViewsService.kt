@@ -11,12 +11,19 @@ import dev.uberdever.muhtodo.R
 import kotlinx.coroutines.runBlocking
 
 class TodoRemoteViewsService : RemoteViewsService() {
-    internal fun creationViews(): RemoteViews = RemoteViews(packageName, R.layout.widget_create).apply {
+    internal fun creationViews(row: WidgetRow.Create): RemoteViews = RemoteViews(packageName, R.layout.widget_create).apply {
+        setTextViewText(R.id.entry_count, "${row.open}/${row.all}")
+        setContentDescription(R.id.entry_count, "${row.open} open of ${row.all} checkbox entries")
         setOnClickFillInIntent(R.id.create_entry, WidgetActions.createFillIn())
     }
     internal fun taskViews(row: WidgetRow.Task, uri: Uri?): RemoteViews = RemoteViews(packageName, R.layout.widget_task).apply {
+        val alpha = if (row.hasCheckbox && row.completed) 153 else 255
+        val textColor = TagLabels.withAlpha(getColor(R.color.todo_text), alpha)
+        setTextColor(R.id.body, textColor)
+        setTextColor(R.id.checkbox, textColor)
+        setInt(R.id.create_after, "setImageAlpha", alpha)
         setTextViewText(R.id.body, row.body)
-        setTextViewText(R.id.tags, TagLabels.withAge(row.ageDays, row.tagLabel, row.tags))
+        setTextViewText(R.id.tags, TagLabels.withAge(row.ageDays, row.tagLabel, row.tags, alpha))
         setViewVisibility(R.id.tags, View.VISIBLE)
         setViewVisibility(R.id.checkbox, View.VISIBLE)
         setTextViewText(R.id.checkbox, if (!row.hasCheckbox) "•" else if (row.completed) "☑" else "☐")
@@ -60,7 +67,7 @@ class TodoRemoteViewsService : RemoteViewsService() {
                 }
             }
             return when (val row = rows.getOrNull(position)) {
-                WidgetRow.Create -> creationViews()
+                is WidgetRow.Create -> creationViews(row)
                 is WidgetRow.Task -> taskViews(row, uri)
                 null -> null
             }

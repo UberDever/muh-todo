@@ -32,10 +32,10 @@ class TodoWorkflowTest {
             - [x] (#b) first
         """.trimIndent() + "\n", moved)
         val finalDocument = TodoParser.parse(moved)
-        val ascending = WidgetProjection.project(finalDocument, WidgetOptions(true, true)).filterIsInstance<WidgetRow.Task>()
+        val ascending = WidgetProjection.project(finalDocument, WidgetOptions(sortTags = true)).filterIsInstance<WidgetRow.Task>()
         assertEquals(listOf("second", "plain successor", "first"), ascending.map { it.body })
-        val descending = WidgetProjection.project(finalDocument, WidgetOptions(true, true, true, true)).filterIsInstance<WidgetRow.Task>()
-        assertEquals(listOf("plain successor", "first", "second"), descending.map { it.body })
+        val descending = WidgetProjection.project(finalDocument, WidgetOptions(sortTags = true, tagsDescending = true, groupOrder = listOf(EntryGroup.COMPLETE, EntryGroup.BULLETS, EntryGroup.INCOMPLETE))).filterIsInstance<WidgetRow.Task>()
+        assertEquals(listOf("first", "plain successor", "second"), descending.map { it.body })
         assertFalse(descending.single { it.body == "plain successor" }.hasCheckbox)
         assertTrue(descending.single { it.body == "first" }.completed)
         descending.forEach { row ->

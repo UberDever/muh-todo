@@ -5,18 +5,17 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 sealed interface WidgetRow {
-    data object Create : WidgetRow
+    data class Create(val open: Int, val all: Int) : WidgetRow
     data class Task(val ref: TaskRef, val completed: Boolean, val body: String, val tagLabel: String?, val hasCheckbox: Boolean = true, val tags: List<String> = emptyList(), val ageDays: Long = 0) : WidgetRow
 }
 object WidgetProjection {
     fun project(document: ParsedDocument, options: WidgetOptions, today: LocalDate = LocalDate.now()): List<WidgetRow> = buildList {
-        add(WidgetRow.Create)
+        val checkboxes = document.tasks.filter { it.hasCheckbox }
+        add(WidgetRow.Create(checkboxes.count { !it.completed }, checkboxes.size))
+        val order = EntryGroupOrder.validated(options.groupOrder)
         var previousTags: List<String>? = null
         document.tasks.sortedWith { left, right ->
-            val completion = if (options.sortCompletion) {
-                val order = (left.completed || !left.hasCheckbox).compareTo(right.completed || !right.hasCheckbox)
-                if (options.completionDescending) -order else order
-            } else 0
+            val completion = order.indexOf(EntryGroupOrder.group(left)).compareTo(order.indexOf(EntryGroupOrder.group(right)))
             val tags = if (options.sortTags) {
                 if (options.tagsDescending) compareTags(right.tags, left.tags) else compareTags(left.tags, right.tags)
             } else 0

@@ -12,6 +12,7 @@ import android.os.Bundle
 import androidx.test.core.app.ApplicationProvider
 import dev.uberdever.muhtodo.R
 import dev.uberdever.muhtodo.document.DocumentPreferences
+import dev.uberdever.muhtodo.document.EntryGroup
 import dev.uberdever.muhtodo.document.WidgetOptions
 import org.junit.Assert.*
 import org.junit.Before
@@ -44,42 +45,42 @@ class WidgetConfigurationTest {
         .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)
 
     @Test fun reopeningLoadsOnlyTheSelectedInstancesSavedOptions() {
-        preferences.setWidgetOptions(11, WidgetOptions(true, false, true, false))
-        preferences.setWidgetOptions(22, WidgetOptions(false, true, false, true))
+        preferences.setWidgetOptions(11, WidgetOptions(groupOrder = listOf(EntryGroup.COMPLETE, EntryGroup.BULLETS, EntryGroup.INCOMPLETE)))
+        preferences.setWidgetOptions(22, WidgetOptions(sortTags = true, tagsDescending = true))
         val first = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(11)).create().get()
         val second = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(22)).create().get()
-        assertEquals(WidgetOptions(true, false, true, false), first.options)
-        assertEquals(WidgetOptions(false, true, false, true), second.options)
+        assertEquals(WidgetOptions(groupOrder = listOf(EntryGroup.COMPLETE, EntryGroup.BULLETS, EntryGroup.INCOMPLETE)), first.options)
+        assertEquals(WidgetOptions(sortTags = true, tagsDescending = true), second.options)
     }
     @Test fun savePersistsOneInstanceAndReturnsItsIdWithoutChangingTheDocument() {
-        preferences.setWidgetOptions(22, WidgetOptions(false, true, false, true))
+        preferences.setWidgetOptions(22, WidgetOptions(sortTags = true, tagsDescending = true))
         val activity = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(11)).create().get()
-        activity.options = WidgetOptions(true, true, true, true, true, true)
+        activity.options = WidgetOptions(true, true, true, true, listOf(EntryGroup.COMPLETE, EntryGroup.BULLETS, EntryGroup.INCOMPLETE))
         activity.saveConfiguration()
-        assertEquals(WidgetOptions(true, true, true, true, true, true), DocumentPreferences(app).widgetOptions(11))
-        assertEquals(WidgetOptions(false, true, false, true), DocumentPreferences(app).widgetOptions(22))
+        assertEquals(WidgetOptions(true, true, true, true, listOf(EntryGroup.COMPLETE, EntryGroup.BULLETS, EntryGroup.INCOMPLETE)), DocumentPreferences(app).widgetOptions(11))
+        assertEquals(WidgetOptions(sortTags = true, tagsDescending = true), DocumentPreferences(app).widgetOptions(22))
         assertEquals(uri, DocumentPreferences(app).documentUri())
         assertTrue(activity.isFinishing)
         assertEquals(Activity.RESULT_OK, shadowOf(activity).resultCode)
         assertEquals(11, shadowOf(activity).resultIntent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1))
     }
     @Test fun cancelLeavesBothSavedInstancesUntouched() {
-        preferences.setWidgetOptions(11, WidgetOptions(true, false, true, false))
-        preferences.setWidgetOptions(22, WidgetOptions(false, true, false, true))
+        preferences.setWidgetOptions(11, WidgetOptions(groupOrder = listOf(EntryGroup.COMPLETE, EntryGroup.BULLETS, EntryGroup.INCOMPLETE)))
+        preferences.setWidgetOptions(22, WidgetOptions(sortTags = true, tagsDescending = true))
         val activity = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(11)).create().get()
-        activity.options = WidgetOptions(false, false)
+        activity.options = WidgetOptions()
         activity.finish()
-        assertEquals(WidgetOptions(true, false, true, false), preferences.widgetOptions(11))
-        assertEquals(WidgetOptions(false, true, false, true), preferences.widgetOptions(22))
+        assertEquals(WidgetOptions(groupOrder = listOf(EntryGroup.COMPLETE, EntryGroup.BULLETS, EntryGroup.INCOMPLETE)), preferences.widgetOptions(11))
+        assertEquals(WidgetOptions(sortTags = true, tagsDescending = true), preferences.widgetOptions(22))
         assertEquals(Activity.RESULT_CANCELED, shadowOf(activity).resultCode)
     }
     @Test fun recreationKeepsUnsavedOptionsWithoutPersistingThem() {
         val controller = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(11)).create()
-        controller.get().options = WidgetOptions(true, true, true, true, true, true)
+        controller.get().options = WidgetOptions(true, true, true, true, listOf(EntryGroup.COMPLETE, EntryGroup.BULLETS, EntryGroup.INCOMPLETE))
         val saved = Bundle()
         controller.saveInstanceState(saved)
         val recreated = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(11)).create(saved).get()
-        assertEquals(WidgetOptions(true, true, true, true, true, true), recreated.options)
+        assertEquals(WidgetOptions(true, true, true, true, listOf(EntryGroup.COMPLETE, EntryGroup.BULLETS, EntryGroup.INCOMPLETE)), recreated.options)
         assertEquals(WidgetOptions(), preferences.widgetOptions(11))
     }
     @Test fun providerOffersLauncherReconfigurationWithoutAnOptionalInitialSetup() {
@@ -104,7 +105,7 @@ class WidgetConfigurationTest {
         for (id in listOf(-1, 44, 33)) {
             val activity = Robolectric.buildActivity(WidgetConfigurationActivity::class.java, intent(id)).create().get()
             assertTrue(activity.isFinishing)
-            activity.options = WidgetOptions(true, true, true, true, true, true)
+            activity.options = WidgetOptions(true, true, true, true, listOf(EntryGroup.COMPLETE, EntryGroup.BULLETS, EntryGroup.INCOMPLETE))
             activity.saveConfiguration()
             assertEquals(WidgetOptions(), preferences.widgetOptions(id))
             assertEquals(Activity.RESULT_CANCELED, shadowOf(activity).resultCode)

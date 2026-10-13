@@ -1,10 +1,8 @@
 <resources>
     <string name="app_name">muh todo</string>
     <string name="widget_name">muh todo widget</string>
-    <string name="sort_completion">Sort by completion</string>
+    <string name="sort_completion">Group order</string>
     <string name="no_sort">No sort</string>
-    <string name="incomplete_first">Incomplete first</string>
-    <string name="complete_first">Complete first</string>
     <string name="tags_ascending">a-z and 0-9</string>
     <string name="tags_descending">z-a and 9-0</string>
     <string name="sort_tags">Sort by tags</string>
@@ -20,4 +18,12 @@
     <string name="sort_dates">Sort by date</string>
     <string name="newer_first">Newer first</string>
     <string name="older_first">Older first</string>
+    <string name="group_incomplete">Incomplete</string>
+    <string name="group_complete">Complete</string>
+    <string name="group_bullets">Bullets</string>
+    <string name="drag_group_hint">Drag the handles to reorder. The top group appears first.</string>
+    <string name="drag_group">Drag %1$s</string>
+    <string name="move_group_up">Move %1$s up</string>
+    <string name="move_group_down">Move %1$s down</string>
+    <string name="group_done">Done</string>
 </resources>

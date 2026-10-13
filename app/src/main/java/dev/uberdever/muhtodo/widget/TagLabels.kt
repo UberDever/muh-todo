@@ -9,13 +9,15 @@ import dev.uberdever.muhtodo.ui.TagColors
 import dev.uberdever.muhtodo.ui.AgeColors
 
 object TagLabels {
-    fun withAge(days: Long, label: String?, tags: List<String>): CharSequence {
+    internal fun withAlpha(color: Int, alpha: Int) = (color and 0x00FFFFFF) or (alpha.coerceIn(0, 255) shl 24)
+
+    fun withAge(days: Long, label: String?, tags: List<String>, alpha: Int = 255): CharSequence {
         val age = AgeColors.label(days)
         val text = age + if (label == null) "" else " $label"
         return SpannableString(text).apply {
-            setSpan(ForegroundColorSpan(AgeColors.color(days)), 0, age.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(ForegroundColorSpan(withAlpha(AgeColors.color(days), alpha)), 0, age.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             setSpan(StyleSpan(Typeface.BOLD), 0, age.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            if (label != null) setSpan(ForegroundColorSpan(TagColors.color(tags)), age.length + 1, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            if (label != null) setSpan(ForegroundColorSpan(withAlpha(TagColors.color(tags), alpha)), age.length + 1, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 

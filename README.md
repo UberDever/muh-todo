@@ -2,7 +2,7 @@
 
 A small Android app and home-screen widget backed by your own UTF-8 Markdown document. Android 8.0+ (API 26); no accounts, database, Google Play services, or network permission. The document stays where you selected it through Android's document picker.
 
-The app supports creating/editing tasks, direct completion toggles, live tag inheritance, date moves, and manual widget refresh. Each widget has independent **Sort by completion**, **Sort by tags**, and **Sort by date** controls. Each uses three buttons with exactly one selected: **No sort / Incomplete first / Complete first** for completion, and **No sort / a-z and 0-9 / z-a and 9-0** for tags. Completion takes priority over tags; ascending completion puts incomplete tasks first, descending puts completed tasks and plain entries first. Equal sort keys keep file order. Date sorting offers **No sort / Newer first / Older first** after completion and tags. Configuration opens when adding a widget. If your launcher offers **Edit widget**, it reopens the same settings; otherwise recreate the widget to change them. Moving/resizing alone does not reopen settings. Sorting changes only the view.
+The app supports creating/editing tasks, direct completion toggles, live tag inheritance, date moves, and manual widget refresh. Each widget has a **Group order** dialog: drag **Incomplete**, **Bullets** (no checkbox), and **Complete** to set their order; the default is **Incomplete → Bullets → Complete**. Up/down buttons provide an alternative to dragging. Groups come before tag and date sorting; equal keys keep file order. Tags retain **No sort / a-z and 0-9 / z-a and 9-0**, and dates retain **No sort / Newer first / Older first**. Configuration opens when adding a widget. If your launcher offers **Edit widget**, it reopens the same settings; otherwise recreate the widget to change them. Sorting changes only the view.
 
 [0.1.1](docs/0.1.1-visual-update.md) applies the first phone feedback: dark theme, slightly smaller text, the `muh todo` name, and the supplied launcher artwork.
 
@@ -118,10 +118,23 @@ color intensity/hue caps at 60 days while the number remains exact. Repeated
 effective tags use `^^^` across date boundaries. Age is display metadata only.
 
 Per-widget date sorting offers No sort / Newer first / Older first. Sort
-precedence is completion, tags, date, then original file order; with all sorts
-off the document order is preserved. Widgets request a refresh every 30 minutes
+precedence is group order, tags, date, then original file order; with tag/date
+sorting off, document order is preserved within each group. Widgets request a refresh every 30 minutes
 to update ages after midnight, subject to Android's scheduling. The scrollable
 40dp creation row remains first regardless of sorting. Copy-based creation
 retains date, checkbox/completion state, priority and ordered tags, clears the
 body, and permits changing all editor fields. Keeping its date inserts below
 the source; changing the date inserts into the chosen section.
+
+### Widget refinements in 0.7.0
+
+Completed checkbox entries render at 60% opacity (40% dimming), including body,
+checkbox, age/tag labels and copy icon. Incomplete tasks and plain bullets retain
+full opacity. The creation row shows `open/all` on its right; both numbers count
+only recognized entries with checkboxes. Toggling completion refreshes the count.
+
+The completion three-way selector is replaced by the group reorder dialog.
+Cancel discards dialog changes; Done accepts them into the widget's draft settings,
+and Save applies them to that widget only. Existing complete-first settings
+migrate to Complete → Bullets → Incomplete; other older settings start with the
+new default Incomplete → Bullets → Complete. The Markdown format is unchanged.

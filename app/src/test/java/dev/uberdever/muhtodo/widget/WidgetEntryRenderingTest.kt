@@ -17,6 +17,20 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [26, 35])
 class WidgetEntryRenderingTest {
+    @Test fun completedCheckboxRowsAreDimmedAndRecyclingRestoresFullOpacity() {
+        val service = Robolectric.buildService(TodoRemoteViewsService::class.java).create().get()
+        val row = WidgetRow.Task(TaskRef(1, "- [x] done", LocalDate.of(2026, 10, 2)), true, "done", null)
+        val view = service.taskViews(row, null).apply(service, FrameLayout(service))
+        assertEquals(153, android.graphics.Color.alpha(view.findViewById<TextView>(R.id.body).currentTextColor))
+        assertEquals(153, view.findViewById<android.widget.ImageView>(R.id.create_after).imageAlpha)
+        service.taskViews(row.copy(completed = false), null).reapply(service, view)
+        assertEquals(255, android.graphics.Color.alpha(view.findViewById<TextView>(R.id.body).currentTextColor))
+        assertEquals(255, view.findViewById<android.widget.ImageView>(R.id.create_after).imageAlpha)
+        service.taskViews(row.copy(hasCheckbox = false), null).reapply(service, view)
+        assertEquals(255, android.graphics.Color.alpha(view.findViewById<TextView>(R.id.body).currentTextColor))
+        assertEquals(255, view.findViewById<android.widget.ImageView>(R.id.create_after).imageAlpha)
+    }
+
     @Test fun reusedRowKeepsPlainEntryBulletAlignedAndRestoresTheNextCheckbox() {
         val service = Robolectric.buildService(TodoRemoteViewsService::class.java).create().get()
         val ref = TaskRef(1, "- [x] (#a) body", LocalDate.of(2026, 10, 2))
@@ -43,8 +57,9 @@ class WidgetEntryRenderingTest {
     }
     @Test fun creationRowHasNoDateAndUsesTodayWhenOpened() {
         val service = Robolectric.buildService(TodoRemoteViewsService::class.java).create().get()
-        val view = service.creationViews().apply(service, FrameLayout(service))
-        assertEquals("+ New entry", view.findViewById<TextView>(R.id.create_entry).text.toString())
+        val view = service.creationViews(WidgetRow.Create(3, 7)).apply(service, FrameLayout(service))
+        assertEquals("+ New entry", view.findViewById<TextView>(R.id.create_label).text.toString())
+        assertEquals("3/7", view.findViewById<TextView>(R.id.entry_count).text.toString())
         assertEquals("New todo", view.findViewById<View>(R.id.create_entry).contentDescription.toString())
         assertEquals(dev.uberdever.muhtodo.editor.EditorRequest.Create,
             dev.uberdever.muhtodo.editor.EditorIntents.decode(WidgetActions.createFillIn()))
