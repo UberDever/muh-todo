@@ -152,3 +152,7 @@ The accessibility label includes the exact day count. Future dates stay neutral
 and retain their negative day label. Completed entries retain the existing 40%
 foreground dimming. All styling is view-only; no urgency markers are written
 to the Markdown file.
+
+0.8.1 limits age timers and urgency styling to checkbox entries. Plain bullets
+use neutral cards with no age label or urgency emoji; their tag colors remain
+visible. Untagged bullets also omit the otherwise empty metadata line.

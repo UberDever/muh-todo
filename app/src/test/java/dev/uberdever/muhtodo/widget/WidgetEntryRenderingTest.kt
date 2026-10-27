@@ -17,6 +17,30 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [26, 35])
 class WidgetEntryRenderingTest {
+    @Test fun bulletRowsHaveNoTimerAndRecyclingRestoresCheckboxUrgency() {
+        val service = Robolectric.buildService(TodoRemoteViewsService::class.java).create().get()
+        val ref = TaskRef(1, "- [ ] (#buy) body", LocalDate.of(2026, 10, 2))
+        val task = WidgetRow.Task(ref, false, "body", "#buy", tags = listOf("#buy"), ageDays = 400)
+        val view = service.taskViews(task, null).apply(service, FrameLayout(service))
+        service.taskViews(task.copy(hasCheckbox = false), null).reapply(service, view)
+        val age = view.findViewById<TextView>(R.id.age_label)
+        assertEquals(View.GONE, age.visibility)
+        assertEquals("", age.text.toString())
+        assertNull(age.background)
+        assertNull(age.contentDescription)
+        assertEquals("#buy", view.findViewById<TextView>(R.id.tags).text.toString())
+        val card = view.findViewById<View>(R.id.task_card).background as android.graphics.drawable.GradientDrawable
+        assertEquals(0x08FFFFFF, card.color!!.defaultColor)
+        service.taskViews(task.copy(hasCheckbox = false, tagLabel = null, tags = emptyList()), null).reapply(service, view)
+        assertEquals(View.GONE, view.findViewById<View>(R.id.task_meta).visibility)
+        service.taskViews(task, null).reapply(service, view)
+        assertEquals(View.VISIBLE, age.visibility)
+        assertEquals(View.VISIBLE, view.findViewById<View>(R.id.task_meta).visibility)
+        assertEquals("1y 35d ☢️", age.text.toString())
+        assertNotNull(age.background)
+        assertTrue(age.contentDescription.contains("400 days old"))
+    }
+
     @Test fun recycledRowsSwitchEveryAgeStageAndClearOldBadges() {
         val service = Robolectric.buildService(TodoRemoteViewsService::class.java).create().get()
         val ref = TaskRef(1, "- [ ] (#buy) body", LocalDate.of(2026, 10, 2))
@@ -80,7 +104,8 @@ class WidgetEntryRenderingTest {
         assertEquals("New entry using: plain", view.findViewById<android.widget.ImageView>(R.id.create_after).contentDescription.toString())
         assertEquals("plain", view.findViewById<TextView>(R.id.body).text.toString())
         assertEquals("#a", view.findViewById<TextView>(R.id.tags).text.toString())
-        assertEquals("0d", view.findViewById<TextView>(R.id.age_label).text.toString())
+        assertEquals("", view.findViewById<TextView>(R.id.age_label).text.toString())
+        assertEquals(View.GONE, view.findViewById<View>(R.id.age_label).visibility)
         service.taskViews(checked.copy(completed = false), uri).reapply(service, view)
         assertEquals(View.VISIBLE, view.findViewById<View>(R.id.checkbox).visibility)
         assertEquals("☐", view.findViewById<TextView>(R.id.checkbox).text.toString())
