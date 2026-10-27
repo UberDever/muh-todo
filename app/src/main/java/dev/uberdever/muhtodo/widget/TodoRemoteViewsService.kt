@@ -8,6 +8,7 @@ import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import dev.uberdever.muhtodo.AppServices
 import dev.uberdever.muhtodo.R
+import dev.uberdever.muhtodo.ui.AgeColors
 import kotlinx.coroutines.runBlocking
 
 class TodoRemoteViewsService : RemoteViewsService() {
@@ -23,8 +24,24 @@ class TodoRemoteViewsService : RemoteViewsService() {
         setTextColor(R.id.checkbox, textColor)
         setInt(R.id.create_after, "setImageAlpha", alpha)
         setTextViewText(R.id.body, row.body)
-        setTextViewText(R.id.tags, TagLabels.withAge(row.ageDays, row.tagLabel, row.tags, alpha))
-        setViewVisibility(R.id.tags, View.VISIBLE)
+        val age = AgeColors.stage(row.ageDays)
+        val background = when (age) {
+            AgeColors.Stage.RECENT -> R.drawable.age_card_recent
+            AgeColors.Stage.TWO_WEEKS -> R.drawable.age_card_two_weeks
+            AgeColors.Stage.MONTH -> R.drawable.age_card_month
+            AgeColors.Stage.THREE_MONTHS -> R.drawable.age_card_three_months
+            AgeColors.Stage.SIX_MONTHS -> R.drawable.age_card_six_months
+            AgeColors.Stage.YEAR -> R.drawable.age_card_year
+        }
+        setInt(R.id.task_card, "setBackgroundResource", background)
+        setInt(R.id.age_accent, "setBackgroundColor", TagLabels.withAlpha(
+            if (age == AgeColors.Stage.RECENT) 0xFF59616E.toInt() else age.color, alpha))
+        setTextViewText(R.id.age_label, TagLabels.age(row.ageDays))
+        setTextColor(R.id.age_label, TagLabels.withAlpha(if (age.badge) 0xFFFFFFFF.toInt() else age.color, alpha))
+        setContentDescription(R.id.age_label, AgeColors.description(row.ageDays))
+        setInt(R.id.age_label, "setBackgroundResource", if (age.badge) R.drawable.age_badge_urgent else 0)
+        setTextViewText(R.id.tags, TagLabels.colored(row.tagLabel, row.tags, alpha))
+        setViewVisibility(R.id.tags, if (row.tagLabel == null) View.GONE else View.VISIBLE)
         setViewVisibility(R.id.checkbox, View.VISIBLE)
         setTextViewText(R.id.checkbox, if (!row.hasCheckbox) "•" else if (row.completed) "☑" else "☐")
         setContentDescription(R.id.checkbox, when {

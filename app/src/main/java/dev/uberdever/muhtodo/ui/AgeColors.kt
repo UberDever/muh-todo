@@ -1,14 +1,25 @@
 package dev.uberdever.muhtodo.ui
 
-/** View-only age: keep the actual day count, cap only the color's urgency. */
+/** Display-only age bands. Warm colors were selected in OKLCH, outside the tag hue range. */
 object AgeColors {
-    fun label(days: Long) = "${days}d"
-    fun color(days: Long): Int = if (days <= 0) 0xFFFFFFFF.toInt() else TagColors.toArgb(oklch(days))
-    internal fun oklch(days: Long): TagColors.Oklch {
-        val amount = days.coerceIn(0, 60) / 60.0
-        val lightness = .98 - .22 * amount
-        val hue = 40 * amount
-        val chroma = minOf(.30 * amount, .99 * TagColors.maximumChroma(lightness, hue))
-        return TagColors.Oklch(lightness, chroma, hue)
+    enum class Stage(val fromDays: Long, val color: Int, val emoji: String, val description: String, val badge: Boolean = false) {
+        RECENT(0, 0xFFFFFFFF.toInt(), "", "Less than two weeks"),
+        TWO_WEEKS(14, 0xFFFDC679.toInt(), "⏳", "Two weeks or more"),
+        MONTH(30, 0xFFFCA76B.toInt(), "⚠️", "One month or more"),
+        THREE_MONTHS(90, 0xFFFB7E5F.toInt(), "🔥", "Three months or more"),
+        SIX_MONTHS(180, 0xFFFB5058.toInt(), "🚨", "Six months or more", true),
+        YEAR(365, 0xFFFA2B53.toInt(), "☢️", "One year or more", true),
     }
+    fun stage(days: Long) = Stage.entries.lastOrNull { days >= it.fromDays } ?: Stage.RECENT
+    fun color(days: Long) = stage(days).color
+    fun label(days: Long): String {
+        val age = if (days < 365) "${days}d" else buildString {
+            append("${days / 365}y")
+            if (days % 365 != 0L) append(" ${days % 365}d")
+        }
+        val emoji = stage(days).emoji
+        return if (emoji.isEmpty()) age else "$age $emoji"
+    }
+    fun description(days: Long) = if (days < 0) "${-days} days in the future"
+        else "$days days old. ${stage(days).description}."
 }

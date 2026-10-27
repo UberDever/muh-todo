@@ -203,7 +203,7 @@ an unknown global pool or ML.
 
 These are design-probe results, not native Android test or device results.
 
-## Age labels (0.6.0)
+## Age labels (0.6.0, superseded by staged urgency in 0.8.0)
 
 The widget prepends a view-only day count, e.g. `34d`, to every entry's tag
 label. It is today's local calendar date minus the Markdown section date.
@@ -219,3 +219,12 @@ all bounded perturbations keep tag hues above 80 degrees. This reserves the
 keeping child tuples near their prefixes. Existing tag colors change in
 this version. Known-tag chips and tuple labels use the same updated protocol.
 The older prototype images and HTML predate this palette update.
+
+In 0.8.0 the continuous age gradient is replaced by fixed stages at 14/30/90/180/365
+days, with urgency emoji, row accents and older-age badges. The warm palette was
+selected from OKLCH (L / requested C / h), with chroma limited to 95% of the sRGB
+boundary: 0.86/0.18/75, 0.80/0.20/55, 0.73/0.22/35, 0.67/0.23/22, 0.64/0.25/18.
+The resulting RGB colors are #FDC679, #FCA76B, #FB7E5F, #FB5058 and #FA2B53.
+All age hues stay below the tag hue range (above 80 degrees); the semantic tag
+color protocol itself is unchanged. Below 14 days, age text stays white and the
+row stripe is neutral gray. Above a year, labels show years and remaining days.

@@ -113,8 +113,8 @@ A future Ubuntu host can use that archive to build the historical app. A hypothe
 
 The widget is a flat list. Every entry begins its tag line with its age in
 days (`34d`), calculated from its Markdown date section to today's local date.
-Each age has its own reserved warm color; today/future entries are white, and
-color intensity/hue caps at 60 days while the number remains exact. Repeated
+Age colors use stages at 14, 30, 90, 180 and 365 days. Recent/future entries
+are neutral; older entries gain warm colors, urgency emoji and stronger badges. Repeated
 effective tags use `^^^` across date boundaries. Age is display metadata only.
 
 Per-widget date sorting offers No sort / Newer first / Older first. Sort
@@ -138,3 +138,17 @@ Cancel discards dialog changes; Done accepts them into the widget's draft settin
 and Save applies them to that widget only. Existing complete-first settings
 migrate to Complete → Bullets → Incomplete; other older settings start with the
 new default Incomplete → Bullets → Complete. The Markdown format is unchanged.
+
+### Age urgency in 0.8.0
+
+Widget rows have a rounded outline, subtle age tint and a matching accent stripe.
+Age stages use fixed day thresholds: under 14 days is neutral; 14 days ⏳ amber;
+30 days ⚠️ orange; 90 days 🔥 red-orange; 180 days 🚨 red; 365 days ☢️ deep red.
+The last two stages use white age text on a red badge. Emoji retain the stage
+information alongside color. Tag colors and sorting remain independent.
+
+Ages of a year or more use compact labels, e.g. `1y 21d ☢️`; a year is 365 days.
+The accessibility label includes the exact day count. Future dates stay neutral
+and retain their negative day label. Completed entries retain the existing 40%
+foreground dimming. All styling is view-only; no urgency markers are written
+to the Markdown file.
