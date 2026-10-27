@@ -17,6 +17,28 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [26, 35])
 class WidgetEntryRenderingTest {
+    @Test fun checkedRowsKeepPlainAgeAndClearUrgencyUntilReopened() {
+        val service = Robolectric.buildService(TodoRemoteViewsService::class.java).create().get()
+        val ref = TaskRef(1, "- [ ] (#buy) body", LocalDate.of(2026, 10, 2))
+        val task = WidgetRow.Task(ref, false, "body", "#buy", tags = listOf("#buy"), ageDays = 400)
+        val view = service.taskViews(task, null).apply(service, FrameLayout(service))
+        service.taskViews(task.copy(completed = true), null).reapply(service, view)
+        val age = view.findViewById<TextView>(R.id.age_label)
+        assertEquals(View.VISIBLE, age.visibility)
+        assertEquals("1y 35d", age.text.toString())
+        assertEquals(0x99FFFFFF.toInt(), age.currentTextColor)
+        assertNull(age.background)
+        val card = view.findViewById<View>(R.id.task_card).background as android.graphics.drawable.GradientDrawable
+        assertEquals(0x08FFFFFF, card.color!!.defaultColor)
+        val accent = view.findViewById<View>(R.id.age_accent).background as android.graphics.drawable.ColorDrawable
+        assertEquals(0x9959616E.toInt(), accent.color)
+        assertEquals("400 days old.", age.contentDescription.toString())
+        service.taskViews(task, null).reapply(service, view)
+        assertEquals("1y 35d ☢️", age.text.toString())
+        assertNotNull(age.background)
+        assertTrue(age.contentDescription.contains("One year or more"))
+    }
+
     @Test fun bulletRowsHaveNoTimerAndRecyclingRestoresCheckboxUrgency() {
         val service = Robolectric.buildService(TodoRemoteViewsService::class.java).create().get()
         val ref = TaskRef(1, "- [ ] (#buy) body", LocalDate.of(2026, 10, 2))
@@ -65,7 +87,7 @@ class WidgetEntryRenderingTest {
             assertEquals("body", view.findViewById<TextView>(R.id.body).text.toString())
         }
         service.taskViews(base.copy(ageDays = 386, completed = true), null).reapply(service, view)
-        assertEquals("1y 21d ☢️", view.findViewById<TextView>(R.id.age_label).text.toString())
+        assertEquals("1y 21d", view.findViewById<TextView>(R.id.age_label).text.toString())
         assertEquals(153, android.graphics.Color.alpha(view.findViewById<TextView>(R.id.age_label).currentTextColor))
         assertTrue(view.findViewById<TextView>(R.id.age_label).contentDescription.contains("386 days old"))
     }

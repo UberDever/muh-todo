@@ -11,7 +11,7 @@ import dev.uberdever.muhtodo.ui.TagColors
 object TagLabels {
     internal fun withAlpha(color: Int, alpha: Int) = (color and 0x00FFFFFF) or (alpha.coerceIn(0, 255) shl 24)
 
-    fun age(days: Long): CharSequence = SpannableString(AgeColors.label(days)).apply {
+    fun age(days: Long, includeUrgency: Boolean = true): CharSequence = SpannableString(AgeColors.label(days, includeUrgency)).apply {
         setSpan(StyleSpan(Typeface.BOLD), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
 

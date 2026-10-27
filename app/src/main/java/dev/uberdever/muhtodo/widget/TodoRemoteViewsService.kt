@@ -24,7 +24,8 @@ class TodoRemoteViewsService : RemoteViewsService() {
         setTextColor(R.id.checkbox, textColor)
         setInt(R.id.create_after, "setImageAlpha", alpha)
         setTextViewText(R.id.body, row.body)
-        val age = if (row.hasCheckbox) AgeColors.stage(row.ageDays) else AgeColors.Stage.RECENT
+        val urgent = row.hasCheckbox && !row.completed
+        val age = if (urgent) AgeColors.stage(row.ageDays) else AgeColors.Stage.RECENT
         val background = when (age) {
             AgeColors.Stage.RECENT -> R.drawable.age_card_recent
             AgeColors.Stage.TWO_WEEKS -> R.drawable.age_card_two_weeks
@@ -38,9 +39,9 @@ class TodoRemoteViewsService : RemoteViewsService() {
             if (age == AgeColors.Stage.RECENT) 0xFF59616E.toInt() else age.color, alpha))
         setViewVisibility(R.id.age_label, if (row.hasCheckbox) View.VISIBLE else View.GONE)
         setViewVisibility(R.id.task_meta, if (row.hasCheckbox || row.tagLabel != null) View.VISIBLE else View.GONE)
-        setTextViewText(R.id.age_label, if (row.hasCheckbox) TagLabels.age(row.ageDays) else "")
+        setTextViewText(R.id.age_label, if (row.hasCheckbox) TagLabels.age(row.ageDays, includeUrgency = urgent) else "")
         setTextColor(R.id.age_label, TagLabels.withAlpha(if (age.badge) 0xFFFFFFFF.toInt() else age.color, alpha))
-        setContentDescription(R.id.age_label, if (row.hasCheckbox) AgeColors.description(row.ageDays) else null)
+        setContentDescription(R.id.age_label, if (row.hasCheckbox) AgeColors.description(row.ageDays, includeUrgency = urgent) else null)
         setInt(R.id.age_label, "setBackgroundResource", if (age.badge) R.drawable.age_badge_urgent else 0)
         setTextViewText(R.id.tags, TagLabels.colored(row.tagLabel, row.tags, alpha))
         setViewVisibility(R.id.tags, if (row.tagLabel == null) View.GONE else View.VISIBLE)

@@ -12,14 +12,14 @@ object AgeColors {
     }
     fun stage(days: Long) = Stage.entries.lastOrNull { days >= it.fromDays } ?: Stage.RECENT
     fun color(days: Long) = stage(days).color
-    fun label(days: Long): String {
+    fun label(days: Long, includeUrgency: Boolean = true): String {
         val age = if (days < 365) "${days}d" else buildString {
             append("${days / 365}y")
             if (days % 365 != 0L) append(" ${days % 365}d")
         }
-        val emoji = stage(days).emoji
+        val emoji = if (includeUrgency) stage(days).emoji else ""
         return if (emoji.isEmpty()) age else "$age $emoji"
     }
-    fun description(days: Long) = if (days < 0) "${-days} days in the future"
-        else "$days days old. ${stage(days).description}."
+    fun description(days: Long, includeUrgency: Boolean = true) = if (days < 0) "${-days} days in the future"
+        else "$days days old." + if (includeUrgency) " ${stage(days).description}." else ""
 }

@@ -156,3 +156,7 @@ to the Markdown file.
 0.8.1 limits age timers and urgency styling to checkbox entries. Plain bullets
 use neutral cards with no age label or urgency emoji; their tag colors remain
 visible. Untagged bullets also omit the otherwise empty metadata line.
+
+0.8.2 shows urgency colors, emoji and badges only on incomplete checkbox entries.
+Completed checkboxes keep a plain, dimmed elapsed-time label on a neutral card.
+Reopening a completed entry restores its current urgency stage.

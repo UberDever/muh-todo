@@ -4,6 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class AgeColorsTest {
+    @Test fun plainAgeFormattingOmitsUrgencyButKeepsTheExactElapsedTime() {
+        assertEquals("1y 35d", AgeColors.label(400, includeUrgency = false))
+        assertEquals("400 days old.", AgeColors.description(400, includeUrgency = false))
+        assertEquals("-5d", AgeColors.label(-5, includeUrgency = false))
+    }
+
     @Test fun stageBoundariesAreInclusiveAndRemainDistinctAfterOneYear() {
         val stages = AgeColors.Stage.entries
         assertEquals(AgeColors.Stage.RECENT, AgeColors.stage(-1))
