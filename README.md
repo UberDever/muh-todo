@@ -50,6 +50,9 @@ can be revoked; normal APK builds use only the retained signing secret.
 
 ## Try it
 
+[Try the 100-entry synthetic widget showcase](examples/README.md) for varied
+dates, age stages, priorities, ordered tags, inheritance and all entry types.
+
 Install `app/build/outputs/apk/debug/app-debug.apk`, open muh todo, and select a disposable `.md` document with read/write access. Add **muh todo** through your launcher's widget picker. Use the scrollable `+ New entry` row to create with today's date, a checkbox to toggle, task text to edit, and the smaller return-arrow icon to copy all fields except the body into an editable new entry. An empty widget opens the app, where **New todo** creates the first entry. After external file changes, recreate the widget or use **Refresh widgets** in the app. See [the phone checklist](docs/testing-on-grapheneos.md).
 
 ```markdown

@@ -20,5 +20,13 @@
 ## Next checks
 
 The user confirmed launcher widget settings and the 0.4.0 layout were available.
-Next: hands-on priority picker gestures, numeric-tag persistence and tuple colors
-on Pixel 10 Pro/GrapheneOS. No further feature iteration is currently agreed.
+Hands-on checks: priority picker gestures, numeric-tag persistence and tuple colors
+on Pixel 10 Pro/GrapheneOS. The [100-entry widget showcase](../examples/README.md)
+also covers sorting, group order, age urgency, inheritance and all entry types.
+
+## Postponed proposals
+
+- [Tile mode and optional entry titles](design/tile-mode-proposal.md): saved for
+  later on 2026-11-02. A spiral canvas and gestures were requested; the app-canvas
+  alternative to a home-screen widget has not been accepted. No title protocol
+  or tile UI is implemented.
