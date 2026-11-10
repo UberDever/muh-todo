@@ -4,6 +4,10 @@ import java.time.LocalDate
 
 data class ParsedDocument(val source: String, val sections: List<DateSection>, val tasks: List<Todo>, val knownTags: List<String>)
 data class DateSection(val date: LocalDate, val headerLineIndex: Int, val endLineExclusive: Int)
-data class Todo(val lineIndex: Int, val sectionHeaderLine: Int, val date: LocalDate, val completed: Boolean, val body: String, val tags: List<String>, val form: TagForm, val hasCheckbox: Boolean = true)
+data class Todo(val lineIndex: Int, val sectionHeaderLine: Int, val date: LocalDate, val completed: Boolean, val body: String, val tags: List<String>, val form: TagForm, val hasCheckbox: Boolean = true, val title: String? = null) {
+    val text: String get() = EntryText(title, body).text
+}
 enum class TagForm { NONE, EXPLICIT, INHERITED }
-data class TaskFields(val date: LocalDate, val completed: Boolean, val tags: List<String>, val body: String, val hasCheckbox: Boolean = true)
+data class TaskFields(val date: LocalDate, val completed: Boolean, val tags: List<String>, val body: String, val hasCheckbox: Boolean = true, val title: String? = null) {
+    val text: String get() = EntryText(title, body).text
+}

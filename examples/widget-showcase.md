@@ -9,18 +9,18 @@ comments and quoted or indented list items are unrelated Markdown to preserve.
 
 ### 02.11.26
 
-- [ ] (#50 #home #groceries) Buy milk, bread and a bag of apples
-- [ ] ^^^ Check whether the cupboard already has cinnamon
+- [ ] (#50 #home #groceries) Groceries. Buy milk, bread and a bag of apples
+- [ ] ^^^ Pantry. Check whether the cupboard already has cinnamon
 
 <!-- Inheritance continues across this comment and the blank lines. -->
 
 - [ ] ^^^ Add oat milk for Saturday's pancakes
-- [x] (#50 #home #groceries) Recycle the empty glass jars
-- (#home #ideas) A narrow shelf might fit beside the imaginary kitchen window
+- [x] (#50 #home #groceries) Recycling. Recycle the empty glass jars
+- (#home #ideas) Shelf. A narrow shelf might fit beside the imaginary kitchen window
 
 ### 03.10.26
 
-- [ ] (#40 #belongings #relocation) Label the blue moving boxes
+- [ ] (#40 #belongings #relocation) Boxes. Label the blue moving boxes
 - [ ] ^^^ Measure the wardrobe before booking the fictional van
 - [ ] (#40 #belongings #storage) Sort the spare cables into reusable bags
 - [x] (#40 #belongings #relocation) Photograph the empty cupboards
@@ -76,7 +76,7 @@ comments and quoted or indented list items are unrelated Markdown to preserve.
 
 ### 20.10.26
 
-- [ ] (#35 #покупки #дом) Купить чай и овсяное печенье
+- [ ] (#35 #покупки #дом) Покупки. Купить чай и овсяное печенье
 - [ ] ^^^ Проверить, осталась ли гречка
 - [ ] (#35 #дом #покупки) Сравнить порядок тегов с предыдущими записями
 - [x] (#35 #покупки #дом) Убрать бумажный пакет
@@ -84,7 +84,7 @@ comments and quoted or indented list items are unrelated Markdown to preserve.
 
 ### 04.10.26
 
-- [ ] (#69 #garden #balcony) Move the fictional basil pot closer to the light
+- [ ] (#69 #garden #balcony) 🌱. Move the fictional basil pot closer to the light
 - [ ] ^^^ Clean the small watering can
 - [ ] (#69 #garden #tools) Count the spare plant labels
 - [x] ^^^ Put the spare plant labels back in the drawer

@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">muh todo</string>
+    <string name="entry_title">Title (optional)</string>
+    <string name="entry_title_hint">One word; saved as Title. Body</string>
     <string name="widget_name">muh todo widget</string>
     <string name="sort_completion">Group order</string>
     <string name="no_sort">No sort</string>

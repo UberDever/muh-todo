@@ -25,6 +25,7 @@ data class EditorState(val snapshot: DocumentSnapshot, val ref: TaskRef?, val fi
         bundle.putString("draft.uri", snapshot.uri.toString())
         bundle.putString("draft.date", fields.date.toString())
         bundle.putString("draft.body", fields.body)
+        bundle.putString("draft.title", fields.title)
         bundle.putStringArrayList("draft.tags", ArrayList(fields.tags))
         bundle.putBoolean("draft.completed", fields.completed)
         bundle.putBoolean("draft.has-checkbox", fields.hasCheckbox)
@@ -35,6 +36,7 @@ data class EditorState(val snapshot: DocumentSnapshot, val ref: TaskRef?, val fi
         if (bundle.getString("draft.uri") != snapshot.uri.toString()) throw DocumentChangedException()
         val dated = withDate(LocalDate.parse(bundle.getString("draft.date")))
         return dated.copy(fields = dated.fields.copy(body = bundle.getString("draft.body").orEmpty(),
+            title = if (bundle.containsKey("draft.title")) bundle.getString("draft.title") else fields.title,
             tags = bundle.getStringArrayList("draft.tags").orEmpty(), completed = bundle.getBoolean("draft.completed"),
             hasCheckbox = bundle.getBoolean("draft.has-checkbox", fields.hasCheckbox)),
             inheritTags = insertAfter == null && dated.canInherit && bundle.getBoolean("draft.inherit"))
@@ -57,12 +59,12 @@ data class EditorState(val snapshot: DocumentSnapshot, val ref: TaskRef?, val fi
             TaskFields(today, false, emptyList(), "")).withDate(today)
         fun createAfter(snapshot: DocumentSnapshot, ref: TaskRef): EditorState {
             val task = selected(snapshot, ref)
-            return EditorState(snapshot, null, TaskFields(task.date, task.completed, task.tags, "", task.hasCheckbox),
+            return EditorState(snapshot, null, TaskFields(task.date, task.completed, task.tags, "", task.hasCheckbox, task.title),
                 inheritedTags = task.tags, insertAfter = ref)
         }
         fun edit(snapshot: DocumentSnapshot, ref: TaskRef): EditorState {
             val task = selected(snapshot, ref)
-            return EditorState(snapshot, ref, TaskFields(task.date, task.completed, task.tags, task.body, task.hasCheckbox))
+            return EditorState(snapshot, ref, TaskFields(task.date, task.completed, task.tags, task.body, task.hasCheckbox, task.title))
         }
         private fun predecessor(snapshot: DocumentSnapshot, date: LocalDate): Todo? {
             val section = snapshot.document.sections.lastOrNull { it.date == date } ?: return null

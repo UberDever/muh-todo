@@ -2,6 +2,10 @@
 
 A small Android app and home-screen widget backed by your own UTF-8 Markdown document. Android 8.0+ (API 26); no accounts, database, Google Play services, or network permission. The document stays where you selected it through Android's document picker.
 
+**[Document format specification](docs/format.md)** is the single authoritative
+reference for dates, entry types, tags, priorities, inheritance, optional titles,
+mutation rules and view-only interpretation.
+
 The app supports creating/editing tasks, direct completion toggles, live tag inheritance, date moves, and manual widget refresh. Each widget has a **Group order** dialog: drag **Incomplete**, **Bullets** (no checkbox), and **Complete** to set their order; the default is **Incomplete → Bullets → Complete**. Up/down buttons provide an alternative to dragging. Groups come before tag and date sorting; equal keys keep file order. Tags retain **No sort / a-z and 0-9 / z-a and 9-0**, and dates retain **No sort / Newer first / Older first**. Configuration opens when adding a widget. If your launcher offers **Edit widget**, it reopens the same settings; otherwise recreate the widget to change them. Sorting changes only the view.
 
 [0.1.1](docs/0.1.1-visual-update.md) applies the first phone feedback: dark theme, slightly smaller text, the `muh todo` name, and the supplied launcher artwork.
@@ -62,15 +66,10 @@ Install `app/build/outputs/apk/debug/app-debug.apk`, open muh todo, and select a
 - (#life) something to remember
 ```
 
-Exact date headings and checkbox syntax matter. Lowercase `x` marks completion. Tags accept Unicode letters/digits and `_/.!?+*<>=:-`; tuples preserve their order and duplicates. Only recognized tasks inside valid date sections are managed. Other text is preserved. Editing an inherited task's tags changes the following inheritance chain. Moving or deleting a task materializes the first source successor's previous tags. **Delete** appears beside Cancel when editing an existing entry; date headings and unrelated text are retained.
-
-Checkboxes are optional: plain `- BODY` entries support the same tags, inheritance, and dates. They display an aligned bullet instead of a widget checkbox and sort with completed tasks when completion sorting is enabled. Tapping the bullet opens the editor. **Use checkbox** defaults on for new entries; switch it off to create a plain entry. Editing or moving a plain entry keeps it plain. Invalid leading checkbox-like tokens such as `[X] ` remain unrelated Markdown.
-
-Tap a row's **return-arrow icon** to create immediately below that entry in the file. Tags are prefilled and editable; unchanged tags serialize as `^^^`, changed tags are explicit, and cleared tags omit metadata. The date is prefilled from the source and editable; changing it inserts into the selected date section. Following existing `^^^` lines naturally inherit the inserted entry's tags. Date-header **+** creation uses explicit tags and prefills that date, which remains editable. The editor has no Completed or Inherit tags checkboxes; toggle completion directly in the widget. Creation from the app defaults to the phone's current local date; missing sections are created automatically. The editor deliberately accepts one-line bodies. Untagged bodies beginning with reserved metadata (`(#...` or `^^^`) may be unrepresentable and are rejected. Moving/deleting also refuses a write if an inherited successor with empty tags cannot be materialized without reinterpreting its body.
-
-Each exact tag gets a stable display color in widget tag labels and known-tag suggestions. Colors affect only the view; `^^^` remains neutral shorthand. Some tags can share similar colors in large pools.
-
-The file is reread before a change. A stale task or changed document selection requires reopening the editor/refreshing the widget. There is no merge engine, external-edit watcher, or atomic-write promise for arbitrary document providers. Test with a disposable document first.
+See the [format specification](docs/format.md) for recognition rules, optional
+`Title. Body` titles, priorities, inheritance, copying/moving/deleting entries,
+and all widget grouping, sorting, color and age behavior. The editor accepts
+one-line bodies and exposes a separate optional title field in 0.9.0.
 
 ## Build now
 
@@ -112,54 +111,12 @@ This image is Linux **amd64**; an ARM host needs Docker's amd64 emulation. A pre
 
 A future Ubuntu host can use that archive to build the historical app. A hypothetical future Xiaomi/Android release may require compatibility changes: an offline build cannot guarantee future OS installation/widget rules. That part must be checked on the actual phone.
 
-### Widget view in 0.6.0
+## Current behavior
 
-The widget is a flat list. Every entry begins its tag line with its age in
-days (`34d`), calculated from its Markdown date section to today's local date.
-Age colors use stages at 14, 30, 90, 180 and 365 days. Recent/future entries
-are neutral; older entries gain warm colors, urgency emoji and stronger badges. Repeated
-effective tags use `^^^` across date boundaries. Age is display metadata only.
+The [format specification](docs/format.md) also documents all view-only
+interpretation, including group ordering, the checkbox-only counter, urgency
+stages, completed-entry dimming, and plain bullets without age timers. Widget
+refreshes are requested every 30 minutes, subject to Android's scheduling.
 
-Per-widget date sorting offers No sort / Newer first / Older first. Sort
-precedence is group order, tags, date, then original file order; with tag/date
-sorting off, document order is preserved within each group. Widgets request a refresh every 30 minutes
-to update ages after midnight, subject to Android's scheduling. The scrollable
-40dp creation row remains first regardless of sorting. Copy-based creation
-retains date, checkbox/completion state, priority and ordered tags, clears the
-body, and permits changing all editor fields. Keeping its date inserts below
-the source; changing the date inserts into the chosen section.
-
-### Widget refinements in 0.7.0
-
-Completed checkbox entries render at 60% opacity (40% dimming), including body,
-checkbox, age/tag labels and copy icon. Incomplete tasks and plain bullets retain
-full opacity. The creation row shows `open/all` on its right; both numbers count
-only recognized entries with checkboxes. Toggling completion refreshes the count.
-
-The completion three-way selector is replaced by the group reorder dialog.
-Cancel discards dialog changes; Done accepts them into the widget's draft settings,
-and Save applies them to that widget only. Existing complete-first settings
-migrate to Complete → Bullets → Incomplete; other older settings start with the
-new default Incomplete → Bullets → Complete. The Markdown format is unchanged.
-
-### Age urgency in 0.8.0
-
-Widget rows have a rounded outline, subtle age tint and a matching accent stripe.
-Age stages use fixed day thresholds: under 14 days is neutral; 14 days ⏳ amber;
-30 days ⚠️ orange; 90 days 🔥 red-orange; 180 days 🚨 red; 365 days ☢️ deep red.
-The last two stages use white age text on a red badge. Emoji retain the stage
-information alongside color. Tag colors and sorting remain independent.
-
-Ages of a year or more use compact labels, e.g. `1y 21d ☢️`; a year is 365 days.
-The accessibility label includes the exact day count. Future dates stay neutral
-and retain their negative day label. Completed entries retain the existing 40%
-foreground dimming. All styling is view-only; no urgency markers are written
-to the Markdown file.
-
-0.8.1 limits age timers and urgency styling to checkbox entries. Plain bullets
-use neutral cards with no age label or urgency emoji; their tag colors remain
-visible. Untagged bullets also omit the otherwise empty metadata line.
-
-0.8.2 shows urgency colors, emoji and badges only on incomplete checkbox entries.
-Completed checkboxes keep a plain, dimmed elapsed-time label on a neutral card.
-Reopening a completed entry restores its current urgency stage.
+The postponed [tile-mode proposal](docs/design/tile-mode-proposal.md) is retained
+separately. Optional titles are implemented in 0.9.0; tile mode remains postponed.

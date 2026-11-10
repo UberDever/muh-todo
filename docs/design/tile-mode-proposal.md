@@ -1,8 +1,9 @@
-# Tile mode and entry titles — postponed
+# Tile mode — postponed; optional titles implemented
 
-Status: saved for later at the user's request on 2026-11-02. Neither tile mode
-nor the title protocol is implemented. The app-canvas alternative below has
-not been accepted.
+Status: tile mode remains postponed at the user's request on 2026-11-02.
+Optional titles were requested separately on 2026-11-10 and implemented in
+0.9.0. Their authoritative specification is [docs/format.md](../format.md).
+The app-canvas alternative below has not been accepted.
 
 ## Requested experience
 
@@ -16,7 +17,7 @@ not been accepted.
 - Tap to edit, double-tap to create from the entry, hold to mark completed.
   Creation copies all current fields except the body and keeps them editable.
 
-## Proposed optional title protocol
+## Optional title protocol (implemented separately)
 
 Place the single-word title at the beginning of the body, after any checkbox
 and tag metadata, separated from the remaining body by a period and space:
@@ -27,9 +28,9 @@ and tag metadata, separated from the remaining body by a period and space:
 - [ ] ^^^ Groceries. Buy milk and bread
 ```
 
-The tile would show `Stuff` or `Groceries`. Without an explicit title, use the
-body's first word. This syntax is only a proposal: current parsing and editing
-continue treating the whole body as ordinary text.
+The proposed tile would show `Stuff` or `Groceries`. Without an explicit title,
+the future tile would use the body's first word. Parsing, editing and preserving
+explicit titles are implemented; the fallback and tile view remain postponed.
 
 ## Android constraint and possible approach
 
@@ -46,7 +47,6 @@ feature rather than accepting this alternative.
 
 - Whether an app canvas opened from the widget fits the intended experience,
   or whether the home-screen requirement needs a different compromise.
-- Exact title grammar, punctuation/abbreviation ambiguity and editor fields.
 - Tile sizing, spiral spacing, initial viewport and how to create the first entry.
 - Single-tap delay while distinguishing double-taps, accessibility alternatives
   to gestures, and the hold action for plain bullets and already-completed tasks.

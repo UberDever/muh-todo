@@ -29,7 +29,8 @@ object TodoParser {
             val remainder = text.substring(if (hasCheckbox) 6 else 2)
             if (!hasCheckbox && checkboxLike.containsMatchIn(remainder)) continue
             val payload = payload(remainder, previousTags) ?: continue
-            tasks += Todo(index, section.headerLineIndex, section.date, hasCheckbox && text[3] == 'x', payload.body, payload.tags, payload.form, hasCheckbox)
+            val entry = EntryText.parse(payload.body)
+            tasks += Todo(index, section.headerLineIndex, section.date, hasCheckbox && text[3] == 'x', entry.body, payload.tags, payload.form, hasCheckbox, entry.title)
             previousTags = payload.tags
             if (payload.form == TagForm.EXPLICIT) knownTags += payload.tags
         }

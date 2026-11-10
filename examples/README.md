@@ -38,6 +38,10 @@ change the selected file, so keep the repository original as a reference.
   parentheses and literal `#not-a-tag` in body text exercise wrapping and the
   distinction between leading metadata and body text. Body Markdown remains
   literal text; this fixture doesn't request a rich-text renderer.
+- **Titles (0.9.0+):** examples such as `Groceries. Buy milk...`, `Покупки. Купить...`
+  and `🌱. Move...` expose the optional title field. Most entries remain titleless.
+  Titles display with their bodies, are editable separately, and are retained
+  when copying an entry. See the complete [format specification](../docs/format.md).
 - **Creation/editing:** use the top creation row (today by default), or copy
   an entry using its return arrow. Copying prefills date, checkbox/completion,
   priority and tags but clears the body; change the date or tags before saving.

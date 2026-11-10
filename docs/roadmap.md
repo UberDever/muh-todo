@@ -24,9 +24,16 @@ Hands-on checks: priority picker gestures, numeric-tag persistence and tuple col
 on Pixel 10 Pro/GrapheneOS. The [100-entry widget showcase](../examples/README.md)
 also covers sorting, group order, age urgency, inheritance and all entry types.
 
+## Implemented in 0.9.0
+
+- Optional single-word titles using `Title. Body`, with a separate editor field.
+- Titles survive copying, draft restoration, moves and inheritance materialization.
+- [Consolidated format specification](format.md), the authoritative reference
+  for external readers.
+
 ## Postponed proposals
 
-- [Tile mode and optional entry titles](design/tile-mode-proposal.md): saved for
+- [Tile mode](design/tile-mode-proposal.md): saved for
   later on 2026-11-02. A spiral canvas and gestures were requested; the app-canvas
-  alternative to a home-screen widget has not been accepted. No title protocol
-  or tile UI is implemented.
+  alternative to a home-screen widget has not been accepted. Tile UI remains
+  postponed; optional titles are implemented independently in 0.9.0.

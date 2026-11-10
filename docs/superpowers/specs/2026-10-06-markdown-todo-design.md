@@ -3,6 +3,10 @@
 Date: 2026-10-06
 Status: approved by the user on 2026-10-06; implementation underway with hands-on feedback.
 
+Historical architecture/design document. The current, consolidated document
+format specification is [docs/format.md](../../format.md); it supersedes this
+document's format and behavior descriptions where they differ.
+
 ## Purpose and scope
 
 Build a small Android application and home-screen widget over a user-owned

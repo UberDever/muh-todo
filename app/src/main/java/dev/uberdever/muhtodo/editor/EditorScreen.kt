@@ -80,6 +80,10 @@ fun EditorScreen(state: EditorState, onChange: (EditorState) -> Unit, onSave: ()
                 }
             }
         }
+        OutlinedTextField(fields.title.orEmpty(), { onChange(state.copy(fields = fields.copy(title = it.ifEmpty { null }), error = null)) },
+            enabled = enabled, label = { Text(stringResource(R.string.entry_title)) },
+            supportingText = { Text(stringResource(R.string.entry_title_hint)) },
+            singleLine = true, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(fields.body, { onChange(state.copy(fields = fields.copy(body = it), error = null)) },
             enabled = enabled, label = { Text("Todo") }, singleLine = true, modifier = Modifier.fillMaxWidth())
         (state.error ?: validation?.takeIf { fields.body.isNotEmpty() })?.let { Text(it, color = MaterialTheme.colorScheme.error) }

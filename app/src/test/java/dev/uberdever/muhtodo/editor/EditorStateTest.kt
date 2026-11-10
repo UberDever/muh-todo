@@ -16,6 +16,31 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35], manifest = Config.NONE)
 class EditorStateTest {
+    @Test fun titleIsEditableCopiedWithEmptyBodyAndRestoredInDrafts() {
+        val snapshot = snapshot("""
+            ### 06.10.26
+            - [x] (#35 #work) Stuff. Make stuff good
+        """)
+        val ref = TaskRef.from(snapshot.document, snapshot.document.tasks.single())
+        val edit = EditorState.edit(snapshot, ref)
+        assertEquals("Stuff", edit.fields.title)
+        assertEquals("Make stuff good", edit.fields.body)
+        val entered = edit.copy(fields = edit.fields.copy(title = "Project", body = "A new body"))
+        assertNull(entered.validationError())
+        val restored = edit.restoreDraft(Bundle().also(entered::writeDraft))
+        assertEquals(entered.fields, restored.fields)
+        val copy = EditorState.createAfter(snapshot, ref)
+        assertEquals("Stuff", copy.fields.title)
+        assertEquals("", copy.fields.body)
+        assertTrue(copy.fields.completed)
+        assertEquals(listOf("#35", "#work"), copy.fields.tags)
+        val draft = copy.withDate(today.plusDays(1)).let { it.copy(fields = it.fields.copy(title = null, body = "New task")) }
+        val restoredCopy = copy.restoreDraft(Bundle().also(draft::writeDraft))
+        assertNull(restoredCopy.fields.title)
+        assertEquals(draft.fields, restoredCopy.fields)
+        assertNull(restoredCopy.validationError())
+    }
+
     @Test fun copiedCreationKeepsAllFieldsExceptBodyAndAllowsChangingDate() {
         val snapshot = snapshot("""
             ### 06.10.26

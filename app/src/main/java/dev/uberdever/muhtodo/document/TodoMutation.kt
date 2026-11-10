@@ -47,7 +47,7 @@ object TodoMutation {
         var source = document.source
         val successor = document.tasks.firstOrNull { it.sectionHeaderLine == task.sectionHeaderLine && it.lineIndex > task.lineIndex }
         if (successor?.form == TagForm.INHERITED) {
-            val oldFields = TaskFields(successor.date, successor.completed, successor.tags, successor.body, successor.hasCheckbox)
+            val oldFields = TaskFields(successor.date, successor.completed, successor.tags, successor.body, successor.hasCheckbox, successor.title)
             val content = checkedLine(oldFields, explicitForm(successor.tags), null)
             source = replaceLine(source, lines[successor.lineIndex], content)
         }
@@ -109,7 +109,7 @@ object TodoMutation {
             TagForm.EXPLICIT -> "(${fields.tags.joinToString(" ")}) "
             TagForm.INHERITED -> "^^^ "
         }
-        val line = checkbox + metadata + fields.body
+        val line = checkbox + metadata + fields.text
         val context = buildString {
             append("### ${fields.date.format(dateFormat)}\n")
             if (form == TagForm.INHERITED && precedingTags != null) {
@@ -120,7 +120,7 @@ object TodoMutation {
             append(line)
         }
         val parsed = TodoParser.parse(context).tasks.lastOrNull()
-        require(parsed != null && parsed.body == fields.body && parsed.tags == fields.tags && parsed.completed == fields.completed && parsed.form == form && parsed.hasCheckbox == fields.hasCheckbox) {
+        require(parsed != null && parsed.text == fields.text && parsed.tags == fields.tags && parsed.completed == fields.completed && parsed.form == form && parsed.hasCheckbox == fields.hasCheckbox) {
             "Body looks like task metadata. Add a checkbox or tags, or change the body."
         }
         return line
@@ -133,6 +133,7 @@ object TodoMutation {
     private fun validate(fields: TaskFields) {
         require(fields.date.year in 2000..2099) { "Date must be between 2000 and 2099." }
         require(fields.body.isNotBlank() && '\n' !in fields.body && '\r' !in fields.body) { "Enter a nonblank, single-line task." }
+        require(fields.title == null || EntryText.validTitle(fields.title)) { "Title must be one word, without spaces or periods." }
         require(fields.tags.all(TagSyntax::isValidToken)) { "Enter space-separated tags, e.g. #buy #cook." }
         require(fields.hasCheckbox || !fields.completed) { "An entry without a checkbox cannot have a completion state." }
     }

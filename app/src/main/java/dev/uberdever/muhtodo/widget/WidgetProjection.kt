@@ -34,7 +34,7 @@ object WidgetProjection {
                 task.tags == previousTags -> "^^^"
                 else -> task.tags.joinToString(" ")
             }
-            add(WidgetRow.Task(TaskRef.from(document, task), task.completed, task.body, label, task.hasCheckbox, task.tags,
+            add(WidgetRow.Task(TaskRef.from(document, task), task.completed, task.text, label, task.hasCheckbox, task.tags,
                 ChronoUnit.DAYS.between(task.date, today)))
             previousTags = task.tags
         }
